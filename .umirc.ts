@@ -8,23 +8,27 @@ export default defineConfig({
   mode: 'site',
   navs: [
     {
+      title: '📝Blog',
+      path: '/blog',
+    },
+    {
       title: 'JavaScript',
       path: '/js',
     },
     {
-      title: 'react',
+      title: 'React',
       path: '/react',
     },
     {
-      title: 'demo',
-      path: '/demo',
-    },
-    {
-      title: 'translation',
+      title: 'Translation',
       path: '/translation',
     },
     {
-      title: 'other',
+      title: 'Demo',
+      path: '/demo',
+    },
+    {
+      title: 'Other',
       path: '/other',
     },
   ],

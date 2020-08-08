@@ -32,4 +32,15 @@ export default defineConfig({
       path: '/other',
     },
   ],
+  styles: [`.__dumi-default-layout-hero { min-height: calc(100vh - 300px); }`],
+  extraBabelPlugins: [
+    [
+      'import',
+      {
+        libraryName: 'antd',
+        libraryDirectory: 'es',
+        style: 'css',
+      },
+    ],
+  ],
 });

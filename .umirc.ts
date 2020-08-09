@@ -20,6 +20,10 @@ export default defineConfig({
       path: '/react',
     },
     {
+      title: 'Network',
+      path: '/network',
+    },
+    {
       title: 'Translation',
       path: '/translation',
     },

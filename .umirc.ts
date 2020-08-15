@@ -1,5 +1,7 @@
 import { defineConfig } from 'dumi';
 
+const path = require('path');
+
 export default defineConfig({
   title: 'icodex',
   favicon: '/images/favicon.ico',
@@ -28,6 +30,10 @@ export default defineConfig({
       path: '/translation',
     },
     {
+      title: 'CSS',
+      path: '/css',
+    },
+    {
       title: 'Demo',
       path: '/demo',
     },
@@ -36,7 +42,6 @@ export default defineConfig({
       path: '/other',
     },
   ],
-  styles: [`.__dumi-default-layout-hero { min-height: calc(100vh - 300px); }`],
   extraBabelPlugins: [
     [
       'import',
@@ -46,5 +51,38 @@ export default defineConfig({
         style: 'css',
       },
     ],
+  ],
+  alias: {
+    '@': path.resolve(__dirname, './src'),
+  },
+  links: [
+    // {
+    //   rel: 'stylesheet',
+    //   href: '/css/style.css',
+    // },
+    {
+      rel: 'stylesheet',
+      href: '/css/prism.css',
+    },
+    // {
+    //   rel: 'stylesheet',
+    //   href:
+    //     '//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/styles/atom-one-dark.min.css',
+    // },
+  ],
+  theme: {
+    // '@c-text': '#c7c5c5',
+  },
+  scripts: [
+    {
+      src: '/scripts/prism.js',
+    },
+    // {
+    //   src:
+    //     '//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/highlight.min.js',
+    // },
+    // {
+    //   src: '/scripts/hljs.js',
+    // },
   ],
 });

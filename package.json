@@ -29,7 +29,9 @@
   },
   "dependencies": {
     "antd": "^4.5.2",
-    "react": "^16.12.0"
+    "highlight.js": "^10.1.2",
+    "react": "^16.12.0",
+    "react-transition-group": "^4.4.1"
   },
   "devDependencies": {
     "@umijs/preset-react": "1.x",

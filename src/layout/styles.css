@@ -1,0 +1,43 @@
+.__dumi-default-layout-heroP {
+  display: none;
+}
+
+.__dumi-default-layout-content {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 200px);
+}
+
+.icodex-layout {
+  flex: 1 0 auto;
+}
+
+.__dumi-default-layout-footer {
+  flex-shrink: 0;
+}
+
+.layout-content {
+  display: block;
+  text-align: center;
+}
+
+.layout-content img {
+  height: 160px;
+}
+
+.layout-link {
+  display: inline-block;
+  padding: 20px;
+}
+
+.layout-link:hover {
+  background: rgb(158 158 158 / 29%);
+}
+
+.layout-link span {
+  padding: 8px;
+}
+
+.layout-icon {
+  vertical-align: middle;
+}

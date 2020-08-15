@@ -1,6 +1,8 @@
 ---
 title: icodex | 🚀
 hero:
-  title: icodex
-footer: My blog Apache-2.0 Licensed | Copyright © 2020<br />Powered by [dumi](https://d.umijs.org)
+  title: null
+footer: Apache-2.0 Licensed | Copyright © 2020<br /> ![github pages](https://github.com/wood3n/icodex/workflows/github%20pages/badge.svg) - Powered by [dumi](https://d.umijs.org)
 ---
+
+<code src="@/layout/" inline />

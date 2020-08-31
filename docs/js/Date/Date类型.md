@@ -5,23 +5,35 @@ nav:
   order: 5
 ---
 
-### 时间术语
+## 时间概念
 
-#### GMT
+### GMT
 
 GMT，Greenwich Mean Time，是部分欧洲国家仍然在使用的格林尼治标准时间，是英国伦敦格林尼治天文台所在地当地的时间。
 
 ![image-20200628180912832](../../images/image-20200628180912832.png)
 
-#### UTC
+### UTC
 
 Coordinated Universal Time，协调世界时间，是由国际标准组织（ISO，Internatinal oganization of standard）制定并且测量的世界标准参考时间，它的值**和 GMT 接近**，相差不超过 0.9 秒，但是精度比 GMT 要更高。UTC 主要是为了统一全球时间表示，为了不区分时区表示同一时间，各个地区都是基于 UTC 时间偏移量来表示本地时间，例如中国地区`UTC +08:00`，美国`UTC -04:00`。
 
-#### [RFC 2822](https://tools.ietf.org/html/rfc2822#page-14)
+### 计算机系统的起始时间
 
+`19700101`，这是一个有趣的时间，被称为 Unix 时间；在 1971 年，《Unix Programmer's Manua》出版，将格林威治时间（GMT）`1971年1月1日0时0分0秒`作为系统的起始时间。后来为方便记忆和计算，起始时间修改成 1970 ；由于 Unix 是 32 位系统，最大能表示的数字为 32 个二进制 1 也就是`2^31`，这个数字存储的是秒，换算成年就是`2^31/(365*24*60*60) ≈ 68`，从 1970 年算起到 2038 年结束，所以就有了 2038 年问题的来源。
+
+### unix 时间戳
+
+时间戳时相对于 UTC 标准时间而言的，所以时间戳没有时区的分别，从 UTC`1970年01月01日00时00分00秒`到现在的 UTC 时间经过的毫秒数就是时间戳。
+
+## 时间格式标准
+
+### RFC 2822
+
+> [RFC 2822](https://tools.ietf.org/html/rfc2822#page-14)
+>
 > `[day-of-week , ] day month year hour ":" minute [ ":" second ] zone`
 
-这种形式规则如下：
+RFC 2822 是由互联网工程任务组（英语：Internet Engineering Task Force，缩写：IETF，IETF 是一个非盈利的，自愿加入的，并且创建出来的标准也是资源遵守的组织）制定的时间表示格式，这种形式规则如下：
 
 - `day-of-week`：取星期几的英文单词前三个字母，"Mon" / "Tue" / "Wed" / "Thu" / "Fri" / "Sat" / "Sun"
 - `day`：两位数，`[0, 30]`
@@ -31,23 +43,42 @@ Coordinated Universal Time，协调世界时间，是由国际标准组织（ISO
 - `time`：时分秒，秒可选
 - `zone`：`±`紧跟四位数字，表示时区
 
-```javascript
-'Fri 20 Jul 2018 00:00:00 +0800';
+```java
+6 Mar 17 21:22 UT
+6 Mar 17 21:22:23 UT
+6 Mar 2017 21:22:23 GMT
+06 Mar 2017 21:22:23 Z
+Mon 06 Mar 2017 21:22:23 z
+Mon, 06 Mar 2017 21:22:23 +0000
 ```
 
-#### ISO 8601
+### RFC 7213
 
-> `YYYY-MM-DDTHH:mm:ss.sss`
+> [HTTP-date](https://tools.ietf.org/html/rfc7231#section-7.1.1)
 >
-> `YYYY-MM-DDTHH:mm:ss.sssZ`
->
-> `YYYY-MM-DDTHH:mm:ss.sss+hhmm`
+> `Sun, 06 Nov 1994 08:49:37 GMT`
 
-国际标准 ISO 8601 是国际标准化组织（ISO）制定的表示日期和时间的方法，也就是以上形式。
+RFC 7213 是 ES 规范文档中出现的一种时间格式，也是 IETF 制定的，实际上和 RFC 2822 是一样的时间格式。
 
-对于表示时间字符串的形式 ISO8601 也有明确规定：
+### ISO 8601
 
-##### 日期格式
+> [Wikipedia - ISO_8601](https://en.wikipedia.org/wiki/ISO_8601)
+
+ISO 8601 是由国际标准化组织（ISO，International Organization for Standardization）制定的表示日期和时间的方式，上文说过 IETF 完全是一个自愿性的组织，所以标准不是那么严格，但是 ISO 是全球各个国家和地区公认的，走到哪都认可。
+
+ISO 8601 的时间表示一般形如以下三种形式：
+
+```shell
+YYYY-MM-DDTHH:mm:ss.sss
+
+YYYY-MM-DDTHH:mm:ss.sssZ
+
+YYYY-MM-DDTHH:mm:ss.sss+hhmm
+```
+
+对于表示时间字符串的形式 ISO8601 有明确规定如下：
+
+#### 日期格式
 
 - 年份，使用`YYYY`表示从[0000~9999]之间的年，超过`9999`或者小于`0000`的年份可以在前面用`+`或者`-`表示
 
@@ -69,8 +100,7 @@ YYMMDD; //也不允许
 --MMDD;
 ```
 
-- 周，使用`W`大写字母加上[01~53]的格式`Www`，后面可以加上`D`表示是一周的第几天，周只能放在年份后面，允许以下格式
-- 关于一年第一周的计算，通常是指一年第一个星期四所在的周
+- 周，使用`W`大写字母加上[01~53]的格式`Www`，后面可以加上`D`表示是一周的第几天，周只能放在年份后面，允许以下格式；关于一年第一周的计算，通常是指一年第一个星期四所在的周
 
 ```javascript
 YYYY - Www;
@@ -90,7 +120,7 @@ YYYYDDD;
 1981 - 095; // 1981-04-05
 ```
 
-##### 时间格式
+#### 时间格式
 
 在表示时间上，ISO 采用的都是 24 小时，基础格式是`[hh][mm][ss][.mmm]`，拓展格式是`[hh][mm][ss]`；`[hh]`在`[00~24]`之间，`[mm]`在`[00~59]`之间，`[ss]`在`[00~60]`之间，在最新的 2019 的规范中，`0`时不再使用`24:00`表示，而是使用`00:00`，使用这张格式需要注意日期需要提前一天；注意毫秒前面的`.`不能省略
 
@@ -112,7 +142,7 @@ hh;
 200704051430
 ```
 
-##### 时区表示
+#### 时区表示
 
 UTC 时间是全球一致的标准时间，ISO 使用 UTC 偏移量来表示时区，**强烈建议在表示时间的字符串中一定要带上`Z`表示这是标准的 UTC 时间，或者带上偏移量`±[hh][mm]`来表示和 UTC 时间的区别，如果什么都不到，将表示这个时间就是本地时间**。
 
@@ -140,39 +170,19 @@ UTC 时间是全球一致的标准时间，ISO 使用 UTC 偏移量来表示时�
 1995-12-17T03:24:00
 ```
 
-> [World_Time_Zones](https://upload.wikimedia.org/wikipedia/commons/8/88/World_Time_Zones_Map.png)
+![image-20200821104042881](../../images/image-20200821104042881.png)
 
-![image-20200724191132031](../../images/image-20200724191132031.png)
+## Date 类型
 
-#### 19700101
+> [Time Values and Time Range](https://tc39.es/ecma262/#sec-time-values-and-time-range)
 
-- 这是一个有趣的时间，被称为 Unix 时间；在 1971 年，《Unix Programmer's Manua》出版，将格林威治时间（GMT）`1971年1月1日0时0分0秒`作为系统的起始时间。后来为方便记忆和计算，起始时间修改成 1970 ；由于 Unix 是 32 位系统，最大能表示的数字为 32 个二进制 1 也就是`2^31`，这个数字存储的是秒，换算成年就是`2^31/(365*24*60*60) ≈ 68`，从 1970 年算起到 2038 年结束，所以就有了 2038 年世界末日的搞笑说法
-
-#### unix 时间戳
-
-时间戳时相对于 UTC 标准时间而言的，所以时间戳没有时区的分别，从 UTC`1970年01月01日00时00分00秒`到现在的 UTC 时间经过的毫秒数就是时间戳。
-
-#### devtool
-
-在 Chrome 的 devtool 执行`console`命令打印出来的字符串实际上是`Date`类型执行`toString()`方法得到的，所以看起来和 UTC 时间格式并不一致，注意不要和 UTC 标准时间格式搞混淆就行了。
-
-### Date 类型
-
-JS 的`Date`类型本质上是一个`Number`类型的整数，表示从 UTC 时间`1970年01月01日00时00分00秒`到该日期的**毫秒数**。虽然 Date 对象的核心时间值是 UTC 时间戳，但获取日期和时间或其组成部分的基本方法都是在本地（即主机系统）时区和偏移量下工作的。
+根据 ES 规范，JS 的`Date`类型的值本质上是一个`Number`类型的整数，表示从 UTC 时间`1970年01月01日00时00分00秒`到该日期的**毫秒数**。虽然 Date 对象的核心时间值是 UTC 时间戳，但获取日期和时间或其组成部分的基本方法都是在本地（即主机系统）时区和偏移量下工作的。
 
 根据 ES 文档的规定，日期范围是从 April 20, 271821 BCE ~ September 13, 275760 CE（BCE：公元前，CE：公元）。
 
-#### 构造函数
+### 构造函数
 
-要创建一个`Date`类型的对象，必须使用`new`调用构造函数；**如果单独使用构造函数，只会返回一个表示本地时区当前时间的字符串**。
-
-> `Date()`
-
-无论`Date()`里面传不传参数，传任何参数，都只会返回当前时区的时间字符串。
-
-```javascript
-console.log(Date()); //String : Tue Jul 28 2020 20:16:28 GMT+0800 (中国标准时间)
-```
+要创建一个`Date`类型的对象，必须使用`new`调用构造函数`Date`；
 
 > `new Date(year, month, [day, hours, minutes, seconds, ms])`
 >
@@ -220,7 +230,15 @@ let date = new Date(1595938968);
 // Mon Jan 19 1970 19:18:58 GMT+0800 (中国标准时间)
 ```
 
-##### Date.UTC()
+如果单独使用构造函数，只会返回一个表示本地时区当前时间的字符串，并且无论`Date()`这种形式的单独调用，括号里面传不传参数，传任何参数，都只会返回当前时区的时间字符串。
+
+```javascript
+Date(); //String : Tue Jul 28 2020 20:16:28 GMT+0800 (中国标准时间)
+```
+
+### 构造函数的静态方法
+
+#### Date.UTC()
 
 > `Date.UTC(year, [month, day, hours, minutes, seconds, ms])`
 >
@@ -248,7 +266,7 @@ let date = new Date(1595938968);
 console.log(Date.UTC(96, 1, 2, 3, 4, 5)); //823230245000
 ```
 
-##### Date.now()
+#### Date.now()
 
 > `Date.now()`
 >
@@ -260,7 +278,7 @@ console.log(Date.UTC(96, 1, 2, 3, 4, 5)); //823230245000
 console.log(Date.now()); //1595943465351
 ```
 
-##### Date.parse()
+#### Date.parse()
 
 > `Date.parse(dateString)`
 >
@@ -276,9 +294,9 @@ Date.parse('1995-12-17T03:24:00');
 Date.parse('Fri 20 Jul 2018 00:00:00 +0800');
 ```
 
-#### 方法
+### 实例方法
 
-##### 返回日期对象的指定部分
+以下返回日期对象的指定部分
 
 | 方法                        | 结果                                                                                         |
 | --------------------------- | -------------------------------------------------------------------------------------------- |
@@ -292,8 +310,6 @@ Date.parse('Fri 20 Jul 2018 00:00:00 +0800');
 | `dateObj.getMilliseconds()` | 根据当地时间返回指定日期的毫秒，`[0, 999]`                                                   |
 | `dateObj.getTime()`         | 基于标准 UTC 此刻的时间，返回 unix 时间戳，没有时区的区别                                    |
 | `dateObj.getUTCDate()`      | 基于指定日期加减偏移量后得到的 UTC 时间在月中的第几天，`[1, 31]`                             |
-
-##### getDate 和 getUTCDate
 
 以`getDate`和`getUTCDate`为例，区别 UTC 时间和时区偏移量时间，当地是中国时区，相对于 UTC 时间偏移量是`UTC+0800`，也就是比 UTC 快 8 小时。
 
@@ -317,16 +333,37 @@ console.log(date.getDate()); // 17
 console.log(date.getUTCDate()); // 17
 ```
 
-##### toString
+### DateToString
 
-| 方法                         | 转换结果                                         |
-| ---------------------------- | ------------------------------------------------ |
-| `dateObj.toString`           | Fri Jul 24 2020 22:22:44 GMT+0800 (中国标准时间) |
-| `dateObj.toDateString`       | Fri Jul 24 2020                                  |
-| `dateObj.toTimeString`       | Fri Jul 24 2020                                  |
-| `dateObj.toISOString`        | 2020-07-24T14:22:44.600Z                         |
-| `dateObj.toUTCString`        | Fri, 24 Jul 2020 14:22:44 GMT                    |
-| `dateObj.toJSON`             | 2020-07-24T14:22:44.600Z                         |
-| `dateObj.toLocaleDateString` | 下午 10:22:44（浏览器语言设定是中文）            |
-| `dateObj.toLocaleTimeString` | 下午 10:22:44（浏览器语言设定是中文）            |
-| `dateObj.toLocaleString`     | 2020/7/24 下午 10:22:44（浏览器语言设定是中文）  |
+以下是`Date`实例上的转字符串方法
+
+| 方法                         | 转换结果                              | 示例                                             |
+| ---------------------------- | ------------------------------------- | ------------------------------------------------ |
+| `dateObj.toString`           | 获取日期，时间，时区字符串的串接结果  | Fri Jul 24 2020 22:22:44 GMT+0800 (中国标准时间) |
+| `dateObj.toDateString`       | 获取日期部分                          | Fri Jul 24 2020                                  |
+| `dateObj.toTimeString`       | 获取时间部分                          | 10:34:53 GMT+0800 (中国标准时间)                 |
+| `dateObj.toISOString`        | 获取 ISO 格式的字符串                 | 2020-07-24T14:22:44.600Z                         |
+| `dateObj.toUTCString`        | 获取 RFC 7231 定义的 HTTP-date 的形式 | Fri, 24 Jul 2020 14:22:44 GMT                    |
+| `dateObj.toJSON`             | 获取 ISO 格式的字符串                 | 2020-07-24T14:22:44.600Z                         |
+| `dateObj.toLocaleDateString` |                                       | 下午 10:22:44（浏览器语言设定是中文）            |
+| `dateObj.toLocaleTimeString` |                                       | 下午 10:22:44（浏览器语言设定是中文）            |
+| `dateObj.toLocaleString`     |                                       | 2020/7/24 下午 10:22:44（浏览器语言设定是中文）  |
+
+在 Chrome 的 devtool 执行`console`命令打印出来的日期字符串实际上是`Date`类型执行`toString()`方法得到的，所以看起来和 UTC 时间格式并不一致，注意不要和 UTC 标准时间格式搞混淆。
+
+### DateToNumber
+
+| 方法                   | 结果                                                            |
+| ---------------------- | --------------------------------------------------------------- |
+| `Date.now()`           | 返回自 1970 年 1 月 1 日 00:00:00 (UTC) 到当前 UTC 时间的毫秒数 |
+| `new Date().valueOf()` | 返回自 1970 年 1 月 1 日 00:00:00 (UTC) 指定 UTC 时间的毫秒数   |
+| `Number(new Date())`   | 强制类型转换                                                    |
+| `+new Date()`          | 一元`+`操作符会对后面的操作数执行 ToNumber 的转换               |
+
+`Date`不是原始类型，属于`Object`类型，要对`Date`转换成`Number`类型的的时候，会按照以下步骤进行：
+
+- 先执行规范定义的抽象操作[ToPrimitive(dateObj,number)](https://tc39.es/ecma262/#sec-toprimitive)将`Date`转原始类型，ToPrimitive 内部会获取类型的`@@toPrimitive`方法，也就是获取[`Date.prototype[@@toPrimitive]`](https://tc39.es/ecma262/#sec-date.prototype-@@toprimitive)；
+- 接下来`Date.prototype[@@toPrimitive]`内部执行的时候会将传入的转换类型参数*number*再传递给 ES 规范定义的抽象操作[OrdinaryToPrimitive](https://tc39.es/ecma262/#sec-ordinarytoprimitive)去执行；
+- OrdinaryToPrimitive 根据传入*number*，便先执行实例上的`valueOf`方法，然后再执行`toString`方法，所以使用`Number`和`+`操作符执行的强制类型转换可以将`Date`类型的值转换成`Number`
+
+所以，理论上所有能对操作数调用抽象操作[ToNumber](https://tc39.es/ecma262/#sec-tonumber)的都能将`Date`类型的值转换成`Number`。

@@ -13,7 +13,7 @@ export default class extends Component {
         <div className="layout-content">
           <img src="/images/redfat.png" />
           <Title>icodex</Title>
-          <Title level={2}>Front-end development assistance</Title>
+          <Title level={2}>Front-end development cookbook</Title>
           <Title level={3}>
             <a href="/blog" className="layout-link">
               <span className="layout-icon">

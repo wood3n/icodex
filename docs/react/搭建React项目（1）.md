@@ -1,10 +1,14 @@
 ---
-title: 搭建 React 脚手架（1）配置 webpack
+title: 搭建React项目（1）
 ---
 
 > [Tutorial: How to set up React](https://www.valentinog.com/blog/babel/)
 
 ## 配置 webpack
+
+### webpack 介绍
+
+根据 webpack 官网的解释来说，它是一个现代 JS 应用的 bundler，翻译过来就是打包器。webpack 会根据模块之间的依赖最终合并模块形成一个或者多个 bundles。
 
 安装 webpack 脚手架，以及命令行工具
 
@@ -46,7 +50,9 @@ root.appendChild(p);
 
 新建一个`webpack.config.js`配置文件，配置项目入口和输出目录。`entry`的默认值其实就是`./src/index.js`，而`output`的默认值也是`./dist/main.js`。
 
-`__dirname`和`path.resolve`都是 nodejs 里的命令，`__dirname`表示当前模板的目录名，用在`webpack.config.js`这个文件里，也就是项目的根目录，`path.resolve`根据传入的路径从右往左构造绝对路径值，最终结果就是`/dist`。也可以直接写成本地的绝对路径值，但是这样在共享代码的时候会带来困难。
+webpack 本身遵循 CommonJS 模块规范，所以使用`require`导入模块，`module.exports`导出模块。
+
+`__dirname`表示当前模板的目录名，用在`webpack.config.js`这个文件里，也就是项目的根目录，`path.resolve`根据传入的路径从右往左构造绝对路径值，最终结果就是`/dist`。也可以直接写成本地的绝对路径值，但是这样在共享代码的时候会带来困难。
 
 ```javascript
 const path = require('path');
@@ -64,10 +70,6 @@ module.exports = {
 
 执行`webpack`命令以后，在终端看到这样的提示就表示打包成功，接下来可以去`dist`目录找`index.html`使用浏览器打开，看到 html 页面根据 js 脚本写入的片段就完成了 webpack 初始化阶段配置。
 
-```javascript
-webpack;
-```
-
 ![image-20200816181805351](../images/image-20200816181805351.png)
 
 ## 配置 React
@@ -84,11 +86,17 @@ yarn add react react-dom
 
 > [Babel 是什么？](<[https://www.babeljs.cn/docs/#jsx-%E4%B8%8E-react](https://www.babeljs.cn/docs/#jsx-与-react)>)
 
-根据 babel 官网的介绍，Babel 主要用于将 ECMAScript 2015+ 版本的代码转换为向后兼容的 JavaScript 语法，以便能够运行在当前和旧版本的浏览器或其他环境中，所以根据 Babel 官网的指示，安装相关组件：
+根据 babel 官网的介绍，Babel 主要用于将 ECMAScript 2015+ 版本的代码转换为向后兼容的 JavaScript 语法，以便能够运行在当前和旧版本的浏览器或其他环境中。
 
-- @babel/core：Babel 的核心代码，负责将源代码转换成 AST，AST 是代码的抽象语法树，类似于一个 JSON 一样的树状结构，方便 Babel 的插件来解析 AST 进行代码转换
-- @babel/preset-env：`@babel/preset-env`是 Babel 团队提供的负责将 ECMAScript 2015+ 版本的代码转换为向后兼容的 JavaScript 语法。[plugin](https://www.babeljs.cn/docs/plugins)一般是一些小的单个的转换代码的插件，可以针对源代码中单个的语法引入单个的插件进行转换，例如你只想转换代码中的箭头函数，可以使用`@babel/plugin-transform-arrow-functions`；而[preset](https://www.babeljs.cn/docs/presets)则是整合多个 plugin 的合集，方便配置使用，省得那么多的 plugin 一个一个添加和配置。Babel 这样做的好处当然也是十分明显的，拆分除 plugin 方便在 ES 发布新的语法规范时进行维护，同时引入单个 plugin 比整体引入 preset 的性能也更好！
-- [@babel/preset-react](https://babeljs.io/docs/en/babel-preset-react)：负责转换 React 的 JSX 代码，以及支持 React 的 API，例如`React.createxxx`等内容
+Babel 提供的有各种`plugin`用于转换不同的语法，`plugin`的存在让 Babel 可以轻松地应对本地高版本的 ES 代码，如果你想使用最新的 ES 语法，需要引入对应的`plugin`来转换，例如你只想转换代码中的箭头函数，可以使用`@babel/plugin-transform-arrow-functions`。
+
+同时 Babel 还提供`preset`的功能，将一些`plugin`集合起来，通过一个简单的`presets`配置，就可以使用一些`plugin`的功能，但是`presets`同时引入多个`plugin`，里面很可能存在不需要的`plugin`配置，从而导致性能上的损失。
+
+所以根据 Babel 官网的指示，安装相关组件：
+
+- [`@babel/core`](https://babeljs.io/docs/en/core-packages)：Babel 的核心模块，将其他 Babel 的核心代码封装到一块，用于和其他插件进行集成开发；例如将源代码转换成 AST，AST 是代码的抽象语法树，类似于一个 JSON 一样的树状结构，方便 Babel 的插件来解析 AST 进行代码转换
+- [`@babel/preset-env`](https://babeljs.io/docs/en/babel-preset-env)：负责将 ECMAScript 2015+ 版本的代码转换为向后兼容的 JavaScript 语法
+- [`@babel/preset-react`](https://babeljs.io/docs/en/babel-preset-react)：负责转换 React 的 JSX 代码，以及支持 React 的 API 的命名，例如`React.createxxx`等内容
 
 ```shell
 yarn add @babel/core @babel/preset-env @babel/preset-react -D
@@ -123,6 +131,8 @@ module: {
         loader: 'babel-loader',
         options: {
           presets: ['@babel/preset-env', '@babel/preset-react'],
+          // 如果在class组件中使用属性或者箭头函数之类的语法，必须要引入这个plugin
+          plugins: ['@babel/plugin-proposal-class-properties'],
         },
       },
     },

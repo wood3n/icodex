@@ -369,7 +369,7 @@ CORS，Cross-Origin Resource Sharing，跨域资源共享是 W3C 针对跨源资
 
 浏览器会将使用`XMLHttpRequest`或者`fetch`发起的请求分为简单请求和非简单请求。
 
-在简单请求中，浏览器会自动根据`XMLHttpRequest`的请求添加`Origin`请求头参数，因此要想允许跨域请求，只需要服务端添加响应头参数`Access-Control-Allow-Origin`即可。
+在简单请求中，浏览器会根据`XMLHttpRequest`的请求自动添加`Origin`请求头参数，在发出请求并获取响应之后，会根据响应头部的`Access-Control-Allow-Origin`字段判断当前域是否在服务器允许跨域请求的范围之内。因此要想允许跨域请求，只需要服务端设置响应头参数`Access-Control-Allow-Origin`即可。
 
 > 请求头部自动添加
 >
@@ -386,7 +386,7 @@ CORS，Cross-Origin Resource Sharing，跨域资源共享是 W3C 针对跨源资
 简单请求只需要两步即可收到响应：
 
 - 浏览器添加`Origin`头部信息，发送请求；
-- 服务器返回响应头`Access-Control-Allow-Origin`，浏览器收到后判断是否允许跨域请求，不允许则报错
+- 服务器返回响应头`Access-Control-Allow-Origin`，**浏览器收到后判断是否允许跨域请求，不允许则报错**
 
 ![image-20200802001326853](../images/image-20200802001326853.png)
 
@@ -413,16 +413,16 @@ CORS，Cross-Origin Resource Sharing，跨域资源共享是 W3C 针对跨源资
 
 - 请求中未使用[`ReadableStream`](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream) 对象
 
-##### 预检请求
+##### 非简单请求
 
-**非简单请求**满足以下任一情况：
+**非简单请求**就是不符合简单请求必须满足的所有条件，非简单请求一般是以下任一情况：
 
 - `PUT`，`DELETE`等方法
 - 常用的`Content-Type`：
   - `application/json`
   - `text/xml`
 
-非简单请求发起时，浏览器会先使用`OPTIONS`方法发起一个预检请求到服务器，以获知服务器是否允许该请求。只有服务器允许，浏览器才会进行正式的请求，否则就直接报错了。
+非简单请求发起时，浏览器会先使用`OPTIONS`方法发起一个**预检请求**到服务器，根据服务器返回的响应头部`Access-Control-Allow-Origin`以获知服务器是否允许该请求。
 
 > 预检请求头额外参数
 >

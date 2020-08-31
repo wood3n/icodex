@@ -5,23 +5,23 @@ nav:
   order: 1
 ---
 
-### ES 语言类型
+## ES 语言类型
 
 按照 ES 规范文档的描述，将数据类型分成两大类：ES 语言类型，包含原始值类型和对象类型，是在 JS 语言中直接操作的类型；ES 规范类型，是抽象的描述语言执行层面的元数据类型。
 
 ES 语言类型包含八种：`Undefined, Null, Boolean, String, Symbol, Number, BigInt, and Object`，其中`Object`下又包含内置对象类型，例如`Array`，`Date`等
 
-#### 原始值类型
+### 原始值类型
 
 对于七种类型`Undefined`，`Null`，`Boolean`，`Number`，`BigInt`，`Symbol`，`String`，它们的值在 ES 规范中被称为原始值（primitive value）
 
-##### ==Null==
+#### Null
 
 > `null`和`undefined`什么区别
 
 - 从含义上解释的话，`null`是空对象指针，而`undefined`是声明了但是没有初始化的变量值，`undefined`会被 JS 自动处理，但是`null`只会由人为赋值产生
 
-##### ==Undefined==
+#### Undefined
 
 - Undefined 类型的值只有一个，一般可以用全局变量`undefined`来表示；
 - 需要注意的是`undefined`是一个全局变量而不是关键字，在函数作用域内是可以修改的；因此某些代码规范推荐使用`void 0`来表示`undefined`值（`void x`的`void`后面加任何表达式或值都是`undefined`）
@@ -35,7 +35,7 @@ foo();
 console.log(undefined); //undefined
 ```
 
-##### ==Boolean==
+#### Boolean
 
 - 这里有一份类型转换表
 
@@ -47,7 +47,7 @@ console.log(undefined); //undefined
 | Null      |                  | null      |
 | Object    | 所有对象         |           |
 
-##### ==String==
+#### String
 
 - JS 字符串是一组由 UTF-16 编码字符组成的字符集，而字符串的长度表示字符串内含有的 16 位值的个数
 - String 类型的字符串有最大长度`2^53 - 1`，大约`9PB`，但是这个长度并不是表面上显示的字符的个数；JS 采用的是 UTF-16 编码的 Unicode 字符集，最常用的 Unicode 字符都是 16 位编码的单个字符，对于不能用 16 位表示的，用两个 16 位表示，也就是有时候你看到的一个字符的长度其实是 2 个 16 位值组成的，长度也就是 2
@@ -142,7 +142,7 @@ Number('100a'); // NaN
 Number('-Infinity'); //-Infinity
 ```
 
-##### ==Number==
+#### Number
 
 > `NaN`，not a number，这个数值设计是为了 Number 类型的计算不会报错来的
 
@@ -163,12 +163,12 @@ Number('-Infinity'); //-Infinity
 
 - 是 JS 里最接近 `0` 的正值，而不是最小的负值，约为 `5e-324`，小于`Number.MIN_VALUE`的值会被转换成`0`
 
-##### ==BigInt==
+#### BigInt
 
 - ES2020 新增了`BigInt`类型，表示大于`Number.MAX_SAFE_INTEGER`的整数，也就是大于`2^53-1`的整数值，从而可以为更大的数值提供精度
 - 在过去的 JS 里，超过了`Number.MAX_SAFE_INTEGER`的整数会无法保证数值的精度，有些数值在从十进制转到 64 位二进制的过程中会丢失精度，有了`BigInt`类型就能操作更大数字的计算，在科学和金融业务方面应用应该更多
 
-##### ==Symbol==
+#### Symbol
 
 - ES6 引入一个基本类型，目前**仅用作对象属性的标识符**，从而防止对象属性名的冲突
 - 尽管`Symbol`是类型，但是不支持`new Symbol()`语法，只能通过`Symbol(xxx)`来创建；括号内通常传入字符串或者其他类型，其他类型会被转成字符串然后调用
@@ -186,7 +186,7 @@ obj[sym]; // 1
 Symbol('foo') === Symbol('foo'); // false
 ```
 
-#### 对象值类型
+### 对象值类型
 
 对于`Object`及其衍生的内置标准对象类型，都属于对象值类型，它们可以添加键值对属性
 
@@ -196,11 +196,11 @@ Symbol('foo') === Symbol('foo'); // false
 
 ES 规范类型是描述 JS 语言实现层面的元数据类型，也可以说是实现 JS 引擎需要关注的内容，例如闭包（Closure），作用域（Environment Record）等，无法在 JS 代码里使用这里描述的任何属性和方法。
 
-### 类型转换
+## 类型转换
 
 > [Type Conversion](https://tc39.es/ecma262/#sec-type-conversion)
 
-#### 装箱转换
+### 装箱转换
 
 在 ES 时期，如果按照 JS 高级程序设计过去的描述，`String`，`Number`，`Boolean`，`Symbol`这些属于基本包装类型，也就是当使用它们的值调用方法时，会创建一个该类型的对象，从而能使用原型上的方法。
 
@@ -232,7 +232,7 @@ str.prop = 'string';
 console.log(str.prop); // "string"
 ```
 
-##### ToObject
+#### ToObject
 
 > [ToObject ( argument )](https://tc39.es/ecma262/#sec-toobject)
 >
@@ -259,9 +259,7 @@ ES 规范文档里并没有拆箱装箱这种说法，但是描述了`ToObject` 
 
 ![image-20200727163210265](../../images/image-20200727163210265.png)
 
-#### 拆箱转换
-
-##### ToPrimitive
+### ToPrimitive
 
 > [`ToPrimitive(input, preferredType)`](https://tc39.es/ecma262/#sec-toprimitive)
 >
@@ -289,7 +287,7 @@ console.log(new Date()[Symbol.toPrimitive]('number'));
 - 对于其他对象，如果有`@@toPrimitive`这个方法，就获取其值并判断是否为原始值类型，是的话就返回结果；不是就`TypeError`
 - 其实大部分内置对象都没有`@@toPrimitive`这个方法，那么他们只能走下一步去执行`OrdinaryToPrimitive`这步
 
-##### OrdinaryToPrimitive
+#### OrdinaryToPrimitive
 
 将普通对象转成`String`或者`Number`。
 
@@ -300,7 +298,7 @@ console.log(new Date()[Symbol.toPrimitive]('number'));
 
 ![image-20200725153918261](../../images/image-20200725153918261.png)
 
-##### @@toPrimitive
+#### @@toPrimitive
 
 > `@@toPrimitive(hint)`
 >
@@ -350,7 +348,7 @@ obj == 'default'; // true
 String(obj); // 'str'
 ```
 
-#### ToString
+### ToString
 
 > [ECMA - ToString](https://tc39.es/ecma262/#sec-tostring)
 
@@ -370,7 +368,7 @@ String(obj); // 'str'
 - 正无穷，返回`Infinity`；
 - 如果是负值，数字部分`ToString`再和负号`-`做字符串连接
 
-#### ToNumber
+### ToNumber
 
 > [ECMA - ToNumber](https://tc39.es/ecma262/#sec-tonumber)
 
@@ -410,7 +408,7 @@ String(obj); // 'str'
 
 ![image-20200728145244262](../../images/image-20200728145244262.png)
 
-#### ToBoolean
+### ToBoolean
 
 > [ToBoolean](https://tc39.es/ecma262/#sec-toboolean)
 
@@ -424,20 +422,22 @@ String(obj); // 'str'
 | BigInt    | 0n => false<br />其它都是 true       |
 | Object    | true                                 |
 
-JS 的假值只有以下 6 个：
+#### 假值
+
+JS 的假值只有以下 7 个：
 
 ```javascript
 null
 undefined
 空字符串""
-0
+±0
 NaN
 0n
 ```
 
-### 类型判断
+## 类型判断
 
-#### typeof
+### typeof
 
 `typeof`返回操作数的类型名称字符串，它没什么原理不原理的，返回值是直接在规范中给出来的，如下表：
 
@@ -454,7 +454,7 @@ NaN
 | 其它引用类型 | **"object"**   |
 | class        | "function"     |
 
-#### instanceof
+### instanceof
 
 > `obj instanceof Constructor`
 >
@@ -505,7 +505,7 @@ function _instanceof(this, myClass) {
 }
 ```
 
-#### Object.prototype.toString
+### Object.prototype.toString
 
 > [ECMA - Object.prototype.toString ( )](https://tc39.es/ecma262/#sec-object.prototype.tostring)
 
@@ -574,7 +574,7 @@ function _typeof(obj) {
 }
 ```
 
-#### Object()
+### Object()
 
 > [ToObject ( argument )](https://tc39.es/ecma262/#sec-toobject)
 
@@ -584,7 +584,7 @@ function _typeof(obj) {
 Object(obj) === obj; //true
 ```
 
-#### 其它类型内置的一些方法
+### 其它类型内置的判断方法
 
 > `Array.isArray()`判断数组
 

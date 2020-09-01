@@ -242,7 +242,7 @@ yarn add mini-css-extract-plugin -D
 
 修改上文的`style-loader`配置，同时配置`mini-css-extract-plugin`内置的 loader 和 plugin
 
-```JavaScript
+```javascript
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = function (env) {

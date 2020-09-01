@@ -96,7 +96,70 @@ var b = wrapper();
 - 通过改变组件的`state`卸载内部的子组件
 - 通过路由跳转
 
-组件卸载的时候，如果不在`componentWillUnmount`生命周期中处理一些事件或者方法，很容易造成内存泄漏：
+一般来说，如果在 React 的`componentWillUnmount`直接执行`setState`操作，React 会有下面的提示：
+
+```jso
+Can't perform a React state update on an unmounted component.
+This is a no-op, but it indicates a memory leak in your application.
+To fix, cancel all subscriptions and asynchronous tasks in the componentWillUnmount method”
+```
+
+但是还有一种情况是可能因为事件冒泡机制触发了其他事件监听器导致间接去执行`setState`，例如下面的一个业务组件，我在子组件中想通过父组件传递的方法销毁自身，然后因为事件冒泡机制，点击事件冒泡到了上层`Collapse`，触发了`Collapse`的`onChange`，间接调用了`handleExpand`去`setState`，所以也出现了上述错误。
+
+```jsx | pure
+import {Collapse} from "antd";
+
+// 父组件
+class Parent extends React.Component {
+	handleClose = () => {
+    //销毁弹窗面板
+    ...
+  }
+}
+
+// 子组件
+class ColPanel extends React.Component {
+    state = {
+        expand: false
+    }
+
+    //面板展开状态设置
+    handleExpand = () => {
+        this.setState({
+            expand: !this.state.expand
+        })
+    }
+
+    handleClose = e => {
+      	//阻止冒泡
+        e.stopPropagation();
+
+      	//修改父组件内部状态，达到卸载当前组件的目的
+        this.props.onClick();
+    }
+
+    render() {
+        const { Panel } = Collapse;
+        return (
+            <Collapse
+                expandIconPosition='left'
+                onChange={this.handleExpand}
+            // bordered={false}
+            >
+                <Panel
+                    header={(<span>测试测试测试测试</span>)}
+                    key="1"
+                    extra={this.state.expand && (<Icon type="close-circle" theme="twoTone" onClick={this.handleClose} />)}
+                >
+                    <div>This console application produces the following o</div>
+                </Panel>
+            </Collapse>
+        );
+    }
+}
+```
+
+还有许多情况，在组件卸载的时候，如果不在`componentWillUnmount`生命周期中处理一些事件或者方法，很容易造成内存泄漏：
 
 - **事件监听**，最常见的当前组件内部监听`scroll`事件，但是卸载组件以后，`scroll`事件监听仍然存在，对于其它组件来说，这是无用的，所以需要在添加事件监听的组件内部使用`removeEventListener`移除掉；
 - **定时器**，和上面是一个道理，通过`clearTimeout`或者`clearInterval`清除；
@@ -126,9 +189,11 @@ class News extends Component {
     axios
       .get('xxx')
       .then(result =>
-        this.setState({
-          news: result.data.hits,
-        }),
+        if(this._isMounted){				//判断是否执行
+          this.setState({
+            news: result.data.hits,
+          }),
+    		}
       );
   }
 

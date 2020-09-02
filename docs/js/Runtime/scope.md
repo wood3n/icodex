@@ -125,7 +125,7 @@ ES6 还提出了`class`关键字，用来声明类，在类的内部实际上也
 
 函数作用域本身没什么特殊性，但是上文提到 JS 在执行之前会有编译阶段，函数体内会发生声明提前的操作。
 
-###模块作用域
+### 模块作用域
 
 ES6 同时也引入了模块文件的属性，对`script`标签使用`type=module`的属性，就会将标识符的声明限定在`script`的标签内，在之前的 HTML 文件中，多个`script`定义的变量会相互影响，如果使用`type=module`属性就可以避免这种情况
 
@@ -148,11 +148,11 @@ ES6 同时也引入了模块文件的属性，对`script`标签使用`type=modul
 
 但是`type=module`的兼容性不好，IE 全家表示不支持。
 
-###全局作用域
+### 全局作用域
 
 再往模块文件之上就是全局作用域，多个 script 标签它们都是在一个全局作用域下，具有全局作用域的变量和函数在代码中的任何位置都有定义。
 
-##作用域链
+## 作用域链
 
 每个函数体内都有一个私有属性`[[scope]]`，保存着当前函数执行上下文的活动对象和外层作用域内的变量对象，在函数体内遇到变量时，就会按照作用域链一级一级搜索变量声明的位置。
 
@@ -205,7 +205,7 @@ foo();
 console.log(a); // 2
 ```
 
-###声明提升
+### 声明提升
 
 声明提升（Declarations Hoisted），**是指使用`var`声明的变量或者使用`function`声明的函数在函数作用域或者全局作用域中都具有定义的现象**。函数在声明前调用不会抛出未找到引用地址的错误`ReferenceError`，而变量在声明前访问也不会报错，会得到`undefined`。
 
@@ -258,7 +258,7 @@ if (true) {
 }
 ```
 
-##使用 devtool 观察 scope
+### 使用 devtool 观察 scope
 
 变量的作用域在 Chrome 的 devtool 中是可以被观察的，devtool-source-Scope 窗格可以观察当前变量所在作用域的情况，具体见[按作用域查看属性](https://developers.google.com/web/tools/chrome-devtools/javascript/step-code?hl=zh-cn#scope)，以下面这段代码的执行为例
 
@@ -290,7 +290,7 @@ changeColor();
 
 ![image-20200713221743747](../../images/image-20200713221743747.png)
 
-##闭包
+## 闭包
 
 闭包翻译自`Closure`，这是一个从字面意思理解容易掉坑里的词语，它不是 JS 独有的概念，ES 规范里也没有提及它，具体可以参看以下 wiki 中对闭包的解释——[Closure(computer science)]([https://zh.wikipedia.org/wiki/%E9%97%AD%E5%8C%85\_(%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6)](<https://zh.wikipedia.org/wiki/闭包_(计算机科学)>)，我觉得它算是一种编程手段，一种解决问题的方式。
 
@@ -316,11 +316,11 @@ f(1)();
 
 ![image-20200714180526271](../../images/image-20200714180526271.png)
 
-###闭包应用场景
+### 闭包应用场景
 
 在日常的代码中使用闭包的场景非常多，可能在使用函数的地方用了以后都没意思到这是一个闭包，例如下文中 DOM 事件回调函数的处理，如果不了解闭包，实在无法理解为什么循环内声明的函数都会共享一个变量。
 
-####setTimeout 回调
+#### setTimeout 回调
 
 包括 DOM 事件回调，计时器回调，或者将函数作为参数传递到其它函数中执行之类的，如果使用到了包裹函数中的变量，那么就构成闭包了，当然这时候就要注意是否使用循环的问题了
 
@@ -346,7 +346,7 @@ function f(fn) {
 f(wapper(1)); // 1
 ```
 
-####实现私有成员
+#### 实现私有成员
 
 ```javascript
 var Counter = (function() {
@@ -375,7 +375,7 @@ Counter.decrement();
 console.log(Counter.value());
 ```
 
-####lazy loading function
+#### lazy loading function
 
 延迟加载函数，在 JS 高级程序设计中被称为**惰性载入函数**，是一种提高代码性能的编程手段。这种情况多**使用在 API 兼容性判断**上，当需要判断是否是浏览器支持的 API 时，往往需要使用`if...else`的情况来选择最终使用的 API，这时候为了避免每次调用都会去一个一个判断，那么就可以使用惰性载入函数。
 
@@ -394,7 +394,7 @@ function _setPrototypeOf(o, p) {
 }
 ```
 
-####实现高阶函数
+#### 实现高阶函数
 
 比如说实现`Function.prototype.bind()`方法，`bind`接收一个`this`值和参数列表，返回一个指定了`this`值的新函数
 
@@ -427,9 +427,9 @@ var curriedAdd = curry(add, 5, 12);
 curriedAdd(); // 17
 ```
 
-###闭包注意点
+### 闭包注意点
 
-####在循环中创建闭包
+#### 在循环中创建闭包
 
 闭包只会取得包含函数中任何变量的最后一个值，我个人觉得最容易发生这种错误的场景是在 DOM 事件回调函数声明中
 
@@ -521,7 +521,7 @@ curriedAdd(); // 17
 })();
 ```
 
-####内存占用
+#### 内存占用
 
 首先强调，闭包没有内存泄漏的问题，JS 高级程序设计中指出的是过去 IE9 之前的 BUG 了，其它的浏览器没有这个问题。但是闭包确实有内存占用的问题，但是以 V8 为例，基于标记清除的垃圾回收方式，闭包也会自动回收那些在闭包中没有找到引用项的作用域中的变量，如下
 
@@ -541,7 +541,7 @@ curriedAdd(); // 17
 
 ![image-20200715011228002](../../images/image-20200715011228002.png)
 
-##this
+## this
 
 > [this - MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this)
 >
@@ -558,7 +558,7 @@ curriedAdd(); // 17
 - 通过`call`，`apply`调用的函数，`this`指向传入的对象；通过`bind`创建的新函数，内部`this`也被绑定到传入的对象
 - 通过`new`将函数作为构造函数调用，其内部`this`指向新创建的对象
 
-###全局环境
+### 全局环境
 
 在全局环境中使用`this`，不论什么严格非严格，`this`始终指向全局对象；也就是使用`this`添加的属性，函数等会被附加在下面这些全局对象中处理
 
@@ -572,11 +572,11 @@ curriedAdd(); // 17
 console.log(this === window); //true
 ```
 
-###函数体内
+### 函数体内
 
 在函数内部的`this`，需要根据函数被调用的位置来解析
 
-####函数被单独调用
+#### 函数被单独调用
 
 只要看到函数被单独调用的时候，非严格模式下`this`指向`window`；而在`"use strict";`指明严格模式的情况下禁止函数体内的`this`指向，此时`this`的值是`undefined`
 
@@ -618,8 +618,6 @@ var o = {
 
 o.m();
 ```
-
-####匿名函数
 
 匿名函数也是仍然要看函数调用的方式，匿名函数作为`setTimeout`的回调函数时，相当于单独被调用，所以内部`this`指向全局对象
 
@@ -777,11 +775,11 @@ var obj = {
 obj.m();
 ```
 
-###call/apply
+#### call/apply
 
 对于`call`，`apply`这两个方法都是直接指定经它们调用时函数内部的`this`，观察语句就能得知
 
-###bind
+#### bind
 
 `bind`会根据指定的`this`值创建一个新函数，需要注意的是经过`bind`创建的新函数，内部`this`无法通过对象调用，`call`，`apply`这些方法修改，如果支持的话，可以通过`new`调用来修改
 
@@ -905,7 +903,7 @@ var button = document.querySelector('#btn');
 button.addEventListener('click', handleClick);
 ```
 
-### this 的传递
+## this 的传递
 
 > [ES6 子类有没有自己的 this](https://www.zhihu.com/question/378032472/answer/1089697467)
 
@@ -935,7 +933,7 @@ console.log(person); // {name: "sub", age: 21}
 var result = Reflect.construct(SuperType, arguments, SubType);
 ```
 
-### this 指向变化
+## this 指向变化
 
 #### 普通函数
 
@@ -1006,7 +1004,7 @@ var myObj = {
 myObj.showThis();
 ```
 
-#### 回调函数
+### 回调函数
 
 在`setTimeout`的回调函数中使用`this`是最容易发生`this`丢失的情况，下面的代码经过 1 秒延迟执行后，最后会输出 `undefined`。造成这种情况的原因是因为回调函数是函数的参数传递的形式，这是一个复制引用类型值的过程，简答来说，就是回调函数的引用地址值赋值给了参数，然后以参数的形式单独再调用。
 

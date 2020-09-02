@@ -292,7 +292,7 @@ changeColor();
 
 ## 闭包
 
-闭包翻译自`Closure`，这是一个从字面意思理解容易掉坑里的词语，它不是 JS 独有的概念，ES 规范里也没有提及它，具体可以参看以下 wiki 中对闭包的解释——[Closure(computer science)]([https://zh.wikipedia.org/wiki/%E9%97%AD%E5%8C%85\_(%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%A7%91%E5%AD%A6)](<https://zh.wikipedia.org/wiki/闭包_(计算机科学)>)，我觉得它算是一种编程手段，一种解决问题的方式。
+闭包翻译自`Closure`，这是一个从字面意思理解容易掉坑里的词语，它不是 JS 独有的概念，ES 规范里也没有提及它，具体可以参看以下 wiki 中对闭包的解释——[Closure](<https://zh.wikipedia.org/wiki/闭包_(计算机科学)>)，我觉得它算是一种编程手段，一种解决问题的方式。
 
 从定义上来看，闭包就是携带执行环境的函数，任何函数都具有执行环境，理论上任何函数都能成为闭包。
 

@@ -187,8 +187,6 @@ module.exports = {
 
 关于 webpack-dev-server 的详细配置项还有很多，需要注意的是，部分配置项带见`CLI only` 的表示该配置项只能用在命令行中，不能在`webpack.config.js`使用，见 —— [配置 - DevServer](https://webpack.docschina.org/configuration/dev-server/)。
 
-关于`contentBase`，如果提供了`contentBase`，那么
-
 | 配置项             | 值类型    | default      | 含义                                                                                                                                                                                                         |
 | ------------------ | --------- | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `port`             | `number`  | 8000         | 域名端口号                                                                                                                                                                                                   |
@@ -197,7 +195,7 @@ module.exports = {
 | `open`             | `boolean` | false        | 告诉 dev-server 在服务器启动后在系统默认浏览器中显示页面                                                                                                                                                     |
 | `openPage`         | `string`  | `index.html` | 指定打开浏览器要浏览的页面，默认是根目录的`index.html`                                                                                                                                                       |
 | `proxy`            | `object`  | null         | 这个配置那是相当有用，直接用途可以不通过服务端解决开发环境的跨域请求问题，文档见 —— [http-proxy-middleware](https://github.com/chimurai/http-proxy-middleware)                                               |
-| `contentBase`      | `boolean` | `string`     | false                                                                                                                                                                                                        | 将给定目录的文件，仅在需要提供静态文件时才进行配置；_当启动本地服务的时候 HTML 模板是必须提供的，通常是_ `index.html`_。确保将脚本引用添加到 HTML 中，webpack-dev-server 不会自动注入它们_ |
+| `contentBase`      | `boolean` | `false`      | 指定提供给 devServer 的静态文件的路径                                                                                                                                                                        |
 | `watchContentBase` | `boolean` | false        | 监听 [`devServer.contentBase`]选项提供的静态文件，启用后，文件更改将触发整个页面重新加载                                                                                                                     |
 | `writeToDisk`      | `boolean` | false        | 告诉 `devServer` 将自动打包的文件写入硬盘，写入的文件目录路径为`webpack.config.js`中配置的`output.path`                                                                                                      |
 | `stats`            | `string`  |              | 采用[stats 对象](https://webpack.docschina.org/configuration/stats/)，控制在控制台中显示哪些信息，例如`'errors-only'`只在发生错误或有新的编译时输出；<br />与下面的`noInfo`或`quiet`一起使用时，该选项无效。 |

@@ -135,7 +135,7 @@ console.log(/b\./.exec('abcd')); //null
 
 > `\s`
 
-匹配任何 Unicode 空白字符，大概有这些`[ \f\n\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]`
+匹配任何 Unicode 空白字符，大概有这些`[\f\n\r\t\v\u00a0\u1680\u2000-\u200a\u2028\u2029\u202f\u205f\u3000\ufeff]`
 
 > `\S`
 

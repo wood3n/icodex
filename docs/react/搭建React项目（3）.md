@@ -234,7 +234,11 @@ modules: {
 
 ### 提取 CSS 文件
 
-生产环境中需要将 React 中`import`引入的 CSS，或者 less 等导出为单个 CSS 文件，通过`<link>`标签插入到 DOM 中，推荐使用[`mini-css-extract-plugin`](https://github.com/webpack-contrib/mini-css-extract-plugin)这个 webpack 插件，也就是开发环境使用`style-loader`，然后需要生产环境打包的时候使用`mini-css-extract-plugin`。
+生产环境中需要将 React 中`import`引入的 CSS，或者 less 等导出为单个 CSS 文件，通过`<link>`标签插入到 DOM 中，推荐使用[`mini-css-extract-plugin`](https://github.com/webpack-contrib/mini-css-extract-plugin)这个 webpack plugin，它可以为每个包含 CSS 的 JS 文件创建一个 CSS 文件，它支持 CSS 和 SourceMap 的按需加载。相比`extract-text-webpack-plugin`来说，`mini-css-extract-plugin`特点如下：
+
+- 异步加载
+- 没有重复的编译
+- 只用于 CSS
 
 ```shell
 yarn add mini-css-extract-plugin -D
@@ -300,11 +304,40 @@ module.exports = function (env) {
 
 ![image-20200828184732391](../images/image-20200828184732391.png)
 
-## 处理 CSS 中的字体
+### 压缩 CSS 代码
+
+`mini-css-extract-plugin`只负责生成 CSS 文件，要对生产环境打包后的 CSS 文件进行压缩，需要使用额外的插件 —— [optimize-css-assets-webpack-plugin](https://github.com/NMFR/optimize-css-assets-webpack-plugin)。
+
+```shell
+yarn add optimize-css-assets-webpack-plugin -D
+```
+
+```javascript
+const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin'); //压缩CSS代码
+
+module.exports = {
+  plugins: [
+    new OptimizeCssAssetsPlugin({
+      assetNameRegExp: /\.css$/g,
+      cssProcessor: require('cssnano'),
+      cssProcessorPluginOptions: {
+        preset: ['default', { discardComments: { removeAll: true } }],
+      },
+      canPrint: true,
+    }),
+  ],
+};
+```
+
+- `assetNameRegExp`：匹配需要压缩的 CSS 文件名，默认是`/\.css$/g`
+- `cssProcessor`：压缩 CSS 使用的处理器，默认使用[cssnano](https://github.com/cssnano/cssnano)
+- `cssProcessorOptions`：传递给`cssProcessor`的参数，默认是空对象`{}`
+- `cssProcessorPluginOptions`：传递给`cssProcessor`的 plugin 选项，默认是空对象`{}`
+- `canPrint`：指示插件是否可以将信息打印到控制台
 
 ## 处理图片
 
-如果在 CSS 中使用`url`引入一个图片，或者在 React 中直接`import`一个图片，都需要额外的 loader 来解析图片，有两种 loader 来处理图片资源：`file-loader`和`url-loader`。
+如果在 CSS 中使用`url`引入一个图片，或者在 React 中直接`import`一个图片，都需要额外的 loader 来解析图片，webpack 文档中给出了两种 loader 来处理图片资源：`file-loader`和`url-loader`。
 
 ```shell
 yarn add file-loader url-loader -D
@@ -724,4 +757,142 @@ export default class extends Component {
 
 ![image-20200830232038373](../images/image-20200830232038373.png)
 
-和 CRA 集成 —— https://github.com/JetBrains/svg-sprite-loader/issues/339
+> 和 CRA 集成 —— https://github.com/JetBrains/svg-sprite-loader/issues/339
+
+### 图片压缩
+
+[`image-webpack-loader`](https://github.com/tcoopman/image-webpack-loader#image-webpack-loader)是使用[imagemin](https://github.com/kevva/imagemin)进行图片压缩的 loader，可以在`url-loader`或者`file-loader`的基础上进行图片压缩。
+
+```shell
+yarn add image-webpack-loader -D
+```
+
+```javascript
+// 在url-loader的基础上使用
+module.exports = function(env) {
+  const isDevelopment = env.NODE_ENV === 'development';
+  return {
+    module: {
+      rules: [
+        {
+          test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/, /\.svg$/i],
+          include: path.resolve(__dirname, 'src/assets/images'),
+          use: [
+            {
+              loader: 'url-loader',
+              options: {
+                limit: 10 * 1024, //10KB
+                name: 'static/images/[name].[hash:8].[ext]',
+              },
+            },
+            {
+              loader: 'image-webpack-loader', //引入image-webpack-loader
+              options: {
+                disable: isDevelopment, // webpack@2.x and newer
+              },
+            },
+          ],
+        },
+      ],
+    },
+  };
+};
+```
+
+默认配置情况下，对图片的压缩可以减少约`60%`的图片体积，可以看到压缩前图片`7.39MB`，压缩后仅为`2.32MB`
+
+![image-20200906194421570](../images/image-20200906194421570.png)
+
+![image-20200906194438013](../images/image-20200906194438013.png)
+
+本身压缩图片是一件缓慢的事，指定`disable: isDevelopment`在开发环境下会禁用`image-webpack-loader`。
+
+## 处理字体
+
+一般情况下，字体文件可以用作文本的渲染，或者用来处理 IconFont，即通过`@font-face`定义 IconFont，然后在 CSS 使用`@font-face`定义的图标。
+
+`file-loader`和`url-loader`都能用来处理字体文件，如果通过 CSS 的`@font-face`中的`src`来引入 web 字体，例如加载服务器上的字体文件，那么需要 loader 来处理。
+
+以配置使用`url-loader`为例：
+
+```javascript
+module.exports = {
+  ...
+  module: {
+    rules:[
+      ...
+      {
+        test: [/\.ttf/i, /\.woff/i, /\.woff2/i, /\.eot/i, /\.otf/i],
+        loader: "url-loader",
+        include: path.resolve(__dirname, "src/assets/fonts"),
+        options: {
+          limit: 10 * 1024, //10KB
+          name: "static/fonts/[name].[hash:8].[ext]",
+        },
+      },
+    ]
+  }
+}
+```
+
+这样就可以使用`@font-face`的`url`加载服务器上的字体文件了
+
+```css
+@font-face {
+  font-family: 'heiti2';
+  src: url('../../assets/fonts/heiti2.ttf');
+}
+
+body {
+  font-family: 'heiti2';
+}
+```
+
+#### 字体压缩
+
+一般中文字体包包含大量的中文字符，导致中文字体包一般都非常的大，随便一个都可能都是几`MB`，如果网页全局使用字体包中的字体，会影响网页的呈现速度。
+
+在引入字体之前对字体包进行压缩是一个解决方案，这里使用开源工具[字蛛](https://github.com/aui/font-spider)，使用 font-spider，首先新建一个空文件夹，内部新建一个 html 文件，并且将原字体包放在里面，如下：
+
+```html
+<!DOCTYPE html>
+<html lang="zh-hans">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      @font-face {
+        font-family: 'heiti2';
+        src: url('./heiti2.ttf');
+      }
+
+      body {
+        font-family: 'heiti2';
+      }
+    </style>
+  </head>
+</html>
+```
+
+然后安装`font-spider`
+
+```shell
+yarn global add font-spider
+```
+
+进入刚才新建的 html 文件的目录，开始执行压缩命令
+
+```shell
+font-spider ./index.html
+```
+
+执行完以后，目录下面会生成一个备份目录`.font-spider`用来保存原字体文件，而原来的字体文件已经被替换成了压缩以后的字体文件，这个压缩效果，目录结构如下：
+
+```shell
+minify
+├─ .font-spider
+│    └─ heiti2.ttf
+├─ heiti2.ttf
+├─ index.html
+```
+
+这个压缩效果还是十分强悍的，经过测试，原字体文件`2.17MB`，压缩以后只有`6KB`了。不过需要注意的是，这里的压缩只是一个测试，在 webpack 中使用的话，目前 font-spider 没有相应的方案，这个项目已经很久没维护了，见讨论 —— [如何在 webpack 中使用本工具 #150](https://github.com/aui/font-spider/issues/150)。如果想 webpack 配套使用，需要在打包以后，额外执行一下`font-spider`压缩命令，然后可能还需要检查一下字体引用路径是否正确。

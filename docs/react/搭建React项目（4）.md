@@ -204,6 +204,23 @@ module.exports = {
 };
 ```
 
+​ 或者可以给`name`传递一个函数，例如针对每一个 entry 都声称一个 runtime chunk，也就等价于上面`runtimeChunk: true`d 的配置形式。
+
+```javascript
+module.exports = {
+  entry: {
+    main: './src/index.js',
+    other: './src/test.js',
+  },
+  //...
+  optimization: {
+    runtimeChunk: {
+      name: entrypoint => `runtime~${entrypoint.name}`,
+    },
+  },
+};
+```
+
 #### 内联 runtime chunk
 
 `runtime`chunk 的代码一般比较小，可以通过 inline `<script>`插入 HTML，减少一此请求过程。使用[`html-webpack-inline-source-plugin`](https://github.com/DustinJackson/html-webpack-inline-source-plugin)可以做到将`runtime`chunk 以 inline 的方式插入 HTML，但是这个插件已经不再维护了，而且最新的 v0.0.10 版本使用有 BUG —— [Cannot read property 'tapAsync' of undefined](https://github.com/DustinJackson/html-webpack-inline-source-plugin/issues/79)，即使按照 issue 提出的解决方法在 HtmlWebpackPlugin 中仍然无法做到将代码插入 HTML。然后找了[`script-ext-html-webpack-plugin`](https://github.com/numical/script-ext-html-webpack-plugin)和`inline-manifest-webpack-plugin`也是一样的问题。
@@ -371,12 +388,11 @@ module.exports = {
 - `automaticNamePrefix`：为创建的 chunk 设置名称前缀
 
 - `cacheGroups`：每个`cacheGroups`都可以定义自己抽取模块的范围，也就是哪些文件中的公共代码会抽取到自己这个 chunk 中；
-- `test`属性用于匹配模块的名称，默认是`/[\\/]node_modules[\\/]/`，因为从 node_modules 中加载的依赖路径中都带有 `node_modules`前缀字符串，所以这个正则表达式也就是匹配所有从 node_modules 中加载的依赖
-
+  - `test`属性用于匹配模块的名称，默认是`/[\\/]node_modules[\\/]/`，因为从 node_modules 中加载的依赖路径中都带有 `node_modules`前缀字符串，所以这个正则表达式也就是匹配所有从 node_modules 中加载的依赖
   - 不同的 cacheGroups 之间的模块范围如果有交集，可以用`priority` 属性控制优先级；
   - `reuseExistingChunk`指定如果当前块包含已从主 bundle 中拆分出的模块，那么会被重用
-
-- `filename`：对于初始加载的 chunk，允许使用`filename`重写其名称
+  - `name`：拆分的 chunk 的名称，可以传递一个函数，这个属性比较常用
+  - `filename`：只能用于初始加载的 chunk，使用`filename`重写其名称
   - `enforce`：忽略`minsize`，`minChunks`，`maxAsyncRequests` 和`maxInitialRequests`的限制，总是为当前 cache group 创建 chunk
   - `idHint`：设置 chunk 的 id，它会被添加到 chunk 的文件名中
 
@@ -447,8 +463,6 @@ module.exports = {
 ```
 
 ![image-20200906173510302](../images/image-20200906173510302.png)
-
-### React Router code splitting
 
 ## clean-webpack-plugin
 

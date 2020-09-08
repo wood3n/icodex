@@ -232,6 +232,90 @@ modules: {
 
 ![image-20200828175718423](../images/image-20200828175718423.png)
 
+### postcss-loader
+
+[PostCSS](https://github.com/postcss/postcss/blob/master/README-cn.md)是一个开源的用 JS 编写的 CSS 解析器，它能够将 CSS 文件解析成抽象语法树，从而使用 PostCSS 的插件可以基于抽象语法树来转换 CSS 的语法，例如添加浏览器兼容前缀`-webkit-`（webkit 引擎），`-moz-`（firefox 的排版引擎）和`-ms-`（IE 的排版引擎），或者将代码开发阶段使用的未被浏览器广泛支持的 CSS 语法转换成兼容性更强的语法等。例如 CSS 的样式规范工具`stylelint`就是基于 PostCSS 的。
+
+[`postcss-loader`](https://github.com/webpack-contrib/postcss-loader)是让 PostCSS 可以在 webpack 构建工作流中去解析 CSS 生成 AST 的 loader，一般来说是这样的，在 webpack 基于模块间的依赖关系编译完了 JS，CSS，或者 Less 等以后，这些 CSS 文件会被送到 PostCSS 去解析成 AST，然后基于 PostCSS 的插件就可以针对 AST 去干一些有意义的事情，比如说兼容性修改等。
+
+```shell
+yarn add postcss-loader postcss -D
+```
+
+`postcss-loader`的配置项是相对简单的，只有三个：
+
+- `execute`：处理 CSS-in-JS 的语法；
+- `postcssOptions`：使用 PostCSS 的 options
+- `sourceMap`：是否需要生成 source map
+
+```javascript
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: [
+          'style-loader',
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                //options
+              },
+            },
+          },
+        ],
+      },
+    ],
+  },
+};
+```
+
+单纯使用`postcss-loader`没什么卵用，最主要的是引入基于[PostCSS 的插件](https://www.postcss.parts/)，常用的例如：
+
+- [`autoprefixer`](https://github.com/postcss/autoprefixer)：自动给 CSS 属性添加上浏览器供应商的前缀；
+- [`postcss-preset-env`](https://github.com/csstools/postcss-preset-env)：对浏览器厂商可能还未实现的 CSS 语法进行转换；
+- [`postcss-flexbugs-fixes`](https://github.com/luisrudge/postcss-flexbugs-fixes)：修正社区收集的关于[`flex`布局的一些 BUG](https://github.com/philipwalton/flexbugs)
+
+```shell
+yarn add autoprefixer postcss-preset-env postcss-flexbugs-fixes -D
+```
+
+修改上文配置，引入插件
+
+```javascript
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: [
+          'style-loader',
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: [
+                  'postcss-flexbugs-fixes',
+                  'autoprefixer',
+                  'postcss-preset-env',
+                ],
+              },
+            },
+          },
+        ],
+      },
+    ],
+  },
+};
+```
+
+现在用`::placeholder`这个伪元素来测试一下，无论是开发环境还是生产环境都自动添加了厂商前缀，但是`autoprefixer`在兼容`grid`布局方面有一些不足，见 —— [Does Autoprefixer polyfill Grid Layout for IE](https://github.com/postcss/autoprefixer#does-autoprefixer-polyfill-grid-layout-for-ie)，它只能转换到 IE 10 和 IE 11 的程度。
+
+![image-20200908174806466](../images/image-20200908174806466.png)
+
 ### 提取 CSS 文件
 
 生产环境中需要将 React 中`import`引入的 CSS，或者 less 等导出为单个 CSS 文件，通过`<link>`标签插入到 DOM 中，推荐使用[`mini-css-extract-plugin`](https://github.com/webpack-contrib/mini-css-extract-plugin)这个 webpack plugin，它可以为每个包含 CSS 的 JS 文件创建一个 CSS 文件，它支持 CSS 和 SourceMap 的按需加载。相比`extract-text-webpack-plugin`来说，`mini-css-extract-plugin`特点如下：
@@ -266,7 +350,7 @@ module.exports = function (env) {
             isProduction && {			//生产环境使用mini-css-extract-plugin
               loader: MiniCssExtractPlugin.loader,
               options: {
-                publicPath: '../',
+                publicPath: "../../",//因为提取的CSS文件最终位于 static/css文件夹中，所以往上两层
               },
             },
             {
@@ -288,7 +372,6 @@ module.exports = function (env) {
       isProduction &&							//还需要配置启用plugin部分
         new MiniCssExtractPlugin({
           filename: "static/css/[name].[contenthash:8].css",
-          chunkFilename: "static/css/[name].[contenthash:8].chunk.css",
         }),
       ,
     ].filter(Boolean),
@@ -303,6 +386,88 @@ module.exports = function (env) {
 再检查 html 页面，发现 CSS 文件按照路径通过`<link>`的形式插入
 
 ![image-20200828184732391](../images/image-20200828184732391.png)
+
+### 移除无用的 CSS
+
+移除无用的 CSS 可以使用[`purgecss`](https://github.com/FullHuman/purgecss)，`purgecss`的文档介绍了很多 plugin 和框架结合的用法，其中我重点关注的是结合 CSS modules 如何使用`purgecss` —— [How to use with CSS modules](https://purgecss.com/css_modules.html)，这部分内容在`purgecss`的介绍网站贴出来了，GitHub 的 README 页面并未提及，在 issue 中有一个相关问题 —— [Webpack 4 + React + CSS modules stripping all classes from CSS bundle](https://github.com/FullHuman/purgecss/issues/163#issuecomment-526607181)。
+
+根据 issue 中相关讨论，找到了解决方案，见 —— https://github.com/FullHuman/purgecss/issues/163，相关解决的方法其实还算简单，大致分为两步：
+
+- 安装[`@fullhuman/postcss-purgecss`](https://github.com/FullHuman/purgecss/tree/master/packages/postcss-purgecss)和[`glob`](https://github.com/isaacs/node-glob#readme)；
+- 在`postcss-loader`的 plugin 中配置`@fullhuman/postcss-purgecss`即可
+
+```shell
+yarn add @fullhuman/postcss-purgecss glob -D
+```
+
+`content`指定一个文件路径字符串数组，在`@fullhuman/postcss-purgecss`里是指定代码中通过`import`引入过 CSS 的地方，指定这些文件路径以后就会去检查它们引入的 CSS 文件中是否包含未使用的 CSS 代码；
+
+`glob`是一个负责根据通配符匹配文件路径的工具，这里使用`glob.sync(pattern, [options])`这个方法，去查找所有`src`目录以及子目录中`.jsx`结尾的 React 文件。
+
+```javascript
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: [
+          'style-loader',
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: [
+                  'postcss-flexbugs-fixes',
+                  'autoprefixer',
+                  'postcss-preset-env',
+                  [
+                    '@fullhuman/postcss-purgecss', //配置@fullhuman/postcss-purgecss
+                    {
+                      content: [
+                        path.join(__dirname, './public/index.html'),
+                        ...glob.sync(
+                          `${path.join(__dirname, 'src')}/**/*.jsx`,
+                          {
+                            nodir: true,
+                          },
+                        ),
+                      ],
+                    },
+                  ],
+                ],
+              },
+            },
+          },
+        ],
+      },
+    ],
+  },
+};
+```
+
+经过上述配置，现定义一个 button 组件和 CSS 文件，但是只通过 CSS Modules 使用其中一个 CSS 类，执行构建，最终生成的 CSS chunk 确实移除了未使用过的`.btn1`的代码。
+
+```jsx | pure
+.btn1 {
+  background: red;
+}
+
+.btn2 {
+  background: green;
+}
+
+import React, { Component } from "react";
+import styles from "./styles.css";
+
+export class Button1 extends Component {
+  render() {
+    return <button className={styles.btn2}>测试1</button>;
+  }
+}
+```
+
+![image-20200908230724789](../images/image-20200908230724789.png)
 
 ### 压缩 CSS 代码
 

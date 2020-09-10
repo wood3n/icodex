@@ -43,3 +43,11 @@ D://
 在 CSS 中存在以下图片引入路径：
 
 - `background-image: url("../images/picture.jpg")`
+
+## node 中的路径解析规则
+
+### path.resolve
+
+### path.join
+
+### require.resolve

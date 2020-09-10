@@ -2,6 +2,41 @@
 title: webpack打包分析工具
 ---
 
+## performance
+
+`performance`是 webpack 内置的负责进行打包性能评估的配置，它提示当前项目内部可能需要进行优化的点，将提示信息输出在控制台。例如，如果一个资源超过 250kb，webpack 会在打包的时候输出到控制台提示信息。
+
+![image-20200910235123426](../images/image-20200910235123426.png)
+
+### performance.hints
+
+`performance.hints`指定 webpack 是否在控制台打印性能提示信息，只有三个可选值：
+
+- `warning`：仅作为提示
+- `error`：把提示信息当成错误来输出
+
+- `false`：禁用性能提示信息
+
+### performance.maxEntrypointSize
+
+`performance.maxEntrypointSize`配置入口文件的大小，默认是`250000`字节，当入口文件超过这个限制就会显示性能提示。
+
+### performance.maxAssetSize
+
+当 webpack 生成的 bundle 等文件超过`performance.maxAssetSize`指定的大小时，就会发出性能提示信息，默认是`250000`字节。
+
+### performance.assetFilter
+
+一个函数配置，接收 webpack 打包生成的文件名，然后根据规则指定使用哪些文件来计算性能提示。
+
+## FileSizeReporter
+
+CRA 内部是直接禁用了这个配置项，使用它们自己开发的[`FileSizeReporter`](https://github.com/facebook/create-react-app/tree/master/packages/react-dev-utils#filesizereporter)来进行性能评估。
+
+![image-20200911000713873](../images/image-20200911000713873.png)
+
+应该可以通过`react-dev-utils`集成`FileSizeReporter` ，但是我还没找到这玩意怎么用的。
+
 ## webpack-bundle-analyzer
 
 [`webpack-bundle-analyzer`](https://github.com/webpack-contrib/webpack-bundle-analyzer)是一个 plugin 和 CLI 工具，它将 bundle 内容展示为一个便捷的、交互式、可缩放的树状图形式。
@@ -97,3 +132,5 @@ module.exports = function(env) {
 ```
 
 这样配置完了以后，就可以在执行`yarn start`或者`yarn build` 的时候在控制台显示出每一步执行 webpack 的 loader 或者 plugin 所耗费的时间，例如：
+
+![image-20200906180330572](../images/image-20200906180330572.png)

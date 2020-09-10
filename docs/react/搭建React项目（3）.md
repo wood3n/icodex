@@ -970,7 +970,9 @@ module.exports = function(env) {
 
 ![image-20200906194438013](../images/image-20200906194438013.png)
 
-本身压缩图片是一件缓慢的事，指定`disable: isDevelopment`在开发环境下会禁用`image-webpack-loader`。
+需要注意的是，本身压缩图片是一件缓慢的事，我在上面一张图片的压缩大概耗费了 6s 的时间呢，所以指定`disable: isDevelopment`在开发环境下会禁用`image-webpack-loader`。
+
+![image-20200910234945155](../images/image-20200910234945155.png)
 
 ## 处理字体
 

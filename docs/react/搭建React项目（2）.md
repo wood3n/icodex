@@ -370,7 +370,7 @@ dist
 
 可以看到这样的报错信息指向的代码位置已经糊成一团了，如果是复杂的错误，这种代码错误定位屁用没有。
 
-### 配置
+### devtool
 
 要在 webpack 中开启 source map，只需要一个配置项`devtool`，可以传入指定的模式字符串，或者使用`devtool:false`禁用它
 
@@ -399,4 +399,16 @@ dist
 
 ![image-20200827175357789](../images/image-20200827175357789.png)
 
-但是开启 source map 也有一个很大的缺点就是执行`yarn build`打包过程会非常的慢！
+除了 webpack 自带的输出 source map 文件的功能，一些 loader 也会提供生成 source map 的配置选项，不过它们最终都依赖于`devtool`配置项是否启用，例如`css-loader`提供`sourceMap`的配置项，可以为 CSS 文件生成 source map。
+
+不过需要注意的是，生产环境如果配置`devtool`选项，依据不同的`devtool`，对构建速度的影响也不同，一般来说：
+
+- 指定`devtool:source-map`可以详细追踪到错误信息的位置，但是出现错误可以在 devtool 中直接跟踪到源码，例如上图
+- 指定`devtool:eval`可以显示错误位置，但是代码会是经过 babel 等编译过的代码，如果是 React 组件，大致也能分析出错误的代码位置
+
+![image-20200910142210278](../images/image-20200910142210278.png)
+
+- 指定`devtool:eval-cheap-source-map`和`devtool:eval`看起来差不多，依旧是编译过的代码
+- 指定`devtool:eval-cheap-module-source-map`也能显示具体的源码位置，不过相对于`devtool:source-map`构建速度会大幅减少，webpack 是推荐使用这个配置项
+
+- 指定`devtool:eval-source-map`，`eval-nosources-source-map`，`eval-nosources-cheap-source-map`，`eval-nosources-cheap-module-source-map`也都能显示源码位置

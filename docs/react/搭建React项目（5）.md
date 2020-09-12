@@ -113,7 +113,9 @@ module.exports = {
 
 ### resolve.modules
 
-告诉 webpack 解析模块时应该搜索的目录，默认是`['node_modules']`，有时候这个配置比`alias`还简洁，比方说对于项目中封装通用业务组件库位于`src/components`下面，然后通过`resolve.modules`配置模块解析规则如下
+告诉 webpack 解析模块时应该搜索的目录，默认是`['node_modules']`。webpack 通过路径解析解析模块的时候会首先查找项目根目录的`./node_modules`文件夹去寻找模块，如果找不到就往上一级目录 `../node_modules` 中去找。
+
+有时候这个配置比`alias`还简洁，比方说对于项目中封装通用业务组件库位于`src/components`下面，然后通过`resolve.modules`配置模块解析规则如下
 
 ```javascript
 module.exports = {

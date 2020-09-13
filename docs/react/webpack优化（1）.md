@@ -449,7 +449,7 @@ export default class extends Component {
 
 现在点击按钮测试组件的效果，可以看到点击过后，动态的导入的 chunk 才被请求下来。
 
-![importtest](C:/Users/oxygen/Desktop/importtest.gif)
+![importtest](../images/importtest-1600013321000.gif)
 
 ### entry
 

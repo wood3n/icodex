@@ -318,10 +318,194 @@ threadLoader.warmup(
 
 经过我在`babel-loader`和`eslint-loader`前添加`thread-loader`并开启线程预热以后，确实让相关 loader 的执行时间减少了大概 10 几秒的样子，总体来说影响不是很明显。
 
-![image-20200913003400905](../images/image-20200913003400905.png)
+![image-20200913003400905](../images/image-20200913003400905.png)![image-20200913003347937](../images/image-20200913003347937.png)
 
-![image-20200913003347937](../images/image-20200913003347937.png)
-
-## DllPlugin
+## DLL
 
 DLL（Dynamic-link library，动态链接库）这个词来源于微软的打包技术。其实 DLL 有点类似于按需加载的意味，把一些共享的代码抽成 DLL，当可执行文件调用到 DLL 中的函数时，操作系统才会把 DLL 文件加载到内存中。
+
+不过，JS 不存在 DLL 这种东西，使用`DllPlugin` 只是让一些第三方库提前打包出来形成一个[`library`](https://webpack.docschina.org/guides/author-libraries/)，因为在一个项目中，往往它们基本上是不会频繁升级的，提前打包出来这样让 webpack 更多的去做项目代码打包的事情，极大的加快构建速度。有点类似于代码拆分的意味，但是 code splitting 还是会在 webpack 每次构建的时候都去打包，无法加快 webpack 的构建速度。
+
+### library
+
+`library`也就是 JS 库，比如`lodash`等都属于一个 JS 库，webpack 提供了专门用于打包 JS 库的处理。其实 DLL 就是利用打包 library 的方式将项目代码抽成一个 library，并通过[暴露 library](https://webpack.docschina.org/guides/author-libraries/#expose-the-library) 的形式让项目中其它模块可以使用到这些 library。
+
+### DllPlugin
+
+`DllPlugin`是 webpack 内置的负责将代码抽出来单独打包的 webpack plugin。要使用`DllPlugin`，需要新建一个新的 webpack 配置文件，专门用于处理第三方库的打包。
+
+#### 配置项
+
+| 配置项      | 类型      | <span style="white-space:nowrap">是否必填</span> | 含义                                                                                                     |
+| ----------- | --------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `context`   | `String`  | no                                               | manifest 文件中请求的 context；默认是 webpack 的`context`配置项，也就是`webpack.config.js`所在的当前目录 |
+| `format`    | `Boolean` | no                                               | 是否格式化`manifest.json`；默认是`false`                                                                 |
+| `name`      | `String`  | yes                                              | 暴露出的 DLL 的函数名                                                                                    |
+| `path`      | `String`  | yes                                              | 输出的`manifest.json`的绝对路径                                                                          |
+| `entryOnly` | `Boolean` | no                                               | 默认是 `true`，仅暴露入口                                                                                |
+| `type`      | `String`  | no                                               | 生成的 DLL bundle 的类型                                                                                 |
+
+#### 使用
+
+现在尝试配置`DllPlugin`把`react`的库文件从打包流程中抽取出来，在项目根目录新建一个`webpack.dll.config.js`的配置文件，使用`DllPlugin`。
+
+```javascript
+const path = require('path');
+const webpack = require('webpack');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin'); //清理build文件夹
+
+module.exports = {
+  mode: 'production',
+  entry: {
+    react: ['react', 'react-dom'],
+  },
+  output: {
+    path: path.resolve(__dirname, 'dll'),
+    filename: '[name].[contenthash].dll.js',
+    library: '_[name]_dll',
+  },
+  plugins: [
+    new CleanWebpackPlugin(),
+    new webpack.DllPlugin({
+      context: __dirname,
+      path: path.resolve(__dirname, 'dll/[name]-manifest.json'),
+      name: '_[name]_dll',
+    }),
+  ],
+};
+```
+
+这里`output.library`就是上文提到的暴露 library 的形式，这样其他模块就可以使用`output.library`链接到抽取出来的 ”DLL“。
+
+然后结合 npm-scripts 将执行这个单独的`webpack.dll.config.js`的命令写入进去。
+
+```json
+  "scripts": {
+    "dll": "webpack --config webpack.dll.config.js",
+  },
+```
+
+现在在控制台执行`yarn dll`，就会在项目根目录的`dll`文件夹中生成打包的 DLL 文件了，同时还会包含一些`manifest.json`文件，用于`DllReferencePlugin`。
+
+![image-20200913191529903](../images/image-20200913191529903.png)
+
+打开`react.dll.xx.js`看一下，内部确实包含了`react.production.min.js`和`react-dom.production.min.js`生产版本的代码。再打开`manifest.json`文件，内部包含了模块 id，DLL 的 名称，DLL 包含的所有模块。
+
+![image-20200913192529421](../images/image-20200913192529421.png)
+
+### DllReferencePlugin
+
+`DllReferencePlugin`负责根据`DllPlugin` 生成的`manifest.json`将项目 chunk 和 DLL 链接在一起。
+
+#### 配置项
+
+| 配置项       | 类型     | <span style="white-space:nowrap">是否必填</span> | 含义                                                                                                                              |
+| ------------ | -------- | ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| `context`    | `String` | yes                                              | `manifest.json`文件中请求的 context；默认是 webpack 的`context`配置项，也就是`webpack.config.js`所在的当前目录                    |
+| `scope`      | `String` | no                                               | DLL 中内容的前缀                                                                                                                  |
+| `extensions` | `Array`  | no                                               | 用于解析 DLL bundle 中模块的扩展名，仅在使用`scope`时使用                                                                         |
+| `content`    | `String` | no                                               | 请求到模块 id 的映射，默认是`manifest.json`文件内部的`content`                                                                    |
+| `name`       | `String` | no                                               | 暴露出的 DLL 的函数名称，默认是`manifest.json`文件内部的`name`                                                                    |
+| `manifest`   | `Object` | yes                                              | `String`                                                                                                                          |
+| `sourceType` | `String` | no                                               | DLL 是如何暴露自己模块的，见 —— [`output.libraryTarget`](https://webpack.docschina.org/configuration/output/#outputlibrarytarget) |
+
+> Note：需要特别注意的一点这里的`context`这个配置项是必填的，并且必须指向`manifest.json`所在的目录的绝对路径。webpack 文档中给的说明`context`的 example 比较模糊，按照[use-dll-without-scope](https://github.com/webpack/webpack/tree/master/test/configCases/dll-plugin/2-use-dll-without-scope)这个例子看比较清楚一点`context`的用法。
+
+#### 使用
+
+`DllReferencePlugin`使用相对简单，在项目本来的`webpack.config.js`中按照 plugin 引入即可。如果有多个抽取的 DLL，可以使用多次。
+
+```javascript
+module.exports = {
+  plugin: [
+    new webpack.DllReferencePlugin({
+      context: path.resolve(__dirname, './dll'),
+      manifest: require('./dll/react-manifest.json'),
+    }),
+    new webpack.DllReferencePlugin({
+      context: path.resolve(__dirname, './dll'),
+      manifest: require('./dll/other-manifest.json'),
+    }),
+    //...
+  ],
+};
+```
+
+这样再执行`yarn build`打包，webpack 就会自动跳对`react`模块了。打包信息显示 webpack external（使用外部拓展）了`react_dll`。
+
+![image-20200913194138841](../images/image-20200913194138841.png)
+
+在`webpack.config.js`内部不使用`DllReferencePlugin`时，整个打包过程需要 5S 左右的时间，使用之后，减少了 2S。
+
+![image-20200913194517301](../images/image-20200913194517301.png)![image-20200913194635839](../images/image-20200913194635839.png)
+
+### 复制 DLL 文件
+
+第三方库的 DLL 文件，需要插入 HTML 中，并且复制到项目的`build`目录下，否则项目无法运行。
+
+使用[`copy-webpack-plugin`](https://github.com/webpack-contrib/copy-webpack-plugin)将 DLL 复制到`build`目录，使用[`html-webpack-tags-plugin`](https://github.com/jharris4/html-webpack-tags-plugin)将额外的`<script>`标签插入到 HTML 页面中，`html-webpack-tags-plugin`需要配合 HtmlWebpackPlugin 一起使用。
+
+```shell
+yarn add copy-webpack-plugin html-webpack-tags-plugin -D
+```
+
+```javascript
+module.exports = {
+  plugin: [
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: './dll/react.dffd2b4e9672e773b9c9.dll.js', to: 'static/js' },
+      ],
+    }),
+    new HtmlWebpackPlugin({
+      inject: true,
+      template: './public/index.html',
+      favicon: './public/favicon.ico',
+    }),
+    new HtmlWebpackTagsPlugin({
+      publicPath: 'static/js', //dll.js文件的路径前缀
+      tags: ['react.dffd2b4e9672e773b9c9.dll.js'],
+      append: true,
+    }),
+  ],
+};
+```
+
+![image-20200913230740962](../images/image-20200913230740962.png)
+
+### 和 SplitChunksPlugin 的冲突
+
+经过我的测试，如果 webpack 配置了`SplitChunksPlugin`来抽取`node_modules`中的代码，和`DllReferencePlugin`确实是有冲突的。
+
+因为我的测试项目很小，只引入了`react`和`react-dom`这两个第三方库，而现在我又通过`DllPlugin`把它们两个抽取了出来单独打包，所以项目就不应该存在 vendor chunk 了才对，但是无论开发环境还是生产环境，配置了如下的`SplitChunksPlugin`都会把`react`部分打包进来。
+
+```javascript
+module.exports = {
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+        },
+      },
+    },
+  },
+};
+
+// 或者是
+module.exports = {
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+    },
+  },
+};
+```
+
+![image-20200913232708859](../images/image-20200913232708859.png)
+
+![image-20200913232837318](../images/image-20200913232837318.png)
+
+## externals

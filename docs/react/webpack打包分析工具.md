@@ -2,6 +2,8 @@
 title: webpack打包分析工具
 ---
 
+## stats
+
 ## performance
 
 `performance`是 webpack 内置的负责进行打包性能评估的配置，它提示当前项目内部可能需要进行优化的点，将提示信息输出在控制台。例如，如果一个资源超过 250kb，webpack 会在打包的时候输出到控制台提示信息。
@@ -36,6 +38,25 @@ CRA 内部是直接禁用了这个配置项，使用它们自己开发的[`FileS
 ![image-20200911000713873](../images/image-20200911000713873.png)
 
 应该可以通过`react-dev-utils`集成`FileSizeReporter` ，但是我还没找到这玩意怎么用的。
+
+## webpack-manifest-plugin
+
+[`webpack-manifest-plugin`](https://github.com/danethurber/webpack-manifest-plugin)可以根据项目打包生成一个保存所有模块到最终生成的 chunk，或者静态文件之间的映射关系的 JSON 文件。
+
+```shell
+yarn add webpack-manifest-plugin -D
+```
+
+```javascript
+module.exports = {
+  // ...
+  plugins: [isProduction && new ManifestPlugin()],
+};
+```
+
+生成的 JSON 文件如下图所示
+
+![image-20200907113859483](../images/image-20200907113859483.png)
 
 ## webpack-bundle-analyzer
 
@@ -84,10 +105,12 @@ module.exports = {
 }
 ```
 
-然后在 npm scripts 中配置打开[`webpack-bundle-analyzer`的 CLI 命令](https://github.com/webpack-contrib/webpack-bundle-analyzer#options-for-cli)
+然后在`package.json`中配置打开[`webpack-bundle-analyzer`的 CLI 命令](https://github.com/webpack-contrib/webpack-bundle-analyzer#options-for-cli)
 
-```shell
-"analyze": "webpack-bundle-analyzer --port 8888 ./build/stats.json"
+```json
+"scripts": {
+  "analyze": "webpack-bundle-analyzer --port 8888 ./build/stats.json"
+}
 ```
 
 然后执行`yarn analyze`就可以在默认浏览器打开生成的 JSON 文件，显示 bundle 分析树状图。
@@ -102,25 +125,6 @@ module.exports = {
 - `1.mian.js`中的模块全部来自`node_modules`，这对应于上文中我们说的 SplitChunksPlugin 的默认拆分，它将项目中所有从`node_modules`导入的以来单独打包成一个 chunk；除此之外还能层层深入分析 chunk 之间包含了其它哪些模块
 - 在整个依赖图中，可以清楚的看到`react-dom.production.min.js`所占的体积最大，所以它占的图的面积最大
 - 根据这个就能具体分析项目中具体哪个模块生成的代码需要进行拆分优化
-
-## webpack-manifest-plugin
-
-[`webpack-manifest-plugin`](https://github.com/danethurber/webpack-manifest-plugin)可以根据项目打包生成一个保存所有模块到最终生成的 chunk，或者静态文件之间的映射关系的 JSON 文件。
-
-```shell
-yarn add webpack-manifest-plugin -D
-```
-
-```javascript
-module.exports = {
-  // ...
-  plugins: [isProduction && new ManifestPlugin()],
-};
-```
-
-生成的 JSON 文件如下图所示
-
-![image-20200907113859483](../images/image-20200907113859483.png)
 
 ## speed-measure-webpack-plugin
 

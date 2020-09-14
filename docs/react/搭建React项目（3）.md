@@ -713,7 +713,7 @@ export default class extends Component {
 
 #### SVG 组件
 
-如果想直接在页面里使用这个 SVG 图片，而不是放在`<img>`标签里，推荐使用 airbnb 出品的[`babel-plugin-inline-react-svg`](https://github.com/airbnb/babel-plugin-inline-react-svg#babel-plugin-inline-react-svg)，这个插件我在测试的时候，会和上面的`url-loader`有一定的冲突。它提供的功能是：
+如果想直接在页面里使用这个 SVG 图片，而不是放在`<img>`标签里，可以使用 airbnb 出品的[`babel-plugin-inline-react-svg`](https://github.com/airbnb/babel-plugin-inline-react-svg#babel-plugin-inline-react-svg)，这个插件我在测试的时候，会和上面的`url-loader`有一定的冲突。它提供的功能是：
 
 - 将 SVG 文件转换成 React 组件
 - 使用[SVGO](https://github.com/svg/svgo/)优化压缩 SVG
@@ -757,6 +757,40 @@ export default class extends Component {
 ```
 
 ![image-20200830002204124](../images/image-20200830002204124.png)
+
+而当我在项目配置`resolve.alias`的时候，想用 alias 去引入一个 SVG 组件时，`babel-plugin-inline-react-svg`好像不支持 alias 解析，一直报错。
+
+```javascript
+import View from '@/assets/icons/view.svg';
+```
+
+![image-20200914221305987](../images/image-20200914221305987.png)
+
+后来我换成了[`@svgr/webpack`](https://github.com/gregberge/svgr/tree/master/packages/webpack)，问题就得到解决了。
+
+```shell
+yarn add @svgr/webpack -D
+```
+
+```javascript
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.svg$/,
+        use: [
+          {
+            loader: '@svgr/webpack',
+            options: {
+              native: true,
+            },
+          },
+        ],
+      },
+    ],
+  },
+};
+```
 
 #### svg-sprite
 

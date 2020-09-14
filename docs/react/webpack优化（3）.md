@@ -375,9 +375,13 @@ module.exports = {
 };
 ```
 
-这里`output.library`就是上文提到的暴露 library 的形式，这样其他模块就可以使用`output.library`链接到抽取出来的 ”DLL“。
+这里的配置有几点需要注意：
 
-然后结合 npm-scripts 将执行这个单独的`webpack.dll.config.js`的命令写入进去。
+- `entry`需要使用对象的配置形式，并且**每个属性的值都必须是数组，即使内部只包含单个模块也必须放在数组里**
+- `output.library`不要和原模块的名称一样，最好加个前缀或者后缀，例如`react`本身暴露的模块名是`react`，那么这里就不能再使用`react`
+- `output.library`就是上文提到的暴露 library 的形式，这样其他模块就可以使用`output.library`链接到抽取出来的 ”DLL“，**这个属性值必须和`DllPlugin`内部的`name`配置项保持一致**
+
+最后结合 npm-scripts 在`package.json`中将执行这个单独的`webpack.dll.config.js`的命令写入进去。
 
 ```json
   "scripts": {
@@ -463,9 +467,9 @@ module.exports = {
       favicon: './public/favicon.ico',
     }),
     new HtmlWebpackTagsPlugin({
+      append: true,
       publicPath: 'static/js', //dll.js文件的路径前缀
       tags: ['react.dffd2b4e9672e773b9c9.dll.js'],
-      append: true,
     }),
   ],
 };
@@ -509,3 +513,125 @@ module.exports = {
 ![image-20200913232837318](../images/image-20200913232837318.png)
 
 ## externals
+
+`externals`可以直接将某些模块在打包过程中剔除，这样减少 webpack 打包时候的工作量，从而加快构建速度。
+
+### 配置项
+
+#### 正则表达式
+
+可以为`externals`指定一个正则表达式，则所有匹配名称的模块在打包的时候都会被忽略
+
+```javascript
+module.exports = {
+  externals: /react/,
+};
+```
+
+#### 对象
+
+可以为`externals`指定一个对象形式，属性的键表示忽略的模块名，属性的名称表示`library`暴露的全局变量，例如使用 React 会去这样导入其内部的`React`和`ReactDOM` API
+
+```javascript
+import React from 'react';
+import ReactDOM from 'react-dom';
+```
+
+那么通过`externals`就可以像下面这样去配置，`react`和`"react-dom"`表示 webpack 打包要排除上面`import`中`from`的模块，为了替换这些模块，需要使用`React`和`ReactDOM`这样的全局变量。
+
+```javascript
+module.exports = {
+  externals: {
+    react: 'React',
+    'react-dom': 'ReactDOM',
+  },
+};
+```
+
+这样执行`yarn build`打包以后，可以看到 webpack external 了`React`和`ReactDOM`的全局变量。
+
+![image-20200914154732218](../images/image-20200914154732218.png)
+
+为了能够找到`React`和`ReactDOM`这样的全局变量，需要将 React 库放在 HTML 中通过`<script>`全局引入。
+
+```shell
+<script crossorigin src="react.production.min.js"></script>
+<script crossorigin src="react-dom.production.min.js"></script>
+```
+
+对于具有父级模块的结构，也可以传入一个数组作为属性名，其中`./math`属于父模块，表示`subtract`只使用了`./math`内部的`other`模块，所以这个结果最终被编译成`require('./math').subtract`。
+
+```javascript
+module.exports = {
+  //...
+  externals: {
+    subtract: ['./math', 'other'],
+  },
+};
+```
+
+### 可能并不需要 DllPlugin
+
+`DllPlugin`本身更多的用处是把第三方库抽成单独的`library`，而且还需要暴露全局变量，即通过`<script>`的方式全局注入，然后通过`DllReferencePlugin`引用`library`。
+
+那为什么不直接用 CDN +`externals`的方式呢？把资源通过 CDN 引入，然后直接`externals`忽略模块打包完事了呀！
+
+CDN 的配置可以使用很多方式，首先可以直接将 CDN 资源手动放在 HTML 模板页面，通过`HtmlWebpackPlugin`就会自动生成带有 CDN 资源的 HTML 页面。
+
+例如在上文配置了`externals`忽略 React 的时候，在 HTML 页面添加 React 的 jsDelivr 的 CDN 链接：
+
+```shell
+<script crossorigin src="https://cdn.jsdelivr.net/npm/react@16.12.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdn.jsdelivr.net/npm/react-dom@16.12.0/umd/react-dom.production.min.js"></script>
+```
+
+也可以借助`HtmlWebpackPlugin`的[自定义模板](https://github.com/jantimon/html-webpack-plugin#writing-your-own-templates)来解决，`HtmlWebpackPlugin`默认是支持 [ejs 模板](https://ejs.bootcss.com/)，对传入`HtmlWebpackPlugin`的配置项可以在 HTML 中`<%= htmlWebpackPlugin.options.xxx %>`的形式去访问。
+
+这里还得区分 React 开发环境和生产环境的版本，如果在开发环境使用了生产环境的 React，有一个区别是浏览器的 React devtools 插件就检测不到应用是在开发环境，因此也就没用了。
+
+```javascript
+module.exports = {
+  plugins: [
+    new HtmlWebpackPlugin({
+      inject: true,
+      template: './public/index.html',
+      favicon: './public/favicon.ico',
+      cdn: {
+        script: [
+          isDevelopment
+            ? 'https://cdn.jsdelivr.net/npm/react@16.12.0/umd/react.development.js'
+            : 'https://cdn.jsdelivr.net/npm/react@16.12.0/umd/react.production.min.js',
+          isDevelopment
+            ? 'https://cdn.jsdelivr.net/npm/react-dom@16.12.0/umd/react-dom.development.js'
+            : 'https://cdn.jsdelivr.net/npm/react-dom@16.12.0/umd/react-dom.production.min.js',
+        ],
+      },
+    }),
+  ],
+};
+```
+
+修改 HTML 页面，ejs 本身很简单，直接在 HTML 里写的每一行 JS 代码用`<% ... %>`包起来就行，如果是变量，用`<%= ... %>`包起来。
+
+```shell
+<!DOCTYPE html>
+<html lang="zh-hans">
+  <head>
+    <meta charset="utf-8" />
+    <title>toycra</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <!--CDN-->
+    <% if (htmlWebpackPlugin.options.cdn) { %>
+      <% for(let src of htmlWebpackPlugin.options.cdn.script) { %>
+        <script crossorigin="anonymous" src="<%=src%>"></script>
+      <% } %>
+    <% } %>
+  </body>
+</html>
+```
+
+现在执行打包，React 模块就被`externals`的配置忽略掉了，其使用 CDN 方式全局注入。
+
+![image-20200914181903091](../images/image-20200914181903091.png)

@@ -242,7 +242,7 @@ module.exports = {
 
 对于**React Fast Refresh**，目前没有正式的介绍文档，其相关概念只存在于 GitHub 的 issue 讨论中 —— [What Is Fast Refresh?](https://github.com/facebook/react/issues/16604#issuecomment-528663101)
 
-目前，社区已经有了支持 React Fast Refresh 的 webpack 插件 —— [React Refresh Webpack Plugin](https://github.com/pmmmwh/react-refresh-webpack-plugin/#react-refresh-webpack-plugin).
+目前，社区已经有了支持 React Fast Refresh 的 webpack 插件 —— [React Refresh Webpack Plugin](https://github.com/pmmmwh/react-refresh-webpack-plugin/#react-refresh-webpack-plugin)
 
 ```shell
 yarn add @pmmmwh/react-refresh-webpack-plugin react-refresh -D

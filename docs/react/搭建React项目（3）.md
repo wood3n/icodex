@@ -758,7 +758,7 @@ export default class extends Component {
 
 ![image-20200830002204124](../images/image-20200830002204124.png)
 
-而当我在项目配置`resolve.alias`的时候，想用 alias 去引入一个 SVG 组件时，`babel-plugin-inline-react-svg`好像不支持 alias 解析，一直报错。
+而当我在项目配置`resolve.alias`的时候，想用 alias 去引入一个 SVG 组件时，`babel-plugin-inline-react-svg`不支持 alias 解析，一直报错。
 
 ```javascript
 import View from '@/assets/icons/view.svg';
@@ -766,7 +766,45 @@ import View from '@/assets/icons/view.svg';
 
 ![image-20200914221305987](../images/image-20200914221305987.png)
 
-后来我换成了[`@svgr/webpack`](https://github.com/gregberge/svgr/tree/master/packages/webpack)，问题就得到解决了。
+我在`babel-plugin-inline-react-svg`的 issue 也提了这个问题，插件作者回复是因为 babel 在 webpack 应用 alias 之前已经开始运行了。后来找到了两个解决方法：
+
+一是安装[`babel-plugin-module-resolver`](https://github.com/tleunen/babel-plugin-module-resolver)，这个是 babel 的 plugin，帮助 babel 解析 alias 路径问题，配合`babel-plugin-inline-react-svg`使用。
+
+```shell
+yarn add babel-plugin-module-resolver -D
+```
+
+```javascript
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.m?jsx?$/,
+        exclude: /(node_modules)/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: ["@babel/preset-env", "@babel/preset-react"],
+            plugins: [
+              "@babel/plugin-proposal-class-properties",
+              "inline-react-svg",	        // apply babel-plugin-inline-react-svg
+              [
+                "module-resolver",         //  apply babel-plugin-module-resolver
+                {
+                  alias: {
+                    "@": "./src",
+                  },
+                },
+              ],
+            ],
+          },
+        },
+        ...
+      }
+
+```
+
+另一个解决方式是换成[`@svgr/webpack`](https://github.com/gregberge/svgr/tree/master/packages/webpack) 这个 webpack loader 来解析 SVG 组件。
 
 ```shell
 yarn add @svgr/webpack -D

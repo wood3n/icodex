@@ -210,8 +210,8 @@ export default class extends Component {
 | ----------- | --------------------------------------------------------------------------------------------------------------------- |
 | `true`      | 全部使用 CSS Modules，设置成这个以后，在 React 中引入 CSS 就必须按照上面那种 CSS Modules 的写法                       |
 | `false`     | 禁用 CSS Module                                                                                                       |
-| `"local"`   | 和`true`是一样的                                                                                                      |
-| `"global"`  | ？？？                                                                                                                |
+| `"local"`   | 和`true`是一样的，CSS Modules 中的`class`只具有模块作用域                                                             |
+| `"global"`  | 将 CSS Modules 设置成全局作用域                                                                                       |
 | Object Type | `modules`可以设置成一个对象，属性如下表所示，见 —— [Object](https://webpack.docschina.org/loaders/css-loader/#object) |
 
 以`modules`Object 形式配置`localIdentName` 来看，`localIdentName` 可以指定替换 React 中`className`的名称，`localIdentName` 采用[loader-utils#interpolatename](https://github.com/webpack/loader-utils#interpolatename)中的模板字符串替换形式。推荐是开发环境使用`"[path][name]__[local]"`，生产环境使用`"[hash:base64]"`，配置一下试试。

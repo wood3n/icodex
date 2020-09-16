@@ -126,6 +126,8 @@ Babel 也是靠这个设定最终编译的代码版本，通常是在项目的`p
 
 `useBuiltIns`这个配置项在项目需要做兼容性考虑的时候才需要用到，例如 React 16 版本需要依赖`Map`和`Set`这样的数据结构，IE11 以前的浏览器是不支持的，这时候就需要 polyfill 来兼容这些浏览器。目前主流的 polyfill 方案是使用[`corejs`](https://babeljs.io/docs/en/babel-preset-env#corejs)，`@babel/polyfill`已经在 7.4 版本以后被弃用了。
 
+`useBuiltIns:"entry"`
+
 ## @babel/plugin-transform-runtime
 
 Babel 会使用一些非常小的辅助性的代码插入到需要编译的源代码中，有时候这些代码是重复的，会增加代码体积。通过[`@babel/plugin-transform-runtime`](https://babel.docschina.org/docs/en/babel-plugin-transform-runtime/)这个 plugin 可以禁用 Babel 自动对每个文件的 runtime 注入；然后通过安装`@babel/runtime`将 Babel 的辅助代码作为一个独立的依赖模块来引入，这样就可以避免编译后的代码中重复出现辅助性的代码，减小代码体积。

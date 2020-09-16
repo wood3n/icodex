@@ -60,7 +60,7 @@ CSS `class`的命名建议使用驼峰命名形式，但是 CSS 命名广泛采�
 }
 ```
 
-- snake_case：（蛇形）要求使用下划线`_`连接所有单词，要大写就全部大写，要小写就全部小写，例如
+- snake*case：（蛇形）要求使用下划线`*`连接所有单词，要大写就全部大写，要小写就全部小写，例如
 
 ```css
 .user_login {
@@ -95,7 +95,7 @@ import styles from "./styles.css";
 <p className={styles.p}>{this.state.value}</p>
 ```
 
-![image-20200916160422829](images/image-20200916160422829.png)
+![image-20200916160422829](../images/image-20200916160422829.png)
 
 如果使用`less`预处理器，那么`:global()`还支持嵌套的语法：
 
@@ -122,7 +122,7 @@ import styles from "./styles.css";
 }
 ```
 
-![常速是、](images/image-20200916161443996.png)
+![image-20200916161443996](../images/image-20200916161443996.png)
 
 同时也支持继承其它文件的`class`规则，但是要注意不要为来自不同文件的多个类名中的同一属性定义不同的值。而且还需要注意避免循环依赖的问题，所以通常一般不建议这么干
 

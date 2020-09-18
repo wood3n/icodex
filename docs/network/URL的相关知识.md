@@ -2,17 +2,13 @@
 title: URL相关知识
 ---
 
-### WWW
+## URI 和 URL
 
-WWW，word wide web，简称万维网，也就是日常所说的 Web。最早是由欧洲粒子物理实验室的 Tim Berners-Lee 在 1989 年提出的，他是一个分布式的超媒体系统，是超文本系统的扩充，超文本就是内部包含指向其他文档的链接的文本。万维网是 Client-Server 的工作方式，使用 URL 标志网络服务器上的各种文件资源，并且每个文件在 Web 范围内都具有唯一的标识符。使用超文本传输协议 HTTP 和 TCP 传输协议来负责传输 Web 服务器上的各种资源文件。
-
-### URI 和 URL
-
-#### URI
+### URI
 
 URI，Uniform Recource Identifier，统一资源标识符，用一串字符明确标识一个特定的资源，URI 使用分层命名的方案来标识资源，这样的标识使得能够使用特定的协议通过网络与资源进行交互。URI 最常见的形式是 URL。
 
-##### URI 的格式
+#### URI 的格式
 
 URI 的表示形式是以协议名称作为开头，这样每种协议都能根据自己的规范内容来拓展 URI 的形式，URI 通用形式相当于这些协议规范的超集。
 
@@ -68,39 +64,25 @@ URI 通用的形式只包含主要的两部分：协议和路径
 
 片段是一个 hash 值，指向辅助资源的位置。如果资源是 HTML 文档，片段值通常是特定元素的`id`属性值，表示页面锚点位置。
 
-#### URL-HTTP
+### URL-HTTP
 
 URL，Uniform Resource Locator，统一资源定位符，是表示 URI 的一种方式
 
-##### 形式
-
 ![image-20200731214020188](../images/image-20200731214020188.png)
 
-##### 主机
+- 主机：主机可以域名，也可以是 IP 地址。其中域名又分为顶级域名，二级域名和三级域名等等。
 
-主机可以域名，也可以是 IP 地址。其中域名又分为顶级域名，二级域名和三级域名等等。
+  - 顶级域名：.com，.cn 这些
+  - 二级域名：google.com，google 属于二级域名
+  - 三级域名：google.com.hk，google 属于三级域名
 
-- 顶级域名：.com，.cn 这些
-- 二级域名：google.com，google 属于二级域名
-- 三级域名：google.com.hk，google 属于三级域名
+- 端口：如果访问的该 Web 服务器使用 HTTP 协议的标准端口（**HTTP 为`80`，HTTPS 为`443`**）授予对其资源的访问权限，则通常省略此部分。否则端口就是 URI 必须的部分。
 
-##### 端口
+- 路径：一般是 Wbe 服务器上文件路径的一部分，但是在`WebAPI`中这个地址可以随意定义，遵循 RESTful 设计风格的 API 一般会使用名词表示路径。
 
-如果访问的该 Web 服务器使用 HTTP 协议的标准端口（**HTTP 为`80`，HTTPS 为`443`**）授予对其资源的访问权限，则通常省略此部分。否则端口就是 URI 必须的部分。
+- 查询参数查询参数是`?`后面接的字符串部分，每部分参数使用`&`作为分隔符。
 
-##### 路径
-
-一般是 Wbe 服务器上文件路径的一部分，但是在`WebAPI`中这个地址可以随意定义，遵循 RESTful 设计风格的 API 一般会使用名词表示路径。
-
-##### 查询参数
-
-查询参数是`?`后面接的字符串部分，每部分参数使用`&`作为分隔符。
-
-##### 锚点
-
-锚点一般是网页中的标题链接，使用`#`后面接某个 HTML 标签内的文本内容，对于给定锚点链接的网页，在点击锚点地址后，浏览器会直接无刷新滚动到锚点所在位置。HTML5 启用了`name`属性，所以现在创建锚点的方式就是`<a>`标签的`href`设置为`#id`的形式，`id`就是要跳转的目标元素的 id 值。
-
-锚点的内容在请求的时候不会发送到服务器。
+- 锚点：锚点一般是网页中的标题链接，使用`#`后面接某个 HTML 标签内的文本内容，对于给定锚点链接的网页，在点击锚点地址后，浏览器会直接无刷新滚动到锚点所在位置。HTML5 启用了`name`属性，所以现在创建锚点的方式就是`<a>`标签的`href`设置为`#id`的形式，`id`就是要跳转的目标元素的 id 值。锚点的内容在请求的时候不会发送到服务器。
 
 ```html
 <h3 id="简单请求">简单请求</h3>
@@ -118,15 +100,9 @@ URL，Uniform Resource Locator，统一资源定位符，是表示 URI 的一种
 
 ![Snipaste_20200801182416](../images/Snipaste_20200801182416.png)
 
-#### 百分号编码
+## URL 编码
 
-> [百分号编码](<[https://zh.wikipedia.org/wiki/%E7%99%BE%E5%88%86%E5%8F%B7%E7%BC%96%E7%A0%81](https://zh.wikipedia.org/wiki/百分号编码)>)
-
-百分比编码（Percent-encoding）又称 URL 编码，形式就是百分号`%`后跟十六进制数字`[0,F]`组成。百分比编码主要用于 URI 编码，`application/x-www-form-urlencoded`的 HTML 表单数据提交等。
-
-在 URI 中允许的字符是 ASCII 字符集中的字符，虽然不区分英文字母大小写，但是英文字母建议用小写。
-
-这些 ASCII 字符又分为保留字符和非保留字符，如果在 URI 中将保留字符用于其他目的，例如斜线`/`不用做定界符，那么必须进行百分比编码：
+在 URL-http 中允许的字符必须是 ASCII 字符集中的字符，英文字母不区分大小写，但是英文字母建议用小写。而 ASCII 字符集又分为保留字符和非保留字符：
 
 - 保留字符：在 URI 中具有特殊用法的字符，例如斜线字符`/`用于分隔 URI 的不同部分，`?`用于串接参数，URI 中的保留字符有以下这些
   - `:/?#[]@`：这几个字符永远定界符，即分隔 URI 不同部分；
@@ -145,9 +121,13 @@ a	b	c	d	e	f	g	h	i	j	k	l	m	n	o	p	q	r	s	t	u	v	w	x	y	z
 -	_	.	~
 ```
 
-##### ASCII 字符的编码方式
+如果在 URL 中将保留字符用于其他目的（例如斜线`/`不用做定界符），或者在 URL 中包含非 ASCII 字符，都需要进行编码处理，这里使用的是百分号编码。
 
-ASCII 字符只有单字节 8 位二进制，也就是能转成*两个 16 进制数字*，然后再前面加上百分号`%`即可表示百分比编码形式。
+> [百分号编码（Percent-encoding）](https://zh.wikipedia.org/wiki/百分号编码)又称 URL 编码，形式就是百分号`%`后跟十六进制数字`[0,F]`组成。
+
+### 保留字符的编码
+
+如果是在 URL 中将 ASCII 保留字符用于其他目的（例如斜线`/`不用做定界符），那么就是对 ASCII 字符进行百分号编码；ASCII 字符本身只有单字节 8 位二进制，也就是能转成*两个 16 进制数字*，然后再前面加上百分号`%`即可表示百分比编码形式。
 
 例如斜线`/`的 ASCII 值是 47，转二进制再每四位合并得到十六进制 2F，则斜线`/`的百分比编码就是`%2F`。
 
@@ -172,9 +152,15 @@ ASCII 字符只有单字节 8 位二进制，也就是能转成*两个 16 进制
 https://interactive-examples.mdn.mozilla.net/pages/tabbed/form.html?name=test+test&email=test%40gmail.com
 ```
 
-##### 非 ASCII 字符的编码方式
+### 非 ASCII 字符的编码
 
-对于非 ASCII 字符，得到其 UTF-8 编码值，然后每个字节也就是每两个十六进制数前面加上百分号得到`%xx`的形式，最后再合并，例如汉字`我`，Unicode 字符为`U+6211`，转 UTF-8 编码，再转百分比编码。
+对于非 ASCII 字符在 URL 的编码如下：
+
+- 首先得到其 UTF-8 编码值，
+- 然后每个字节也就是每两个十六进制数前面加上百分号得到`%xx`的形式
+- 最后再合并
+
+例如汉字`我`，Unicode 字符为`U+6211`，转 UTF-8 编码，再转百分比编码。
 
 ```javascript
 `U+6211` 			=>			110 0010 0001 0001
@@ -197,14 +183,14 @@ E68891
 %e6%88%91
 ```
 
-##### application/x-www-form-urlencoded
+### application/x-www-form-urlencoded
 
 HTML 的`<form>`表单元素具有`enctype`属性，`enctype` 就是将表单的内容提交给服务器的 [MIME 类型](http://en.wikipedia.org/wiki/Mime_type) ，这个属性的默认值是`application/x-www-form-urlencoded`。
 
 当指定表单提交的方式`method`为`post`时，如果`enctype` 等于`application/x-www-form-urlencoded`，那么执行以下动作：
 
 - 请求头的`Content-Type`指定为`application/x-www-form-urlencoded`；
-- 表单的数据使用`&`分隔的键值对形式`key1=val1&key2=val2`提交到服务器，**键和属性值都会进行百分比编码**，这也是这种形式不支持文件上传的原因，文件都是以二进制数据流上传，不能编码
+- 表单的数据使用`&`分隔的键值对形式`key1=val1&key2=val2`提交到服务器，**键和属性值都会进行百分比编码**，这也是这种形式不支持文件上传的原因，文件一般都是以二进制数据流上传，不能编码。
 
 > HTTP 请求体
 >
@@ -214,11 +200,11 @@ HTML 的`<form>`表单元素具有`enctype`属性，`enctype` 就是将表单的
 > title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3
 > ```
 
-#### JS 中的 URL 编码方法
+### JS 中的 URL 编码方法
 
 在 ES 规范文档中提供两个标准的全局函数用于处理 URL 编码，`encodeURI`和`encodeURIComponent`，与他们分别对应的还有两个解码方法`decodeURI`和`decodeURIComponent`
 
-#####encodeURI
+#### encodeURI
 
 > [encodeURI(str)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURI)
 
@@ -231,7 +217,7 @@ a-z
 - _ . ! ~ * ' ( )  		; , / ? : @ & = + $ #
 ```
 
-##### encodeURIComponent
+#### encodeURIComponent
 
 > [encodeURIComponent(str)](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent)
 
@@ -244,7 +230,7 @@ a-z
 - _ . ! ~ * ' ( )
 ```
 
-##### 使用场景
+#### 使用场景
 
 `encodeURI`不会对 URL 中用于分隔的字符进行编码，而`encodeURIComponent`不编码的字符只有 71 个，其中用于分隔 URI 各部分的字符`/`，`?`，`=`，`&`，`#`等都会进行编码
 
@@ -266,11 +252,11 @@ console.log(
 
 所以`encodeURI`适合对整个 URI 进行编码，而`encodeURIComponent`适合编码 URI 中的一部分内容，例如`queryString`部分，编码完了再和 URL 串接起来发送到后端去处理。
 
-#### URL 的最大长度
+## URL 的最大长度
 
-> # [What is the maximum length of a URL in different browsers?](https://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers)
+> [What is the maximum length of a URL in different browsers?](https://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers)
 
-URL 的长度问题其实不是太常涉及到，根据 stack 上面的第一个回答大致可以看出 HTTP 方面并没有限制 URI 长度的规定，但是不同浏览器对 URL 的限制长度不同，并且服务器方面也会有限制，当服务器无法处理超长 URL 时，应该返回`414`状态码表示**请求的 URL 过长**。同时答案也建议 URL 控制在`2000`个字符以内，这样基本能满足不同浏览器和服务器的限制。
+URL 的长度问题其实不是太常涉及到，根据 stackoverflow 提问 —— [What is the maximum length of a URL in different browsers](https://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers)，该问题的第一个回答大致可以看出 HTTP 方面并没有限制 URI 长度的规定，但是不同浏览器对 URL 的限制长度不同，并且服务器方面也会有限制，当服务器无法处理超长 URL 时，应该返回`414`状态码表示**请求的 URL 过长**。同时答案也建议 URL 控制在`2000`个字符以内，这样基本能满足不同浏览器和服务器的限制。
 
 | 浏览器  | 长度限制                                         |
 | ------- | ------------------------------------------------ |
@@ -285,9 +271,9 @@ URL 的长度问题其实不是太常涉及到，根据 stack 上面的第一个
 | [apache](https://httpd.apache.org/docs/2.4/mod/core.html#limitrequestline)                                                 | 默认是 8190，8 KB            |
 | [Tomcat - maxHttpHeaderSize](https://tomcat.apache.org/tomcat-8.0-doc/config/http.html)                                    | 默认是 8192 ，8 KB           |
 
-### 同源策略
+## 同源策略
 
-#### Orgin
+### Orgin
 
 同源：**协议，主机，端口号**三者全部相同，注意一般情况下省略端口号都是默认`80`端口的情况。在页面中通过`javascript:`方式打开的页面会继承当前 URL 的源。
 
@@ -296,7 +282,7 @@ URL 的长度问题其实不是太常涉及到，根据 stack 上面的第一个
 
 ![image-20200731214020188](../images/image-20200731214020188-1596961661065.png)
 
-#### 限制
+### 限制
 
 浏览器的同源策略是限制一个源的文档或者脚本如何与另一个源的资源进行交互的安全策略。例如在使用`XMLHttpRequest`或者`<img>`标签时都会受到同源策略的限制，这些限制通常有以下这些：
 
@@ -315,34 +301,48 @@ URL 的长度问题其实不是太常涉及到，根据 stack 上面的第一个
 
 同源策略可以阻止网页恶意脚本，例如 JS 通过页面的 DOM 获取另一个网页中的数据。另外一种情况就是基于 cookie 的身份验证机制如果没有同源策略的限制，基本形同虚设。假设用户正在访问银行网站且未注销。然后，用户转到另一个站点，该站点的某些恶意 JavaScript 代码在后台运行，并从银行站点请求数据。由于用户仍在银行站点上登录，因此恶意代码可以执行用户在银行站点上可以执行的任何操作。这是来自一个不同源网页脚本的攻击行为，有了浏览器的同源策略就能轻易组织它。
 
-#### 不足
+### 不足
 
 - 同源策略无法阻止跨站伪造请求（CSRF）和点击劫持之类的攻击。
 
 - 同源策略给前端本地开发带来麻烦，本地服务器打开的页面访问服务器资源时就会受到限制。
 
-### 跨域请求
+## 跨域请求
 
 下面是能够允许使用的跨域资源访问的方式，最常见的还是一些页面嵌入标签。
 
-#### 页面嵌入资源
+### 页面嵌入资源
 
 - `<script src="..."></script>`标签嵌入跨域脚本
 - `<link rel="stylesheet" href="...">`嵌入 CSS，CSS 的跨域需要一个设置正确的 HTTP 头部 `Content-Type`
-- `<img>`标签
-- `<video>`标签
-- `<audio>`标签
+- `<img>`标签的 src 属性
+- `<video>`标签的 src 属性
+- `<audio>`标签的 src 属性
 - `<iframe>`标签载入的任何资源
 - 一些通过 CSS`@font-face`的`src`引入的字体，这个取决于不同浏览器的实现，有的允许，有的不允许
 - `<object>`的`data`属性引入的外部资源
 
-#### CORS
+`<img>`标签具有`crossorigin`属性，具有以下属性值
+
+| 值                | 含义                                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------- |
+| `anonymous`       | 对此元素的 CORS 请求将不设置凭据标志。                                                |
+| `use-credentials` | 对此元素的 CORS 请求将设置凭证标志；这意味着请求将提供凭据。                          |
+| `""`              | 设置一个空的值，如 `crossorigin` 或 `crossorigin=""`，和设置 `anonymous` 的效果一样。 |
+
+当使用 canvas 操作图片时，如果从外部引入的 `<img>`或 `<svg>`，并且图像源不符合规则，将会被阻止从 canvas 中读取数据；此时如果使用 canvas 对象的下列方法会报错
+
+- `getImageData()`：返回指定区域的`ImageData`对象
+- `toBlob`：创建 Blob 对象
+- `toDataURL()`：创建一个`data://`形式的字符串表示文件，可以认为是图片资源定位符，默认为 PNG 格式
+
+### CORS
 
 CORS，Cross-Origin Resource Sharing，跨域资源共享是 W3C 针对跨源资源请求制定的标准方案，也是目前跨域请求主流的解决方案。
 
 由于浏览器的同源策略限制，在页面 JS 中使用`XMLHttpRequest`和`Fetch API`时只能请求同源的 URL，CORS 则通过特定 HTTP 请求头和响应头参数来允许`XMLHttpRequest`和`Fetch API`执行跨源请求。
 
-##### HTTP 请求头
+#### HTTP 请求头
 
 浏览器在发起`XMLHttpRequest`请求时会自动添加这些请求头参数，无需在代码中手动添加。
 
@@ -352,7 +352,7 @@ CORS，Cross-Origin Resource Sharing，跨域资源共享是 W3C 针对跨源资
 | `Access-Control-Request-Method`  | HTTP 请求方法字符串；在发出预检请求时使用，以告知服务器发出实际请求时将使用哪种 HTTP 方法                      | 只在预检请求中使用 |
 | `Access-Control-Request-Headers` | 自定义的请求头参数，多个头部使用逗号分隔；在发出预检请求时使用，以告知服务器正式请求将携带的额外 HTTP 头部字段 | 只在预检请求中使用 |
 
-##### HTTP 响应头
+#### HTTP 响应头
 
 服务器需要对允许跨域请求的响应返回以下请求头参数
 
@@ -365,7 +365,9 @@ CORS，Cross-Origin Resource Sharing，跨域资源共享是 W3C 针对跨源资
 | `Access-Control-Allow-Credentials` | 表示服务器是否结束了浏览器发送的凭据                                                      | true/false      | 否       |
 | `Access-Control-Expose-Headers`    | 允许浏览器读取的响应头参数                                                                | Content-Type 等 | 否       |
 
-##### 简单请求
+现在主流浏览器基本都支持 CORS，只要服务端配置以下响应头部就可以顺利实现跨域资源请求，有一个网站叫[Enable CORS](https://enable-cors.org/index.html)，介绍了诸多服务端实现的方法，例如 [nginx 的配置项](https://enable-cors.org/server_nginx.html)
+
+#### 简单请求
 
 浏览器会将使用`XMLHttpRequest`或者`fetch`发起的请求分为简单请求和非简单请求。
 
@@ -413,7 +415,7 @@ CORS，Cross-Origin Resource Sharing，跨域资源共享是 W3C 针对跨源资
 
 - 请求中未使用[`ReadableStream`](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream) 对象
 
-##### 非简单请求
+#### 非简单请求
 
 **非简单请求**就是不符合简单请求必须满足的所有条件，非简单请求一般是以下任一情况：
 
@@ -459,7 +461,7 @@ CORS，Cross-Origin Resource Sharing，跨域资源共享是 W3C 针对跨源资
 
 ![preflight_correct](../images/preflight_correct.png)
 
-##### 附带身份凭证的请求
+#### 附带身份凭证的请求
 
 一般而言，对于`XMLHttpRequest`和`Fetch`，浏览器不会发送`cookie`等身份凭证信息，但是`XMLHttpRequest`支持`withCredentials`属性，将该属性设置为`withCredential = true`，则表示该请求会发送`cookie`，HTTP Basic authentication，或者客户端 SSL 证明等信息。
 
@@ -483,38 +485,32 @@ Access-Control-Allow-Credentials: true
 
 另外，对于附带身份凭证的请求，服务器不得设置 `Access-Control-Allow-Origin` 的值为“`*`”。这是因为请求的首部中携带了 `Cookie` 信息，如果 `Access-Control-Allow-Origin` 的值为“`*`”，请求将会失败。而将 `Access-Control-Allow-Origin` 的值设置为指定的请求域名如 `http://foo.example.com`，则请求将成功执行。
 
-##### 服务端如何配置 CORS 响应头
-
-现在主流浏览器基本都支持 CORS，只要服务端配置以下响应头部就可以顺利实现跨域资源请求，有一个网站叫[Enable CORS](https://enable-cors.org/index.html)，介绍了诸多服务端实现的方法，例如 nginx 的配置项：
-
-> [CORS on Nginx](https://enable-cors.org/server_nginx.html)
-
-##### CORS 的一些缺陷
+#### CORS 的一些缺陷
 
 从 CORS 的机制了解到，在浏览器执行非简单请求时将会发送预检请求，等到服务端验证通过才去发送正式请求，这样的请求方式无端的多了一次建立连接的请求开销，对于大量并发的请求时，这种开销就会增加服务器的压力，可以从两方面进行优化：
 
 - 尽量只发送简单请求，使用`GET`，`POST`方法的同时不要去设置额外的请求头部，同时发送的`Content-Type`不能使用`application/json`，可以使用`text/plain`让后端解析；
 - 让服务端在响应头添加`Access-Control-Max-Age`参数，来缓存预检结果，避免每次请求都会先发送预检请求
 
-#### JSONP
+### JSONP
 
 JSONP，JSON with Padding，填充式 JSON，也是跨域资源请求的一种方式。
 
-JSONP 的原理就是利用`script`标签的`src`属性可以跨域载入资源的漏洞，通过服务端返回的 JS 脚本来执行预先设置好的回调函数。
+JSONP 的原理就是**利用`script`标签的`src`属性可以跨域载入资源的漏洞，通过服务端返回的 JS 脚本来执行预先设置好的回调函数。**
 
 JSONP 实现的方式是：
 
 - 利用 DOM 接口`createElement`动态创建一个`script`标签；
 - 将`script`的`src`属性设置成服务器的请求地址，并在后面串接一个回调函数；
-- 当服务器收到请求后，会解析请求发送的回调函数的名称，服务端在允许的情况下会返回一个字符串，形式就是`functionName({...数据})`，一个由回调函数名称和 JSON 数据组成的字符串；后端可以先获取查询数据，然后再和回调函数名称拼接字符串即可；
-- 由于是`<script>`元素请求的脚本，浏览器会将收到的响应作为 JS 去执行，也就达到了执行回调函数的目的
+- 当服务器收到请求后，会解析请求发送的回调函数的名称，服务端在允许的情况下可以返回一串文本，形式大致就是`functionName({...数据})`，一个由回调函数名称和 JSON 数据组成的字符串；后端可以先获取查询数据，然后再和回调函数名称拼接字符串即可；
+- 由于是`<script>`元素请求的脚本，浏览器在收到服务端返回的脚本内容以后，会把它当成 JS 去执行，也就达到了获取跨域获取数据的目的
 
-```javascript
+```shell
 <script>
-  var script = document.createElement("script"); script.src =
-  "http://www.example.com/path1?callback=handleResponse";
-  document.body.insertBefore(script, document.body.firstChild); function
-  handleResponse(jsonResponse)
+  var script = document.createElement("script");
+	script.src = "http://www.example.com/path1?callback=handleResponse";
+  document.body.insertBefore(script, document.body.firstChild);
+  function handleResponse(jsonResponse)
   {
     //jsonResponse就是响应数据
   }
@@ -523,7 +519,7 @@ JSONP 实现的方式是：
 
 ![image-20200802120029159](../images/image-20200802120029159.png)
 
-##### 一些实现 JSONP 的方式
+#### 第三方实现
 
 jQuery.ajax 在 1.5 版本以后，支持 jsonp 跨域请求设置，ajax 里面可以通过`dataType`， `jsonp`，`jsonpCallback`等参数来设置 jsonp 请求，这里只能指定请求方法为`GET`，就算指定成 POST 方式，会自动转为 GET 方式。
 
@@ -550,21 +546,21 @@ axios 需要安装第三方库`jsonp`才支持 jsonp 请求
 
 > https://juejin.im/post/6844903992057659400#heading-1
 
-##### JSONP 的缺点
+#### JSONP 的缺点
 
-- JSONP 通过`script`标签请求服务器加载文件，因此只支持`GET`请求，如果要携带请求参数，只能将参数串接在 URL 后面，这样直接暴露数据的方式相对来说不安全，但也并不是说绝对不安全，实际上服务端仍然可以对请求去做验证；
-- 同时 JSONP 的报错不是太明显，要确定 JSONP 是否请求失败，可以通过`script`的`onerror`事件来处理；或者使用定时器来定时检测是否收到响应；
+- JSONP 通过`script`标签请求服务器加载文件，因此**只支持`GET`请求**，如果要携带请求参数，只能将参数串接在 URL 后面，这样直接暴露数据的方式相对来说**不安全**，但也并不是说绝对不安全，实际上服务端仍然可以对请求去做验证；
+- 同时 JSONP 的**报错不是太明显**，要确定 JSONP 是否请求失败，可以通过`script`的`onerror`事件来处理；或者使用定时器来定时检测是否收到响应；
 - JSONP 和 CORS 都需要服务端配合，在 CORS 兼容性已经很好的今天，推荐使用 CORS。
 
-####WebSockets
+### WebSockets
 
 > [WebSocket API](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket)
 
-WebSockets，或者叫网络层套接字协议，它和 HTTP 一样，属于网络层的一种协议，并且建立在 TCP 连接基础上的，但是 WebSockets 最主要的功能是提供**全双工双向**通信，使得服务端可以向网页推送数据。
+WebSockets，或者叫网络层套接字协议，它和 HTTP 一样，属于网络层的一种协议，并且建立在 TCP 连接基础上的，但是 WebSockets 最主要的功能是提供全双工双向通信，使得服务端可以向网页推送数据。
 
-WebSockets 协议的原理和使用这里不做具体分析，WebSockets 协议能跨域请求的原理是使用单独的协议而不受浏览器的同源策略限制。
+WebSockets 协议的原理和使用这里不做具体分析，**WebSockets 协议能跨域请求的原理是使用单独的协议而不受浏览器的同源策略限制**。
 
-首先要明确一点，WebSockets 需要在 HTTP 报文的基础上建立连接，在创建一个 WebSockets 对象后，浏览器就会马上尝试创建连接，
+首先要明确一点，WebSockets 需要在 HTTP 报文的基础上建立连接，在创建一个 WebSockets 对象后，浏览器就会马上尝试创建连接，过程大致如下：
 
 首次会通过发送 HTTP 报文的方式建立与服务器的 TCP 连接，然后再发送最后一个 HTTP 报文请求服务器切换到 WebSockets 的协议上来，服务器在收到请求后会发送`101`响应来表示成功切换到 WebSockets 协议上了。
 
@@ -592,7 +588,7 @@ socket.addEventListener('message', function(event) {
 });
 ```
 
-#### nginx 反向代理
+### nginx 反向代理
 
 在使用 nginx 反向代理之前，尽量考虑直接使用 nginx 支持的 CORS 配置，能用 CORS 为什么不用呢？
 
@@ -603,23 +599,3 @@ socket.addEventListener('message', function(event) {
 通过 nginx 反向代理也能很好的解决跨域资源请求，这种实现的方式是利用代理 nginx 服务器监听端口请求域名，然后根据匹配规则将请求转发到真正的目标处理服务器进行处理。由于代理服务器和当前网页同源，所以根本就没有跨域请求的限制了。
 
 ![image-20200802155714231](../images/image-20200802155714231.png)
-
-#### postMessage
-
-暂未整理
-
-#### img 的`crossorigin`属性
-
-img 标签具有`crossorigin`属性，具有以下属性值，注意大小写
-
-| 值                | 含义                                                                                  |
-| ----------------- | ------------------------------------------------------------------------------------- |
-| `anonymous`       | 对此元素的 CORS 请求将不设置凭据标志。                                                |
-| `use-credentials` | 对此元素的 CORS 请求将设置凭证标志；这意味着请求将提供凭据。                          |
-| `""`              | 设置一个空的值，如 `crossorigin` 或 `crossorigin=""`，和设置 `anonymous` 的效果一样。 |
-
-当使用 canvas 操作图片时，如果从外部引入的 `<img>`或 `<svg>`，并且图像源不符合规则，将会被阻止从 canvas 中读取数据；此时如果使用 canvas 对象的下列方法会报错
-
-- `getImageData()`：返回指定区域的`ImageData`对象
-- `toBlob`：创建 Blob 对象
-- `toDataURL()`：创建一个`data://`形式的字符串表示文件，可以认为是图片资源定位符，默认为 PNG 格式

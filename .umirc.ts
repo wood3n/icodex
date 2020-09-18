@@ -34,6 +34,10 @@ export default defineConfig({
       path: '/css',
     },
     {
+      title: 'other',
+      path: '/other',
+    },
+    {
       title: 'GitHub',
       path: 'https://github.com/wood3n/icodex',
     },

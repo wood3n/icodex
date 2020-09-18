@@ -8,7 +8,7 @@ tree shaking 这个词，我觉得很有意思，图源自 —— [掘金 - Tree
 
 ![160bfdcf2a31ce4a](../images/160bfdcf2a31ce4a.gif)
 
-tree shaking 是 webpack 里的术语，**用于移除 JS 上下文中未引用过的代码，以减小代码体积，间接减少代码在网络请求过程中的耗时**。需要注意的是 tree shaking 依赖于 ES6 的模块语法 —— `import`和`export`。
+tree shaking 是 webpack 里的术语，**用于移除 JS 上下文中未引用过的代码，以减小代码体积，间接减少代码在网络请求过程中的耗时**。我把这个称为代码清洁工。需要注意的是 tree shaking 依赖于 ES6 的模块语法 —— `import`和`export`。
 
 例如，在一个 module 中声明了两个函数组件，通过`import`的语法全部引入：
 
@@ -200,7 +200,7 @@ module.exports = {
 ### 如何使用 tree shaking
 
 - tree shaking 功能是 webpack 默认在生产环境下提供的，但是由于 tree shaking 依赖 ES6 的模块语法，所以首先考虑在代码中使用`import`和`export`
-- 禁用`@babel/preset-env`的编译，babel 编译器默认上来说会将 ES6 模块语法转换成 CommonJS 的形式，这种行为不利于 tree shaking，如果希望 tree shaking 更好的工作，可以禁用 babel 对该语法的编译。
+- 禁用`@babel/preset-env`的编译，babel 编译器默认会将 ES6 模块语法转换成 CommonJS 的形式，这种行为不利于 tree shaking，如果希望 tree shaking 更好的工作，可以禁用 babel 对该语法的编译。
 
 ```javascript
 module.exports = {

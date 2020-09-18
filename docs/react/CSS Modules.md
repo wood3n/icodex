@@ -164,7 +164,7 @@ module.exports = {
 
 #### String
 
-可选`"local"`或者`"global"`，指定`"local"`的效果和`true`是一样的，指定`"global"`不会对 CSS Modules 的`class`进行 hash 编码，直接使用原来的`class`名称，也就是不具有模块作用域。需要注意的是设置`"global"`就要按照 CSS Modules global 的语法来写，详情见下方语法介绍。
+可选`"local"`或者`"global"`，指定`"local"`的效果和`true`是一样的，指定`"global"`不会对 CSS Modules 的`class`进行 hash 编码，直接使用原来的`class`名称，也就是不具有模块作用域。需要注意的是设置`"global"`就要按照 CSS Modules global 的语法来写，详情见上文`local`和`global`的区别。
 
 #### Object
 

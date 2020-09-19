@@ -731,15 +731,17 @@ module.exports = {
 
 #### optimization.splitChunks.cacheGroups
 
-`cacheGroups`是十分强大的自定义 chunk 抽取的配置，通过`test`属性可以匹配`import`时候引入的模块的文件名，然后选择将其抽成一个 chunk。不得不说，`webpack-bundle-analyzer`配合这个使用简直就是神器！
+`cacheGroups`是十分强大的自定义 chunk 抽取的配置，通过`test`属性可以匹配`import`时候引入的模块的文件名，然后选择将其抽成一个 chunk。
+
+不得不说，`webpack-bundle-analyzer`配合这个使用简直就是神器，从`webpack-bundle-analyzer`可以详细分析每个 chunk 有哪些模块组成以及这些模块的路径名，这样就方便使用`test`去匹配模块然后拆分 chunk。
 
 过去我做过的一个项目，大量使用第三方库，对于`node_modules`中的代码，如果按照 webpack 默认的配置将`node_modules`抽成一个 chunk，结果就像下图这样：
 
 ![image-20200912112621505](../images/image-20200912112621505.png)
 
-oh my god，接近`18MB`的一个`vendor`都被插在了 html 中，即使经过 Gzip 压缩也超过`2MB`，可想而知首页请求会慢成什么乌龟样。
+接近`18MB`的一个`vendor`都被插在了 html 中，即使经过 Gzip 压缩也超过`2MB`。
 
-下面开始动手，把`node_modules`里的那个`xlsx`拆出来，首页加载要这玩意干嘛 👺！
+下面配置把`node_modules`里的那个`xlsx`拆出来
 
 ```javascript
 module.exports = {
@@ -767,7 +769,9 @@ module.exports = {
 
 ![image-20200912203128402](../images/image-20200912203128402.png)
 
-接下来可以继续按照上述的方法，把`pdfjs`，`echarts`，`g6`这三个模块拆出来，经过拆分，如果再加上使用 Gzip 压缩，`vendors`的大小只有`700KB`左右，相比一开始`2MB`（开启 Gzip）减少了很大的体积。
+接下来可以继续按照上述的方法，把`pdfjs`，`echarts`，`g6`这三个模块拆出来，需要注意像`@antv/g6`这种模块名称带有分隔符的，分隔符需要使用`[\\/]`去匹配分隔符。
+
+经过拆分，如果再加上使用 Gzip 压缩，`vendors`的大小只有`700KB`左右，相比一开始`2MB`（开启 Gzip）减少了很大的体积。
 
 ```javascript
 module.exports = {

@@ -277,7 +277,7 @@ package 使用过程中出现问题的联系方式，例如 email 地址，或�
 
 使用`npm install xxx`或者`npm install xxx --save/-D`会将安装的依赖项写入`dependencies`属性中。
 
-`dependencies`是一个对象，指定项目使用的依赖项从 package `name`到版本范围映射。key 是 package 的名称，value 是 package 的语义化版本信息，见上文[samantic versioner](#samantic versioner)。
+`dependencies`是一个对象，指定项目使用的依赖项从 package `name`到版本范围映射。key 是 package 的名称，value 是 package 的语义化版本信息，见上文。
 
 ### devDependencies
 

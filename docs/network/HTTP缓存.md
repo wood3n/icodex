@@ -302,27 +302,29 @@ web 浏览器的刷新按钮（`ctrl+R`），可以强制对浏览器中缓存�
 >
 > 响应头
 
-`Vary`响应头后指定一串 HTTP 头部字段名称，用于决定后续请求的缓存处理过程；当缓存服务器收到后续一个请求时，只有当前请求的请求头参数和缓存的资源的`Vary`指定的请求头的值相匹配才能使用缓存。
-
-`Vary`主要应用于缓存代理服务器能够精准的返回文档，要理解`Vary`需要了解 HTTP 的[内容协商机制](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Content_negotiation)。
-
-一份特定的文件可以称为一项资源，例如 Web 网页中的 HTML 页面，CSS，JS，图片等都属于资源，这些资源需要根据 URL 从服务器请求下载下来，而一个 URL 在服务器上对应的可能存在着资源变体，也就是可能代表图片，可能代表网页，也可能代表 JS 等，客户端也不知道服务器最终会返回什么内容，所以这就存在着协商机制，让客户端告诉服务器选择什么样的内容返回给它。
-
-客户端可以指定特定的 HTTP 首部，例如[`Accept`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept)、[`Accept-Charset`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept-Charset)、 [`Accept-Encoding`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept-Encoding)、[`Accept-Language`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept-Language)等来告诉浏览器需要接受什么格式，什么语言等类型的资源。这种协商机制被称为服务端驱动型内容协商或者主动协商，就是客户端主动告诉服务器我想要什么。服务器在收到这些请求首部字段以后，也会使用相应的响应首部，它们之间存在着对应关系。
-
-| 请求头字段        | 含义                       | 响应头字段         |
-| :---------------- | :------------------------- | :----------------- |
-| `Accept`          | 告知服务器发送何种媒体类型 | `Content-Type`     |
-| `Accept-Language` | 告知服务器发送何种语言     | `Content-Language` |
-| `Accept-Charset`  | 告知服务器发送何种字符集   | `Content-Type`     |
-| `Accept-Encoding` | 告知服务器采用何种压缩方式 | `Content-Encoding` |
-
-而缓存代理服务器属于客户端和原始服务器的中间环节，有一种情况是，服务端的资源发生变化的情况，上一次请求发送`Accept-Encoding:gzip`，于是 gzip 压缩的资源被缓存代理服务器所缓存，而经过一段时间，同一个 URL 下在服务器保存的资源已经发生了变化，这次客户端想请求`Accept-Encoding:deflate`编码的资源，缓存代理服务器发现是同一 URL，直接把上次缓存的 gzip 发送回去了，于是客户端就出现了错误。
-
-根据 RFC7234 规范的定义：
+根据 RFC7234 规范的定义，`Vary`用于指定特定的 HTTP 首部，让缓存代理服务器对后续请求的首部和原始资源缓存的首部进行对比，只有匹配的情况下才使用缓存。
 
 > When a cache receives a request that can be satisfied by a stored response that has a `Vary` header field,it MUST NOT use that response unless **all of the selecting header fields nominated by the `Vary` header field match in both the original request (i.e., that associated with the stored response), and the presented request.**
 
-如果说原始服务器在指定了`Vary: Accept-Encoding`，缓存代理服务器缓存了该资源，然后后续请求到达，缓存代理服务器需要将该请求的`Accept-Encoding`和缓存资源的`Content-Encoding`进行匹配，如果相符合才会发送缓存资源。MDN 上的一张图解释得很好。
+`Vary`主要应用于缓存代理服务器能够精准的返回文档，要理解`Vary`需要了解 HTTP 的[内容协商机制](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Content_negotiation)。
 
-![image-20200920225527078](../images/image-20200920225527078.png)
+一份特定的文件可以称为一项资源，例如 Web 网页中的 HTML 页面，CSS，JS，图片等都属于资源，这些资源需要根据 URL 从服务器请求下载下来，但是仅仅依靠简单的 URL 请求无法让服务器决定返回资源的类型，例如有的客户端浏览器支持 gzip 压缩，有的客户端不支持 gzip 支持的是 deflate 压缩，所以这就需要客户端和服务器进行协商确定最终响应的资源类型。
+
+客户端可以指定特定的 HTTP 首部，例如[`Accept`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept)、[`Accept-Charset`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept-Charset)、 [`Accept-Encoding`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept-Encoding)、[`Accept-Language`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept-Language)等来告诉浏览器需要接受什么格式，什么语言等类型的资源。这种协商机制被称为服务端驱动型内容协商或者主动协商，就是客户端主动告诉服务器我想要什么。服务器在收到这些请求首部字段以后，也会使用相应的响应首部，它们之间存在着对应关系。
+
+| 请求头字段        | 含义                           | 响应头字段         |
+| :---------------- | :----------------------------- | :----------------- |
+| `Accept`          | 希望接收的媒体资源的 MIME 类型 | `Content-Type`     |
+| `Accept-Language` | 告知服务器发送何种语言         | `Content-Language` |
+| `Accept-Charset`  | 接受何种形式的字符编码         | `Content-Type`     |
+| `Accept-Encoding` | 告知服务器采用何种压缩方式     | `Content-Encoding` |
+| `User-Agent`      | 接受何种用户代理类型的资源     | `Vary:User-Agent`  |
+
+而缓存代理服务器属于客户端和原始服务器的中间环节，MDN 上的图可以很好的解释`Vary`对于缓存代理服务器的作用，但是 MDN 那张图对`Vary`指定的字段值标错了，应该是`Vary:Accept-Encoding`才对：
+
+- Client 1 是一个客户端，它第一次请求缓存代理服务器的资源，此时还没有缓存，于是缓存代理服务器向原始服务器发出请求，原始服务器响应请求，并附带`Vary:Accept-Encoding`的响应头，此时缓存代理服务器会缓存下来 gzip 格式的资源；
+- 然后 Client 2 是另一个客户端，它也请求相同的资源，但是它希望服务器发送给它`br`格式编码的资源，由于先前缓存的是 gzip 格式的资源，根据`Vary`指定，上一次请求和当前请求的`Accept-Encoding`必须匹配才能使用缓存，这里不匹配，还是向原始服务器请求；
+- 然后 Client 3 也请求了相同 URL 的资源，他也请求`br`格式编码的资源，但是经过上一次 Client 2 请求以后，缓存代理服务器已经缓存了`br`格式编码的资源，所以就不再去原始服务器请求了
+- 所以`Vary`能够提高缓存代理服务器发送缓存的精准性
+
+![image-20200920232301263](../images/image-20200920232301263.png)

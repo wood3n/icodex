@@ -15,7 +15,7 @@ export default class extends Component {
           <Title>icodex</Title>
           <Title level={2}>Front-end development cookbook</Title>
           <Title level={3}>
-            <a href="/blog" className="layout-link">
+            <a href="/blog/dumi搭建blog" className="layout-link">
               <span className="layout-icon">
                 <CreateIcon />
               </span>

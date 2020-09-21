@@ -302,7 +302,9 @@ web 浏览器的刷新按钮（`ctrl+R`），可以强制对浏览器中缓存�
 >
 > 响应头
 
-根据 RFC7234 规范的定义，`Vary`用于指定特定的 HTTP 首部，让缓存代理服务器对后续请求的首部和原始资源缓存的首部进行对比，只有匹配的情况下才使用缓存。
+根据 RFC7234 规范的定义，`Vary`用于指定特定的 HTTP 首部，让缓存代理服务器对后续请求的首部和原始请求的首部进行对比，只有匹配的情况下才使用缓存。
+
+如果指定`Vary: *`则表示用不匹配，也就永远不使用缓存代理服务器的缓存。
 
 > When a cache receives a request that can be satisfied by a stored response that has a `Vary` header field,it MUST NOT use that response unless **all of the selecting header fields nominated by the `Vary` header field match in both the original request (i.e., that associated with the stored response), and the presented request.**
 
@@ -312,13 +314,13 @@ web 浏览器的刷新按钮（`ctrl+R`），可以强制对浏览器中缓存�
 
 客户端可以指定特定的 HTTP 首部，例如[`Accept`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept)、[`Accept-Charset`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept-Charset)、 [`Accept-Encoding`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept-Encoding)、[`Accept-Language`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept-Language)等来告诉浏览器需要接受什么格式，什么语言等类型的资源。这种协商机制被称为服务端驱动型内容协商或者主动协商，就是客户端主动告诉服务器我想要什么。服务器在收到这些请求首部字段以后，也会使用相应的响应首部，它们之间存在着对应关系。
 
-| 请求头字段        | 含义                           | 响应头字段         |
-| :---------------- | :----------------------------- | :----------------- |
-| `Accept`          | 希望接收的媒体资源的 MIME 类型 | `Content-Type`     |
-| `Accept-Language` | 告知服务器发送何种语言         | `Content-Language` |
-| `Accept-Charset`  | 接受何种形式的字符编码         | `Content-Type`     |
-| `Accept-Encoding` | 告知服务器采用何种压缩方式     | `Content-Encoding` |
-| `User-Agent`      | 接受何种用户代理类型的资源     | `Vary:User-Agent`  |
+| 请求头字段        | 含义                                                 | 响应头字段         |
+| :---------------- | :--------------------------------------------------- | :----------------- |
+| `Accept`          | 希望接收的媒体资源的 MIME 类型                       | `Content-Type`     |
+| `Accept-Language` | 告知服务器发送何种语言                               | `Content-Language` |
+| `Accept-Charset`  | 接受何种形式的字符编码                               | `Content-Type`     |
+| `Accept-Encoding` | 告知服务器采用何种压缩方式                           | `Content-Encoding` |
+| `User-Agent`      | 接受何种用户代理类型的资源，例如 PC 端和移动端的区别 | `Vary:User-Agent`  |
 
 而缓存代理服务器属于客户端和原始服务器的中间环节，MDN 上的图可以很好的解释`Vary`对于缓存代理服务器的作用，但是 MDN 那张图对`Vary`指定的字段值标错了，应该是`Vary:Accept-Encoding`才对：
 

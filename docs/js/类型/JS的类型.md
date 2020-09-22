@@ -170,9 +170,17 @@ Number('-Infinity'); //-Infinity
 
 #### Symbol
 
-- ES6 引入一个基本类型，目前**仅用作对象属性的标识符**，从而防止对象属性名的冲突
-- 尽管`Symbol`是类型，但是不支持`new Symbol()`语法，只能通过`Symbol(xxx)`来创建；括号内通常传入字符串或者其他类型，其他类型会被转成字符串然后调用
-- 作为属性名时必须用`[]`标识，并且只能用`[]`访问；如果想在定义后访问到这个属性，必须将`Symbol(xxx)`先传递给一个变量，然后通过`[]`标识和访问
+ES6 引入的一个基本类型，目前**仅用作对象属性的标识符**，从而防止对象属性名的冲突。
+
+尽管`Symbol`是类型，但是不支持`new Symbol()`语法，只能通过`Symbol(xxx)`来创建；括号内通常传入字符串或者其他类型，其他类型会被转成字符串然后调用。
+
+关于`Symbol`为什么不能用`new`，其实这涉及到 JS 原始值类型包装对象的概念，`new`本身用于函数前面就会以构造函数的形式去调用一个函数，对于其它原始值类型`String`，`Number`，`Boolean`这些，都可以使用`new`调用其构造函数创建一个包装对象出来，就算不显示这么做，在 JS 解析标识符的时候也会去进行包装对象的操作，即原始值类型都会创建一个临时的包装对象，这样才能使用其原型上的方法。从 ES 规范的定义来看，`Symbol`的构造函数直接定义的是不能使用`new`操作符：
+
+> The Symbol constructor is not intended to be used with the new operator. —— [The Symbol Constructor](https://tc39.es/ecma262/#sec-symbol-constructor)
+
+关于这个问题，知乎上也有个相关讨论 —— [symbol 为什么没有包装类型?](https://www.zhihu.com/question/316717095/answer/628772556)，从紫云飞的解释来看，这是 ES6 的尝试，因为本质上使用`new`去构造原始值类型的包装对象这种操作是多余的行为，确实多余，平时基本不会有人这么干去声明一个原始值类型的包装对象出来。所以从 ES6 开始，这种使用`new`调用原始值类型构造函数的行为被隐式废弃，就从`Symbol`开始，并且可见的是的`BigInt`也是这样的，只是`BigInt`目前还是 Stage 4 的状态，ES2021 规范定义也表明了`BigInt`的构造函数无法用`new` —— [The BigInt Constructor](https://tc39.es/ecma262/#sec-bigint-constructor)
+
+作为属性名时必须用`[]`标识，并且只能用`[]`访问；如果想在定义后访问到这个属性，必须将`Symbol(xxx)`先传递给一个变量，然后通过`[]`标识和访问
 
 ```javascript
 var sym = Symbol('foo');
@@ -180,7 +188,7 @@ var obj = { [sym]: 1 };
 obj[sym]; // 1
 ```
 
-- 每次调用`Symbol()`都会返回一个独一无二的值，即使括号内参数相同
+每次调用`Symbol()`都会返回一个独一无二的值，即使括号内参数相同
 
 ```javascript
 Symbol('foo') === Symbol('foo'); // false
@@ -441,18 +449,18 @@ NaN
 
 `typeof`返回操作数的类型名称字符串，它没什么原理不原理的，返回值是直接在规范中给出来的，如下表：
 
-| 类型         | 结果           |
-| ------------ | -------------- |
-| Undefined    | "undefined"    |
-| Null         | **"object"**   |
-| Boolean      | "boolean"      |
-| Number       | "number"       |
-| String       | "string"       |
-| Symbol       | "symbol"       |
-| BigInt       | "bigint"       |
-| Function     | **"function"** |
-| 其它引用类型 | **"object"**   |
-| class        | "function"     |
+| 类型         | 结果             |
+| ------------ | ---------------- |
+| Undefined    | `"undefined"`    |
+| Null         | **`"object"`**   |
+| Boolean      | `"boolean"`      |
+| Number       | `"number"`       |
+| String       | `"string"`       |
+| Symbol       | `"symbol"`       |
+| BigInt       | `"bigint"`       |
+| Function     | **`"function"`** |
+| 其它引用类型 | **`"object"`**   |
+| class        | `"function"`     |
 
 ### instanceof
 

@@ -192,7 +192,7 @@ git checkout testing
 git merge <branchname>
 ```
 
-如果要合并分支，首先切换到合并后的分支上去，然后使用`git merge <branchname>`选择要合并到当前分支的分支，需要注意合并分支并不会删除分支，要删除分支需要`git branch -d`命令。
+**`git merge`命令是把指定分支合并到当前分支**，因此如果要合并分支，首先切换到合并后的分支上去，然后使用`git merge <branchname>`选择要合并到当前分支的分支，需要注意合并分支并不会删除分支，要删除分支需要`git branch -d`命令。
 
 ![image-20200922003119053](../images/image-20200922003119053.png)
 

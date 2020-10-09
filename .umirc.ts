@@ -22,6 +22,10 @@ export default defineConfig({
       path: '/react',
     },
     {
+      title: 'TypeScript',
+      path: '/typescript',
+    },
+    {
       title: 'Network',
       path: '/network',
     },

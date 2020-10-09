@@ -805,21 +805,52 @@ obj2.pFunc.call(obj2); // obj1
 
 ###箭头函数内部的 this
 
-箭头函数是最特殊的，它自己没有`this`，所以它根本不能作为构造函数使用，也不能通过`call/apply`调用，其内部`this`只能是上层环境传给它。
+箭头函数是最特殊的，它自己没有`this`，其**内部`this`跟随定义时的环境，也就是取决于静态作用域了。**
 
-- 即使作为对象方法调用，但是因为对象处于全局环境，所以箭头函数内部也是只有全局环境。
+当作为对象方法时，如果对象定义的时候处于全局环境，所以箭头函数内部`this`也是指向全局上下文，严格模式下就是`undefined`，在使用 TypeScript 的环境下，下面的代码会直接报错。
 
 ```javascript
+'use strict';
 var obj = {
+  name: 'oxygen',
   func: () => {
-    console.log(this);
+    console.log(this.name);
   },
 };
 
-obj.func(); // 指向window
+obj.func();
 ```
 
-- 如果在函数环境内，其`this`也是取决于当前包裹它的函数
+![image-20201005181535245](../../images/image-20201005181535245.png)
+
+要解决上述问题就是在箭头函数外面包裹一层普通函数，或者使用普通函数定义对象的方法
+
+```typescript
+'use strict';
+var obj = {
+  name: 'oxygen',
+  func: function() {
+    console.log(this.name);
+  },
+};
+
+obj.func(); // "oxygen"
+
+'use strict';
+var obj = {
+  name: 'oxygen',
+  func: function() {
+    const func = () => {
+      console.log(this.name);
+    };
+    func();
+  },
+};
+
+obj.func(); // "oxygen"
+```
+
+如果在函数环境内，其`this`也是取决于当前包裹它的函数
 
 ```javascript
 function wrapper() {
@@ -935,7 +966,7 @@ var result = Reflect.construct(SuperType, arguments, SubType);
 
 ## this 指向变化
 
-#### 普通函数
+### 普通函数
 
 `this`在同一个函数中的指向肯定会随着调用方式发生变化
 

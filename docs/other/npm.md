@@ -299,7 +299,7 @@ node_modules/
   		+- webpack/
 ```
 
-使用`peerDependencies`将`webpack`作为核心依赖库，就可以避免相同的依赖被重复安装，做到`node_modules`树扁平化处理。
+**使用`peerDependencies`将`webpack`作为核心依赖库，就可以避免相同的依赖被重复安装，做到`node_modules`树扁平化处理**。
 
 在`npm@1.x`以及`npm@2.x`版本中，如果用户没有显式依赖核心库，则按照插件`peerDependencies`中声明的版本会被自动安装到项目根目录的`node_modules`中。
 
@@ -312,3 +312,13 @@ node_modules/
 ### optionalDependencies
 
 `optionalDependencies`表示可选的依赖项，也就是用不用得到无所谓，如果在 npm 安装 package 的时候报错，也不会影响其他 package 的安装。
+
+### typings/types
+
+`typings`/`types`属性用于指定该项目的 TypeScript 类型声明文件位置，当使用 TypeScript 时，如果在项目中使用到了第三方库，那么 TypeScript 需要根据类型声明文件才能获得对应的代码补全、接口提示等功能。
+
+```json
+{
+  "typings": "lib/index.d.ts"
+}
+```

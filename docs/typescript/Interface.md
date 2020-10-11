@@ -133,13 +133,42 @@ class Person implements IPerson {
 }
 
 const person = new Person();
-console.log(person.name);
+console.log(person.name); // oxygen
 ```
 
 ## 继承
 
 通过`extends`关键字可以将几个声明的`interface`组合起来，也可称为继承。
 
+```typescript
+interface House {
+  room: number;
+  price: number;
+}
+
+interface MyHouse extends House {
+  people: number;
+}
+```
+
 ## 实现
 
 通过`implements`关键字可以通过`class`实现`interface`内部定义的属性，方法等，这在 OOP 语言中表现为多态性：同一个接口下的不同表现形式。
+
+```typescript
+interface IPerson {
+  name: string;
+  getAge: (age: number) => number;
+}
+
+class Person implements IPerson {
+  name = 'oxygen';
+
+  getAge = (age: number) => {
+    return age;
+  };
+}
+
+const person = new Person();
+console.log(person.name); // oxygen
+```

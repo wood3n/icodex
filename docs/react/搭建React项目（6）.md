@@ -102,6 +102,31 @@ module.exports = {
 - 使用[babel-plugin-replace-ts-export-assignment](https://www.npmjs.com/package/babel-plugin-replace-ts-export-assignment)
 - 使用 ES Module 的`export default`或者`export const`替换`export =`语法；使用`import xxx from xxx`替换`import =`语法
 
+对于使用了 webpack 的`resolve.alias`配置模块路径别名的，需要在`tsconfig.json`中配置以下两个参数：
+
+```javascript
+// webpack.config.js
+module.exports = {
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src'),
+    },
+  },
+};
+```
+
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
+```
+
 ## 修改项目
 
 重命名项目文件为`ts`或者`tsx`后缀，这样 TS 的类型提示就会生效了

@@ -115,7 +115,20 @@ git pull <远程主机名> <远程分支名>:<本地分支名>
 git push <远程主机名> <远程分支名>
 ```
 
-`git pull`是从远程仓库的分支获取代码。
+`git pull`是从远程仓库的分支获取代码并合并到本地工作区。
+
+### git stash
+
+> ```shell
+> git stash
+> git stash pop
+> ```
+
+`git stash`非常常用，用于缓存工作区修改的代码，将工作区恢复到上次`commit`以后的状态，这样工作区就干净了，就好像没有任何更改一样。
+
+有这样一种场景是，你本地正在开发新功能，突然测试提了一个新的 BUG，要你立即修复，这时候你功能还没开发完肯定没法`commit`代码，所以就得`git stash`缓存下来，同时还清空了工作区的修改，这样就就可以很方便的去修改 BUG，然后提交修改 BUG 的`commit`并推送。
+
+然后你需要回到刚才开发功能的场景继续，这时候使用`git stash pop`将缓存区第一个缓存的本地修改记录出栈，于是你本地工作区就恢复到了之前开发时的完整代码，`so nice`！！！🥳🥳🥳
 
 ### git rm
 
@@ -156,7 +169,7 @@ git branch -d issue1
 
 默认分支名称是`master`，`git branch`命令用于在本地创建一个新的分支；`git branch`只是创建分支，并不会自动切换到新的分支。
 
-如果使用`git branch -d`后缀，则是**删除本地分支**。
+如果使用`git branch -d`后缀，则是**删除本地分支**，使用大写的`-D`后缀是强制删除，一般情况下用大写的情况居多。
 
 ![image-20200922002646840](../images/image-20200922002646840.png)
 
@@ -222,7 +235,7 @@ git rebase --skip
 git rebase --abort
 ```
 
-`rebase`有重新设定，变基的意思，可以用它来合并分支。
+`rebase`有重新设定，变基的意思，`git rebase`是**把当前分支合并到指定分支去**
 
 现在我们使用`git reset --hard HEAD~`取消刚才`git merge`的合并记录，现在历史提交记录已经恢复到之前的状态。
 
@@ -238,6 +251,59 @@ git rebase --abort
 
 可以看到`git rebase`的合并操作的提交历史很整洁。
 
+### git cherry-pick
+
+> ```shell
+> git cherry-pick <commitHash1> <commitHash2> ...
+>
+> git cherry-pick <commitHash1>..<commitHashN>
+>
+> git cherry-pick -m 1/2 <commitHash>
+> ```
+
+`git cherry-pick`俗称**摘樱桃**，用于将任意分支的指定提交记录合并到当前分支来，例如先使用`git log`查询提交历史后，可以获取指定`commit`的`hash`值，然后就可以使用`git cherry-pick`将该`commit`合并到当前分支了
+
+```shell
+git commit 313bj42g2jk4b4j4...
+```
+
+如果有多个提交历史需要合并，需要在多个`<commitHash>`之间添加空格
+
+```shell
+git commit 313bj42g2jk4 qe98232nfewf ...
+```
+
+可以使用`..`来指定一个区间范围，例如合并从`<commitHash1>`到`<commitHashN>`之间所有的提交历史
+
+```shell
+git commit 313bj42g2jk4..qe98232nfewf
+```
+
+如果要合并的`commit`记录是一个两个分支`merge`的记录节点，那么`cherry-pick`会发生错误提示，要求输入`-m`参数，因为它不知道应该采用哪个分支的代码变动，通过指定`1`或者`2`来决定采用哪个分支的代码：
+
+- `1`表示的是采用`the branch being merged into`，也就是采用当时`commit`时候被合并到的分支；比如当时`commit`是从`branch1`合并到`master`去，那么指定`-m 1`就是采用合并时候`master`的代码
+- `2`则表示采用`the branch being merged from`，也就是采用要合并的分支的代码
+
+```shell
+git cherry-pick -m 1 313bj42g2jk4
+```
+
+`git cherry-pick`支持以下几种参数后缀：
+
+- `-n`，`--no-commit`：也就是只更新工作区和暂存区，不产生新的提交
+- `-x`：会在提交信息的末尾追加一行`(cherry picked from commit ...)`，方便以后查到这个提交是如何产生的
+- `-s`，`--signoff`：在提交信息的末尾追加一行操作者的签名，表示是谁进行了这个操作
+
+使用`git cherry-pick`的过程一般都会有冲突，这个时候`cherry-pick`会暂停，在手动解决冲突以后，执行以下步骤：
+
+- `git add .`暂存所有更改
+- `git cherry-pick --continue`：继续`cherry-pick`
+
+什么情况下使用`cherry-pick`，有下面几种情况：
+
+- 比如你正在重构代码，然后 leader 在远程基于目前的迭代分支`feat-branch`为你开了一个新的分支`refactor`出来，用于代码重构；则你可以先把刚才开发的代码先`commit`，然后在本地基于新的重构分支`checkout`一个新的分支出来，在这个分支基础上把刚才`commit`的代码`cherry-pick`过来再合并，解决冲突什么的；最后删除过去开发的分支就行了
+- 还有一种情况是，你本地`merge`了远端的代码并且已经推送到远端，但是你把别人最近提交的修改都干掉了，这时候首先可能想到是使用`git reset`或者`git revert`回滚远端以及本地的代码到指定版本，但是这样做最快捷的方式是你一个人默默承担这一切 🤣🤣🤣；先使用`git log`获取其他人的提交历史，然后把他们的提交记录`cherry-pick`到你当前分支上来，然后解决冲突，最后重新提交并推送到远端
+
 ## 查询历史记录
 
 ### git log
@@ -250,26 +316,34 @@ git log
 
 ![image-20200922005155781](../images/image-20200922005155781.png)
 
-## 重置
+```shell
+git log --author=<username>
+```
+
+使用`git log --author`带上用户名，可以查询指定人员的提交记录
+
+## 回滚
 
 ### git reset
 
 ```shell
-git reset [--soft | --mixed | --hard] [HEAD] <file1>,<file2>...
+git reset [--soft | --mixed | --hard] [HEAD]
+git reset --hard <commitHash>
 
 eg:
 git reset --hard HEAD~
+git reset --hard 3c8j0wrwjrw0824m2...
 ```
 
 上文说到[`git reset`](https://git-scm.com/docs/git-reset)命令可以重置已经暂存的文件的状态，同时`git reset`也具有撤销全部修改的能力。
 
-`--mixed`为默认后缀，可以不用带该参数，即`git reset HEAD`，用于**重置暂存区**的文件，也就是重置上一次`git add`的操作；
+`--mixed`为默认后缀，可以不用带该参数，即`git reset HEAD`，用于**只重置暂存区**的文件，也就是重置上一次`git add`的操作；那么你当前正在修改的文件就不会被重置
 
 `--soft`参数用于回退到某个版本；
 
-`--hard`参数撤销工作区中所有未提交的修改内容，将暂存区与工作区都回到上一次版本，并删除之前的所有信息提交
+`--hard`参数撤销工作区中所有未提交的修改内容，**将暂存区与工作区都回到上一次版本，并删除之前的所有信息提交**，也就是本地改过的统统撤销
 
-如果指定`HEAD` 表示当前版本
+`[HEAD]` 可以用来简单的表示最近的版本
 
 - `HEAD^` 上一个版本
 - `HEAD^^` 上上一个版本
@@ -284,12 +358,18 @@ git reset --hard HEAD~
 
 ![image-20200922135009317](../images/image-20200922135009317.png)
 
+如果要回退到指定版本，需要带上指定`commit`版本的`hash`值，可以先使用`git log`查询提交历史再回滚
+
+```shell
+git reset --hard 3c8j0wrwjrw0824m2...
+```
+
 ### git revert
 
 ```shell
 git revert [HEAD]
 ```
 
-如果使用`git revert`也能做到重置提交的目的，例如使用`git revert HEAD`是重置到上一版本，同时会创建一个新的提交记录。注意这点是和`git reset`主要的区别，`git reset`是连提交记录都会重置，`git revert`是创建一个新的提交去覆盖之前的提交记录。
+如果使用`git revert`也能做到重置提交的目的，例如使用`git revert HEAD`是重置到上一版本，**同时会创建一个新的提交记录**。注意这点是和`git reset`主要的区别，`git reset`是连提交记录都会重置，也就是说你**滚回去以后就别想滚回来了**，`git revert`是创建一个新的提交去覆盖之前的提交记录。
 
 ![image-20200922143003078](../images/image-20200922143003078.png)

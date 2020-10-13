@@ -189,4 +189,4 @@ function Counter() {
 
 `useMemo`具有两个必传参数，第一个参数是一个函数，该函数需要返回一个值，并且该值也作为`useMemo`的返回值；第二个参数是依赖项数组，标识仅在某个依赖项改变时才重新计算 memoized 值。
 
-`useMemo`相当于`shouldComponentUpdate`，也就是用来进行性能优化的点。
+`useMemo`相当于`shouldComponentUpdate`，也就是用来进行性能优化的点，具体用法如下：

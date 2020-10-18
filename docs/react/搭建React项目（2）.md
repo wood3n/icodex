@@ -328,7 +328,7 @@ source map 本质上就是一个以`.map`为后缀名的 JSON 文件，里面写
 
 ![image-20200827162309877](../images/image-20200827162309877.png)
 
-如果用了 WDS，是不需要使用 source map 的，因为开发环境的 WDS 提供的错误提示更为强大，可以在页面测试一下，给定以下代码：
+如果用了 WDS，是不需要使用 source map 的，因为开发环境的 WDS 有直观的错误提示，尤其在 React 中配合**React Fast Refresh**使用更加强大，可以在页面测试一下，给定以下代码：
 
 ```jsx | pure
 export default class extends Component {
@@ -372,7 +372,7 @@ dist
 
 ### devtool
 
-要在 webpack 中开启 source map，只需要一个配置项`devtool`，可以传入指定的模式字符串，或者使用`devtool:false`禁用它
+要在 webpack 中开启 source map，只需要一个配置项`devtool`，可以传入指定的模式字符串，或者使用`devtool:false`禁用它；如果省略`devtool`配置项，也就是不会生成 source map 文件。
 
 > [Devtool](https://webpack.docschina.org/configuration/devtool/)
 >
@@ -412,3 +412,21 @@ dist
 - 指定`devtool:eval-cheap-module-source-map`也能显示具体的源码位置，不过相对于`devtool:source-map`构建速度会大幅减少，webpack 是推荐使用这个配置项
 
 - 指定`devtool:eval-source-map`，`eval-nosources-source-map`，`eval-nosources-cheap-source-map`，`eval-nosources-cheap-module-source-map`也都能显示源码位置
+
+### 注意点
+
+如果在 webpack 的配置项`optimization.minimizer`中自定义`terser-webpack-plugin`的相关配置，哪怕只写了一个初始化`terser-webpack-plugin`的实例，也会对 webpack 开发环境生成的 source map 造成影响，所以必须保证开启`terser-webpack-plugin`的`sourceMap`配置项，如果这个没配置，`devtool`也没指定，那么开发环境的代码映射就会直接映射到打包生成的 chunk 下，并不会映射到源代码。
+
+```javascript
+const TerserPlugin = require('terser-webpack-plugin'); //压缩JS代码
+
+module.exports = {
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        sourceMap: true,
+      }),
+    ],
+  },
+};
+```

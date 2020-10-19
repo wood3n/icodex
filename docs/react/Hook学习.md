@@ -356,7 +356,7 @@ function Timer() {
 - 使用`Context.Provider`包裹外层组件，并提供`value`属性作为共享值，这样在`Context.Provider`包裹下的所有子组件都可以获得`context`对象共享的值
 - 当其他子组件需要使用共享值时，就直接通过`useContext`获取`context`对象即可，`value`指定的是什么，`useContext`返回的就是什么
 
-`useContext`接收一个`context`对象（`React.createContext` 的返回值）并返回该`context`的当前值
+`useContext`接收一个`context`对象（`React.createContext` 的返回值）并返回该`context`的当前值，这种用法比`class`组件的`Context`使用方式还要更方便，子组件不需要`Context.Consumer`组件，直接可以从`useContext`获取到`context`对象的值。
 
 ```typescript
 export const MyContext = React.createContext({ value: 'test' });
@@ -378,6 +378,131 @@ const Input = () => {
   }, []);
 
   return <input ref={inputRef} value={myContext.value} />;
+};
+```
+
+### useReducer
+
+> ```typescript
+> type ReducerWithoutAction<S> = (prevState: S) => S;
+>
+> type Reducer<S, A> = (prevState: S, action: A) => S;
+>
+> type ReducerState<R extends Reducer<any, any>> = R extends Reducer<
+>   infer S,
+>   any
+> >
+>   ? S
+>   : never;
+>
+> type ReducerAction<R extends Reducer<any, any>> = R extends Reducer<
+>   any,
+>   infer A
+> >
+>   ? A
+>   : never;
+>
+> type ReducerStateWithoutAction<
+>   R extends ReducerWithoutAction<any>
+> > = R extends ReducerWithoutAction<infer S> ? S : never;
+>
+> type Dispatch<A> = (value: A) => void;
+>
+> type DispatchWithoutAction = () => void;
+>
+> function useReducer<R extends ReducerWithoutAction<any>, I>(
+>   reducer: R,
+>   initializerArg: I,
+>   initializer: (arg: I) => ReducerStateWithoutAction<R>,
+> ): [ReducerStateWithoutAction<R>, DispatchWithoutAction];
+>
+> function useReducer<R extends ReducerWithoutAction<any>>(
+>   reducer: R,
+>   initializerArg: ReducerStateWithoutAction<R>,
+>   initializer?: undefined,
+> ): [ReducerStateWithoutAction<R>, DispatchWithoutAction];
+>
+> function useReducer<R extends Reducer<any, any>, I>(
+>   reducer: R,
+>   initializerArg: I & ReducerState<R>,
+>   initializer: (arg: I & ReducerState<R>) => ReducerState<R>,
+> ): [ReducerState<R>, Dispatch<ReducerAction<R>>];
+>
+> function useReducer<R extends Reducer<any, any>, I>(
+>   reducer: R,
+>   initializerArg: I,
+>   initializer: (arg: I) => ReducerState<R>,
+> ): [ReducerState<R>, Dispatch<ReducerAction<R>>];
+>
+> eg: const [state, dispatch] = useReducer(reducer, initialArg, init);
+> ```
+
+`useReducer`的用法稍微复杂一点，毕竟 Redux 就有点别扭嘛，所以理解`useReducer`首先需要理解 Redux 的思想，在 Redux 中主要存在三大概念：
+
+- `Store`：数据中转站，负责接收`Action`，并分发到对应的`Reducer`去处理
+- `Action`：数据，通常由操作类型`type`和实际的数据`payload`组成，由 UI 产生，并传递到`Reducer`去处理
+- `Reducer`：数据处理中心，值得注意的是``Reducer`必须保证是一个纯函数，也就是不能对传入其中的任何参数进行修改，一样的传入必定得到一样的输出，`Reducer`会根据`Action`的类型判断执行什么样的数据更新操作，返回什么样的新数据
+
+Redux 的思想就是将前端的 UI 组件和数据完全的隔离开，那么 UI 组件如何在`Reducer`产生新数据后及时更新呢，这就需要从 `Store`去订阅数据，绑定到`Store`的 UI 组件可以通过`dispatch`方法获取到数据
+
+![ZZimgx](../images/ZZimgx.gif)
+
+`useReducer`传入`reducer`函数以及初始的全局状态，并产生最新的`state`以及一个负责将产生的`Action`分发到`reducer`进行处理的`dispatch`函数，使用起来非常方便，比之前的 Redux 用法简化了许多，相比之前的`react-redux`集成来说，不需要`createStore`，也不需要`Provider`包裹上层组件，简单来说只需要额外维护`Reducer`就可以了。
+
+```typescript
+const initState: State = {
+  todoList: [],
+};
+
+const reducer = (state = initState, action: Action) => {
+  const { type, payload } = action;
+  switch (type) {
+    case ActionType.add_todo:
+      return {
+        todoList: [...state.todoList, { ...payload }],
+      };
+  }
+};
+
+// 组件
+import reducer, { initState } from '@/redux/reducer';
+
+export default () => {
+  const [todoValue, setTodoValue] = useState('');
+  const [state, dispatch] = useReducer(reducer, initState);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target as HTMLInputElement;
+    if (value !== '') {
+      setTodoValue(value);
+    }
+  };
+
+  const addTodo = () => {
+    const key = uuidv4();
+    const newTodo = {
+      key,
+      value,
+      done: false,
+    };
+
+    const action = {
+      type: ActionType.add_todo,
+      payload: {
+        ...newTodo,
+      },
+    };
+    dispatch(action);
+  };
+
+  return (
+    <Input
+      value={todoValue}
+      placeholder="请输入事项"
+      onChange={handleInputChange}
+      onPressEnter={addTodo}
+    />
+  );
 };
 ```
 

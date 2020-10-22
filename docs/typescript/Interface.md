@@ -64,6 +64,32 @@ interface Point {
 
 `readonly`只用于对象属性，如果要求变量值不发生改变，使用`const`
 
+#### 索引类型
+
+可索引类型具有一个*索引签名*，描述了对象索引的类型；在 JS 中，可以通过方括号语法`[]`来访问对象属性值，或者来访问数组元素。所以在 TypeScript 中可索引类型只具有两种类型：`string`和`number`。
+
+当不确定对象要包含什么属性的时候，就可以通过`interface`声明一个可索引类型来表示一个对象，`[]`内表示的是属性的类型，由于是对象，所以固定是`string`，方括号后面的`:`指定属性值的类型，使用该类型的对象的属性值必须每一个都匹配指定的类型。例如：
+
+```typescript
+interface Obj {
+  [propName: string]: string;
+}
+
+let obj: Obj = {
+  name: 'oxygen',
+};
+```
+
+当然了，也可以用来表示一个数组类型，不过数组的索引都是`number`，方括号后面依旧是紧跟`:`加元素的类型
+
+```typescript
+interface StringArray {
+  [index: number]: number;
+}
+
+let arr: StringArray = [23];
+```
+
 ### 定义函数
 
 `interface`同样可以用于单独指定函数的参数和返回值类型，在`interface`中定义的函数参数名称和实际使用的函数参数名称并不要求相同；常见的写法是先使用`interface`声明函数的参数和返回值类型，然后定义函数的时候指定其类型为`interface`声明的类型。

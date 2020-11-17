@@ -2,7 +2,7 @@
 title: Hook学习
 ---
 
-## React Hook
+## 使用
 
 React Hook 是应用在函数组件中的一套状态管理函数，如果要使用原生 Hook，首先需要从`react`部分`import`这些原生 Hook API
 
@@ -10,7 +10,7 @@ React Hook 是应用在函数组件中的一套状态管理函数，如果要使
 import React, { useState, xxx } from 'react';
 ```
 
-### useState
+## useState
 
 > ```typescript
 > function useState<S>(
@@ -55,7 +55,7 @@ export default () => {
 
 关于`useState`需要注意的点：
 
-#### 永远不要直接修改`state`
+### 永远不要直接修改`state`
 
 类似于在`class`组件中的`setState`，始终保证`state`是`immutable`的，如果`state`是多层嵌套的结构，可能要借助`immutablejs`来方便修改其内部的值。
 
@@ -71,7 +71,7 @@ setCount(++count);
 let [count, setCount] = useState(0);
 ```
 
-#### `useState`是覆盖更新
+### `useState`是覆盖更新
 
 如果直接往`useState`传递一个新的`state`值，会直接覆盖掉之前的`state`，而不是像`class`组件内部的`setState`那样会自动合并`state`。
 
@@ -107,11 +107,11 @@ export default () => {
 };
 ```
 
-#### `useState`是异步更新
+### `useState`是异步更新
 
 和`setState`的机制相似，`useState`仍然采用队列更新机制，这意味着有时候无法及时获取最新的`state` —— [何时以及为什么 `setState()` 会批量执行？](https://stackoverflow.com/a/48610973/458193)
 
-### useEffect
+## useEffect
 
 > ```typescript
 > type EffectCallback = () => void | (() => void | undefined);
@@ -125,7 +125,7 @@ export default () => {
 
 如果不传递第二个参数，在浏览器完成布局与绘制**之后**，传给 `useEffect` 的函数会延迟调用。通过传递不同的参数，可以让`useEffect`模拟`class`组件内部的`componentDidMount`，`componentDidUpdate`以及`componentWillUnmount`这些生命周期函数。
 
-#### 模拟 componentDidMount
+### 模拟 componentDidMount
 
 指定`useEffect`的第二个参数为一个空数组`[]`，可以限制`useEffect`中传递的函数只在组件第一次渲染完成以后执行，因为`useEffect`第二个参数是依赖更新的参数，传递`[]`就表示任何时候都没有依赖值发生变化，所以就保证了只在组件渲染完成以后执行。
 
@@ -138,7 +138,7 @@ useEffect(() => {
 }, []);
 ```
 
-#### 模拟 componentWillUnmount
+### 模拟 componentWillUnmount
 
 通过指定`useEffect`第一个参数的函数**返回一个函数**，可以达到`componentWillUnmount`的目的，返回的函数会在组件卸载前执行。这样就可以利用`useEffect`做一些清除组件副作用的操作，例如**清除定时器，清除 DOM 监听事件，清除数据请求的过程**等。
 
@@ -162,7 +162,7 @@ const App = () => {
 };
 ```
 
-#### 性能优化
+### 性能优化
 
 通过传递指定的`state`为第二个参数，可以限制该函数只在通过`useState`返回的函数修改该`state`以后才去执行
 
@@ -183,7 +183,7 @@ function Counter() {
 }
 ```
 
-### useMemo
+## useMemo
 
 > ```typescript
 > type DependencyList = ReadonlyArray<any>;
@@ -239,7 +239,7 @@ export default Counter;
 
 例如上面的`useMemo`始终返回的是`0`，点击按钮，`state`依旧更新，但是组件依赖的值是计算出来的`memorizedCount`，所以组件始终不会更新。
 
-### useCallback
+## useCallback
 
 > ```typescript
 > type DependencyList = ReadonlyArray<any>;
@@ -277,7 +277,7 @@ const undoList = useCallback(() => {
 
 ![image-20201018204414602](../images/image-20201018204414602.png)
 
-### useRef
+## useRef
 
 > ```typescript
 > interface MutableRefObject<T> {
@@ -298,7 +298,11 @@ const undoList = useCallback(() => {
 
 和`class`组件内部的`ref`具有以下相同的用法：
 
-- 传入原生 HTML 标签定义中，获取原始 DOM，`ref`的`props`类型需要在`useRef`中定义，对于获取原生 DOM，则传入`useRef`的类型基本都来自于在`React`中定义的 DOM target 类型，例如`HTMLInputElement`，这里需要注意以下初始值指定`null`，否则`ref`属性会报错
+### 获取 DOM 元素
+
+通过`ref`属性将`useRef`的返回值传入原生 HTML 标签定义中，就可以通过`current`属性获取原始 DOM。
+
+使用 TypeScript 时，`ref`的`props`类型需要在`useRef`中定义，对于获取原生 DOM，则传入`useRef`的类型基本都来自于在`React`中定义的 DOM target 类型，例如`HTMLInputElement`，这里需要注意以下初始值指定`null`，否则`ref`属性会报错
 
 ```typescript
 const Input: React.FC = () => {
@@ -318,7 +322,33 @@ const Input: React.FC = () => {
 
 ![image-20201018213232057](../images/image-20201018213232057.png)
 
-- 缓存不变值，`useRef`函数本身会返回一个始终不变的`ref`对象，用`ref.current`来缓存值是不错的选择，常见的用法就是用来保存一些函数内部需要的全局变量，例如定时器 Id，或者在上层组件中保存表单值等，不过仍然像开头介绍的那样，即使在组件中改变了`useEffect`返回的`ref.current`属性，组件依赖它的话也不会发生更新
+### 获取组件内部方法
+
+函数组件通常就是一个闭包，其内部声明的`state`或者其他变量、方法等，其他组件是无法直接获取的，这时候可以通过传递一个`ref`的`props`到函数组件内部来间接获取。
+
+并且通过`useImperativeHandle`这个 hook 还能自定义组件内部暴露给外接的变量和方法，需要注意的是`useImperativeHandle`需要和`forwardRef`一起使用
+
+```typescript
+function FancyInput(props, ref) {
+  const inputRef = useRef();
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      inputRef.current.focus();
+    }
+  }));
+  return <input ref={inputRef} ... />;
+}
+FancyInput = forwardRef(FancyInput);
+```
+
+### 缓存不变值
+
+函数组件内部是无法使用`this`的，这取决于函数组件的调用方式，因为函数组件不存在实例的说法，直接以 JS 函数的形式被调用然后获取函数返回的组件，而`this`在单独调用的函数内部，严格模式下将始终是`undefined`，所以根本无法绑定值。
+
+使用`useRef`要始终记住以下：
+
+- ref 对象在组件的整个生命周期内保持不变，也就是**`useRef` 会在每次渲染时返回同一个 ref 对象**
+- 变更 `.current` 属性不会引发组件重新渲染
 
 ```typescript
 function Timer() {
@@ -338,7 +368,7 @@ function Timer() {
 }
 ```
 
-### useContext
+## useContext
 
 > ```typescript
 > interface Context<T> {
@@ -381,7 +411,7 @@ const Input = () => {
 };
 ```
 
-### useReducer
+## useReducer
 
 > ```typescript
 > type ReducerWithoutAction<S> = (prevState: S) => S;
@@ -506,7 +536,7 @@ export default () => {
 };
 ```
 
-### useLayoutEffect
+## useLayoutEffect
 
 > ```typescript
 > type EffectCallback = () => void | (() => void | undefined);

@@ -1,8 +1,6 @@
 ---
 title: Hook学习
----
-
-## 使用
+---## 使用
 
 React Hook 是应用在函数组件中的一套状态管理函数，如果要使用原生 Hook，首先需要从`react`部分`import`这些原生 Hook API
 
@@ -192,7 +190,7 @@ function Counter() {
 >
 > eg：
 > function computeExpensiveValue(a, b){
->   return computedValue;
+> return computedValue;
 > }
 >
 > const memoizedValue = useMemo(() => computeExpensiveValue(a, b), [a, b]);
@@ -248,10 +246,10 @@ export default Counter;
 >
 > eg：
 > const memoizedCallback = useCallback(
->   () => {
->     doSomething(a, b);
->   },
->   [a, b],
+> () => {
+>  doSomething(a, b);
+> },
+> [a, b],
 > );
 > ```
 
@@ -271,11 +269,11 @@ const undoList = useCallback(() => {
 
 `useMemo`传递的函数返回什么，它本身就返回什么
 
-![image-20201018204350114](../images/image-20201018204350114.png)
+![image-20201018204350114](../../images/image-20201018204350114.png)
 
 `useCallback`本身传递的是函数，**返回的也是函数，所以结果需要二次调用**
 
-![image-20201018204414602](../images/image-20201018204414602.png)
+![image-20201018204414602](../../images/image-20201018204414602.png)
 
 ## useRef
 
@@ -320,26 +318,13 @@ const Input: React.FC = () => {
 
 这样就可以通过`ref.current`属性获取原生 DOM 对象，不过需要注意`ref.current`判断是否为`null/undefined`，否则直接使用属性可能会报错。
 
-![image-20201018213232057](../images/image-20201018213232057.png)
+![image-20201018213232057](../../images/image-20201018213232057.png)
 
 ### 获取组件内部方法
 
-函数组件通常就是一个闭包，其内部声明的`state`或者其他变量、方法等，其他组件是无法直接获取的，这时候可以通过传递一个`ref`的`props`到函数组件内部来间接获取。
+函数组件通常就是一个闭包，其内部声明的`state`或者其他变量、方法等，其他组件是无法直接获取的。想要在外界访问这些函数内部作用域的变量或者方法，一个方法是利用闭包，React Hook 提供的一个做法是传递一个`ref`的`props`到函数组件内部来间接获取。
 
-并且通过`useImperativeHandle`这个 hook 还能自定义组件内部暴露给外接的变量和方法，需要注意的是`useImperativeHandle`需要和`forwardRef`一起使用
-
-```typescript
-function FancyInput(props, ref) {
-  const inputRef = useRef();
-  useImperativeHandle(ref, () => ({
-    focus: () => {
-      inputRef.current.focus();
-    }
-  }));
-  return <input ref={inputRef} ... />;
-}
-FancyInput = forwardRef(FancyInput);
-```
+<code src="@/demo/hooks/useRef" />
 
 ### 缓存不变值
 
@@ -475,7 +460,7 @@ const Input = () => {
 
 Redux 的思想就是将前端的 UI 组件和数据完全的隔离开，那么 UI 组件如何在`Reducer`产生新数据后及时更新呢，这就需要从 `Store`去订阅数据，绑定到`Store`的 UI 组件可以通过`dispatch`方法获取到数据
 
-![ZZimgx](../images/ZZimgx.gif)
+![ZZimgx](../../images/ZZimgx.gif)
 
 `useReducer`传入`reducer`函数以及初始的全局状态，并产生最新的`state`以及一个负责将产生的`Action`分发到`reducer`进行处理的`dispatch`函数，使用起来非常方便，比之前的 Redux 用法简化了许多，相比之前的`react-redux`集成来说，不需要`createStore`，也不需要`Provider`包裹上层组件，简单来说只需要额外维护`Reducer`就可以了。
 

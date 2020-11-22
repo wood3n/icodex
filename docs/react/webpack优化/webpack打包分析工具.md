@@ -1,12 +1,10 @@
 ---
 title: webpack打包分析工具
----
-
-## stats
+---## stats
 
 `stats`是控制 webpack 如何打印出开发环境或者生产环境的打包结果信息。如果是开发环境使用 WDS，还可以在`devServer.stats`配置。
 
-![image-20200914103133069](../images/image-20200914103133069.png)
+![image-20200914103133069](../../images/image-20200914103133069.png)
 
 可以为`stats`指定一个字符串：
 
@@ -26,7 +24,7 @@ title: webpack打包分析工具
 
 在开发环境下，使用 WDS 会打印出自己独特的 CLI 信息，例如：
 
-![image-20200914225039951](../images/image-20200914225039951.png)
+![image-20200914225039951](../../images/image-20200914225039951.png)
 
 这些信息可以通过[`devServer.info` - CLI only](https://webpack.docschina.org/configuration/dev-server/#devserverinfo---cli-only)来禁用，本来这些东西也没啥用，这样再配合一些 webpack 的进度条工具（如 webpackbar 等）就使得控制台信息变得很简洁。
 
@@ -37,13 +35,13 @@ title: webpack打包分析工具
   },
 ```
 
-![image-20200914225430084](../images/image-20200914225430084.png)
+![image-20200914225430084](../../images/image-20200914225430084.png)
 
 ## performance
 
 `performance`是 webpack 内置的负责进行打包性能评估的配置，它提示当前项目内部可能需要进行优化的点，将提示信息输出在控制台。例如，如果一个资源超过 250kb，webpack 会在打包的时候输出到控制台提示信息。
 
-![image-20200914093732042](../images/image-20200914093732042.png)
+![image-20200914093732042](../../images/image-20200914093732042.png)
 
 ### 配置项
 
@@ -66,7 +64,7 @@ title: webpack打包分析工具
 
 CRA 内部是直接禁用了`performance`这个配置项，使用它们自己开发的[`FileSizeReporter`](https://github.com/facebook/create-react-app/tree/master/packages/react-dev-utils#filesizereporter)来进行性能评估。
 
-![image-20200911000713873](../images/image-20200911000713873.png)
+![image-20200911000713873](../../images/image-20200911000713873.png)
 
 应该可以通过`react-dev-utils`集成`FileSizeReporter` ，但是我还没找到这玩意怎么用的。
 
@@ -127,7 +125,7 @@ module.exports = {
 
 然后执行`yarn analyze`就可以在默认浏览器打开生成的 JSON 文件，显示 bundle 分析树状图。
 
-![image-20200906184523080](../images/image-20200906184523080.png)
+![image-20200906184523080](../../images/image-20200906184523080.png)
 
 ### 树状图怎么看
 
@@ -168,7 +166,7 @@ module.exports = function(env) {
 - `general output time`：可以认为是 loader 和 plugin 的执行时间，但是这其中还包括了 webpack 从硬盘读取这些 loader 和 plugin 的时间，这部分是 SMP 无法测量的，所以这个时间总是会小于 loader 和 plugin 的执行时间综合
 - `modules with no loaders`：webpack 对于基本的 JS 文件的处理
 
-![image-20200914101154372](../images/image-20200914101154372.png)
+![image-20200914101154372](../../images/image-20200914101154372.png)
 
 ### 配置项
 
@@ -223,4 +221,4 @@ module.exports = {
 
 效果如图所示：
 
-![webpackbar](../images/webpackbar.gif)
+![webpackbar](../../images/webpackbar.gif)

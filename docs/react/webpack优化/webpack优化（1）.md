@@ -1,12 +1,10 @@
 ---
 title: webpack优化代码生成（1）
----
-
-## tree shaking
+---## tree shaking
 
 tree shaking 这个词，我觉得很有意思，图源自 —— [掘金 - Tree-Shaking 性能优化实践](https://juejin.im/post/6844903544756109319)
 
-![160bfdcf2a31ce4a](../images/160bfdcf2a31ce4a.gif)
+![160bfdcf2a31ce4a](../../images/160bfdcf2a31ce4a.gif)
 
 tree shaking 是 webpack 里的术语，**用于移除 JS 上下文中未引用过的代码，以减小代码体积，间接减少代码在网络请求过程中的耗时**。我把这个称为代码清洁工。需要注意的是 tree shaking 依赖于 ES6 的模块语法 —— `import`和`export`。
 
@@ -38,7 +36,7 @@ export default class extends Component {
 
 经过`yarn build`打包以后，最终生成的 main chunk 只会包含`Button1`组件的代码，因为只有它在上下文中被用到了。
 
-![image-20200907234034182](../images/image-20200907234034182.png)
+![image-20200907234034182](../../images/image-20200907234034182.png)
 
 ### optimization.providedExports
 
@@ -72,7 +70,7 @@ test();
 // 2,3
 ```
 
-![image-20200910152357282](../images/image-20200910152357282.png)
+![image-20200910152357282](../../images/image-20200910152357282.png)
 
 现在修改`func()`的调用，在前面加上`/*#__PURE__*/`注释，最终在控制台只会打印出 3，打包结果如下图所示，可以看到，尽管
 
@@ -96,7 +94,7 @@ function test() {
 test();
 ```
 
-![image-20200910152306539](../images/image-20200910152306539.png)
+![image-20200910152306539](../../images/image-20200910152306539.png)
 
 ### sideEffects
 
@@ -130,7 +128,7 @@ export default class extends Component {
 }
 ```
 
-![image-20200908112119067](../images/image-20200908112119067.png)
+![image-20200908112119067](../../images/image-20200908112119067.png)
 
 tree shaking 是 webpack 内置的优化功能，`sideEffects`属性标记代码是否具有 side effect，对于标记了`sideEffects:false`的代码，就会通过 tree shaking 在打包时就会忽略掉未用到过的`export`的代码。`"sideEffects"`可以通过三种方式来标记：
 
@@ -146,7 +144,7 @@ tree shaking 是 webpack 内置的优化功能，`sideEffects`属性标记代码
 import './styles.css';
 ```
 
-![image-20200908103443177](../images/image-20200908103443177.png)
+![image-20200908103443177](../../images/image-20200908103443177.png)
 
 要解决其它类型的模块是否受影响，可以在`package.json` 的 `sideEffects`为其指定一个数组，支持相对路径、绝对路径传入模块路径和 [glob 模式](<https://en.wikipedia.org/wiki/Glob_(programming)>)匹配相关文件（glob 模式也就类似于 gitignore 那种形式，使用通配符例如`*`来匹配文件名）例如：
 
@@ -288,15 +286,15 @@ module.exports = {
 
 在开发环境下，当 webpack 打包遇到程序错误时，会显示错误的堆栈信息，例如：
 
-![image-20200910202816677](../images/image-20200910202816677.png)
+![image-20200910202816677](../../images/image-20200910202816677.png)
 
 在生产环境下打包，当 webpack 打包遇到程序错误时，仍然会继续执行打包，在控制台会输出错误信息
 
-![image-20200910203833697](../images/image-20200910203833697.png)
+![image-20200910203833697](../../images/image-20200910203833697.png)
 
 如果设置`noEmitOnErrors:true`，在开发环境下，当 webpack 打包遇到程序错误时，不会显示错误信息，而是显示当前项目目录的信息
 
-![image-20200910202753411](../images/image-20200910202753411.png)
+![image-20200910202753411](../../images/image-20200910202753411.png)
 
 在生产环境下，打包程序遇到错误不会继续执行，会在控制台输出错误信息，也就是最终不会生成任何打包文件。
 
@@ -306,23 +304,23 @@ module.exports = {
 
 webpack 在打包的时候会为每一个模块按照解析顺序分配一个整数 id，如果将`optimization.namedModules`设为`false`，那么打包生成的 bundle 内部使用的模块也会使用 id 来作为键名，这样不便于阅读。
 
-![image-20200910211508004](../images/image-20200910211508004.png)
+![image-20200910211508004](../../images/image-20200910211508004.png)
 
 如果将`optimization.namedModules`设为`true`，打包的模块键名将是模块的路径
 
-![image-20200910211746530](../images/image-20200910211746530.png)
+![image-20200910211746530](../../images/image-20200910211746530.png)
 
 ### optimization.moduleIds
 
 指定 webpack 生成模块 id 的时候使用什么算法，webpack 官网的团队也不知多久没更新了，目前这个配置项支持的值如下：
 
-![image-20200910221853286](../images/image-20200910221853286.png)
+![image-20200910221853286](../../images/image-20200910221853286.png)
 
 - `natural`：默认值，也就是按模块顺序解析的整数 id
 - `named`：根据模块的路径作为模块 id
 - `hashed`：根据 hash 算法生成`4`个字符的模块 id
 
-![image-20200910222143885](../images/image-20200910222143885.png)
+![image-20200910222143885](../../images/image-20200910222143885.png)
 
 - `size`：也是整数 id，貌似和模块大小有关
 - `deterministic`：deterministic 翻译过来是确定的意思，当 `optimization.moduleIds` 被设置成 `deterministic`，至少使用 3 位数字 Id 来标识 module；相比`hashed`来说，可以让 bundle 的数据量更小，并且有益于长期缓存。
@@ -335,11 +333,11 @@ webpack 在打包的时候会为每一个模块按照解析顺序分配一个整
 
 使用 code splitting 拆分出 chunk 的时候，webpack 会根据 chunk 的使用顺序为其指定整数 id 作为名称，一般来说，`main`命名的会是由`entry`指定的项目代码入口的起点，`runtime`负责 chunk 之间的连接。
 
-![image-20200911155943503](../images/image-20200911155943503.png)
+![image-20200911155943503](../../images/image-20200911155943503.png)
 
 而当`optimization.namedChunks`为`true`时，则会使用具体的 chunk 名称。
 
-![image-20200911160533922](../images/image-20200911160533922.png)
+![image-20200911160533922](../../images/image-20200911160533922.png)
 
 ### optimization.chunkIds
 
@@ -441,17 +439,17 @@ export default class extends Component {
 
 现在我们执行打包`yarn build`，可以看到最终生成一个单独的`math.[hash].chunk.js`的文件，这个文件包含的模块也很少，就是`math.js`。
 
-![image-20200911172652134](../images/image-20200911172652134.png)
+![image-20200911172652134](../../images/image-20200911172652134.png)
 
-![image-20200911172733924](../images/image-20200911172733924.png)
+![image-20200911172733924](../../images/image-20200911172733924.png)
 
 现在我们利用 vscode 的插件 Live Server 打开打包生成的 HTML 页面，可以看到其内部并没有包含动态导入的 chunk，也就是初始加载这个 chunk 并没有请求加载！
 
-![image-20200911171704584](../images/image-20200911171704584.png)
+![image-20200911171704584](../../images/image-20200911171704584.png)
 
 现在点击按钮测试组件的效果，可以看到点击过后，动态的导入的 chunk 才被请求下来。
 
-![importtest](../images/importtest-1600013321000.gif)
+![importtest](../../images/importtest-1600013321000.gif)
 
 ### entry
 
@@ -477,7 +475,7 @@ module.exports = {
 };
 ```
 
-![image-20200911113333190](../images/image-20200911113333190.png)
+![image-20200911113333190](../../images/image-20200911113333190.png)
 
 如果传入一个对象，则每个属性的键就是一个入口，对应生成的 chunk 的名称前缀`[name]`，而属性的值是 chunk 的入口文件路径。
 
@@ -516,7 +514,7 @@ module.exports = {
 };
 ```
 
-![image-20200911113446083](../images/image-20200911113446083.png)
+![image-20200911113446083](../../images/image-20200911113446083.png)
 
 对象的属性值也可以是一个数组，例如下面的配置和上面的效果是一样的。
 
@@ -576,7 +574,7 @@ module.exports = {
 };
 ```
 
-![image-20200907093801787](../images/image-20200907093801787.png)
+![image-20200907093801787](../../images/image-20200907093801787.png)
 
 - `true` 或 `"multiple"`：为每个只含有 runtime 的入口添加一个额外 chunk，当我们指定多个入口时，就会根据多个入口每一个生成一个`runtime`的 chunk
 
@@ -593,7 +591,7 @@ module.exports = {
 };
 ```
 
-![image-20200907112921744](../images/image-20200907112921744.png)
+![image-20200907112921744](../../images/image-20200907112921744.png)
 
 - 设置成一个对象，对象中可以设置只有 `name` 属性，其中属性值可以是名称或者返回名称的函数， 用于为 runtime chunks 命名，例如下面的配置效果和设置成`'single'`是一样的
 
@@ -737,7 +735,7 @@ module.exports = {
 
 过去我做过的一个项目，大量使用第三方库，对于`node_modules`中的代码，如果按照 webpack 默认的配置将`node_modules`抽成一个 chunk，结果就像下图这样：
 
-![image-20200912112621505](../images/image-20200912112621505.png)
+![image-20200912112621505](../../images/image-20200912112621505.png)
 
 接近`18MB`的一个`vendor`都被插在了 html 中，即使经过 Gzip 压缩也超过`2MB`。
 
@@ -767,7 +765,7 @@ module.exports = {
 
 经过拆分，`vendors` chunk 减少了接近`3MB` 的体积；
 
-![image-20200912203128402](../images/image-20200912203128402.png)
+![image-20200912203128402](../../images/image-20200912203128402.png)
 
 接下来可以继续按照上述的方法，把`pdfjs`，`echarts`，`g6`这三个模块拆出来，需要注意像`@antv/g6`这种模块名称带有分隔符的，分隔符需要使用`[\\/]`去匹配分隔符。
 
@@ -809,4 +807,4 @@ module.exports = {
 };
 ```
 
-![image-20200912211303325](../images/image-20200912211303325.png)
+![image-20200912211303325](../../images/image-20200912211303325.png)

@@ -1,8 +1,6 @@
 ---
 title: 搭建React项目（1）
----
-
-> [Tutorial: How to set up React](https://www.valentinog.com/blog/babel/)
+---> [Tutorial: How to set up React](https://www.valentinog.com/blog/babel/)
 
 ## 配置 webpack
 
@@ -70,7 +68,7 @@ module.exports = {
 
 执行`webpack`命令以后，在终端看到这样的提示就表示打包成功，接下来可以去`dist`目录找`index.html`使用浏览器打开，看到 html 页面根据 js 脚本写入的片段就完成了 webpack 初始化阶段配置。
 
-![image-20200816181805351](../images/image-20200816181805351.png)
+![image-20200816181805351](../../images/image-20200816181805351.png)
 
 ## 配置 React
 
@@ -166,6 +164,4 @@ ReactDOM.render(<TestComponent />, document.getElementById('root'));
 
 执行`webpack`打包看一下`dist`目录的输出文件，如果不出意外就能看到页面`root`节点已经渲染出了组件中的`<p>`元素
 
-![image-20200816232551952](../images/image-20200816232551952.png)
-
-到这里，完成了基本的 React 的项目配置，这才刚开始！🤪🤪🤪
+![image-20200816232551952](../../images/image-20200816232551952.png)

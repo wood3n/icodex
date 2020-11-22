@@ -1,8 +1,6 @@
 ---
 title: 搭建React项目（3）
----
-
-## 管理模块
+---## 管理模块
 
 ### module
 
@@ -93,7 +91,7 @@ module.exports = {
 
 执行`yarn start`命令，就可以看到自动在浏览器中打开了页面，通过 devtool 也能看到 bundle 文件已经自动插入到指定的 html 中了。
 
-![image-20200817181923389](../images/image-20200817181923389.png)
+![image-20200817181923389](../../images/image-20200817181923389.png)
 
 可以为 html 页面设置一个 favicon，HtmlWebpackPlugin 会根据`favicon`配置的路径找到文件然后添加到 html 中。
 
@@ -106,7 +104,7 @@ plugins: [
 ],
 ```
 
-![image-20200817193428448](../images/image-20200817193428448.png)
+![image-20200817193428448](../../images/image-20200817193428448.png)
 
 ## 处理 CSS
 
@@ -145,7 +143,7 @@ module.exports = {
 
 默认是以`<style>`的形式将组件中引入的 CSS 插入到 DOM 中
 
-![image-20200828171538000](../images/image-20200828171538000.png)
+![image-20200828171538000](../../images/image-20200828171538000.png)
 
 #### style-loader 配置
 
@@ -202,7 +200,7 @@ export default class extends Component {
 }
 ```
 
-![image-20200827223319900](../images/image-20200827223319900.png)
+![image-20200827223319900](../../images/image-20200827223319900.png)
 
 除了使用默认配置， `modules`可供选择的设置还有这些：
 
@@ -226,11 +224,11 @@ modules: {
 
 开发环境的生成结果：
 
-![image-20200828175458964](../images/image-20200828175458964.png)
+![image-20200828175458964](../../images/image-20200828175458964.png)
 
 `yarn build`打包的结果：
 
-![image-20200828175718423](../images/image-20200828175718423.png)
+![image-20200828175718423](../../images/image-20200828175718423.png)
 
 ### postcss-loader
 
@@ -314,7 +312,7 @@ module.exports = {
 
 现在用`::placeholder`这个伪元素来测试一下，无论是开发环境还是生产环境都自动添加了厂商前缀，但是`autoprefixer`在兼容`grid`布局方面有一些不足，见 —— [Does Autoprefixer polyfill Grid Layout for IE](https://github.com/postcss/autoprefixer#does-autoprefixer-polyfill-grid-layout-for-ie)，它只能转换到 IE 10 和 IE 11 的程度。
 
-![image-20200908174806466](../images/image-20200908174806466.png)
+![image-20200908174806466](../../images/image-20200908174806466.png)
 
 ### 提取 CSS 文件
 
@@ -381,11 +379,11 @@ module.exports = function (env) {
 
 执行`yarn build`看一下输出的文件，已经在`dist`目录下根据配置的路径生成了 css 文件
 
-![image-20200828184616588](../images/image-20200828184616588.png)
+![image-20200828184616588](../../images/image-20200828184616588.png)
 
 再检查 html 页面，发现 CSS 文件按照路径通过`<link>`的形式插入
 
-![image-20200828184732391](../images/image-20200828184732391.png)
+![image-20200828184732391](../../images/image-20200828184732391.png)
 
 ### 移除无用的 CSS
 
@@ -467,7 +465,7 @@ export class Button1 extends Component {
 }
 ```
 
-![image-20200908230724789](../images/image-20200908230724789.png)
+![image-20200908230724789](../../images/image-20200908230724789.png)
 
 ### 压缩 CSS 代码
 
@@ -529,7 +527,7 @@ module.exports = {
 }
 ```
 
-![image-20200828232655666](../images/image-20200828232655666.png)
+![image-20200828232655666](../../images/image-20200828232655666.png)
 
 #### 配置输出目录
 
@@ -610,7 +608,7 @@ Data URLs 的形式如下：
 
 通过 Data URLs 协议引入的图片通常如下所示：
 
-![image-20200829163458852](../images/image-20200829163458852.png)
+![image-20200829163458852](../../images/image-20200829163458852.png)
 
 至于 Base64，是使用 ASCII 码中的 64 个可打印字符（`a~z`，`A~Z`，`0~9`以及`+`和`/`，最后还有一个`=`后缀）来编码数据，这种编码的特点是将原数据的每 6 个`bit`用一个打印字符来表示，也就是一个字符只能表示`3/4`的数据量，所以经过 Base64 编码的数据，最终会比原始数据大`1/3`左右。
 
@@ -655,7 +653,7 @@ module.exports = {
 }
 ```
 
-![image-20200829172848074](../images/image-20200829172848074.png)
+![image-20200829172848074](../../images/image-20200829172848074.png)
 
 ### 处理 SVG
 
@@ -709,7 +707,7 @@ export default class extends Component {
 }
 ```
 
-![image-20200829233148456](../images/image-20200829233148456.png)
+![image-20200829233148456](../../images/image-20200829233148456.png)
 
 #### SVG 组件
 
@@ -756,7 +754,7 @@ export default class extends Component {
 }
 ```
 
-![image-20200830002204124](../images/image-20200830002204124.png)
+![image-20200830002204124](../../images/image-20200830002204124.png)
 
 而当我在项目配置`resolve.alias`的时候，想用 alias 去引入一个 SVG 组件时，`babel-plugin-inline-react-svg`不支持 alias 解析，一直报错。
 
@@ -764,7 +762,7 @@ export default class extends Component {
 import View from '@/assets/icons/view.svg';
 ```
 
-![image-20200914221305987](../images/image-20200914221305987.png)
+![image-20200914221305987](../../images/image-20200914221305987.png)
 
 我在`babel-plugin-inline-react-svg`的 issue 也提了这个问题，插件作者回复是因为 babel 在 webpack 应用 alias 之前已经开始运行了。后来找到了两个解决方法：
 
@@ -897,7 +895,7 @@ export default class extends Component {
 }
 ```
 
-![image-20200830221725641](../images/image-20200830221725641.png)
+![image-20200830221725641](../../images/image-20200830221725641.png)
 
 如果要执行打包`yarn build`，需要借助一个 webpack 的插件 —— [`copy-webpack-plugin`](https://github.com/webpack-contrib/copy-webpack-plugin#copy-webpack-plugin)，这个插件可以将指定目录的文件复制到另一个目录中，并且复制过程还可以借助一些工具来压缩文件，例如可以使用[SVGO](https://github.com/svg/svgo/)的工具来优化 SVG 文件
 
@@ -992,7 +990,7 @@ export default class extends Component {
 }
 ```
 
-![image-20200830232038373](../images/image-20200830232038373.png)
+![image-20200830232038373](../../images/image-20200830232038373.png)
 
 > 和 CRA 集成 —— https://github.com/JetBrains/svg-sprite-loader/issues/339
 
@@ -1038,13 +1036,13 @@ module.exports = function(env) {
 
 默认配置情况下，对图片的压缩可以减少约`60%`的图片体积，可以看到压缩前图片`7.39MB`，压缩后仅为`2.32MB`
 
-![image-20200906194421570](../images/image-20200906194421570.png)
+![image-20200906194421570](../../images/image-20200906194421570.png)
 
-![image-20200906194438013](../images/image-20200906194438013.png)
+![image-20200906194438013](../../images/image-20200906194438013.png)
 
 需要注意的是，本身压缩图片是一件缓慢的事，我在上面一张图片的压缩大概耗费了 6s 的时间呢，所以指定`disable: isDevelopment`在开发环境下会禁用`image-webpack-loader`。
 
-![image-20200910234945155](../images/image-20200910234945155.png)
+![image-20200910234945155](../../images/image-20200910234945155.png)
 
 ## 处理字体
 

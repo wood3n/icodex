@@ -1,8 +1,6 @@
 ---
 title: webpack优化构建速度
----
-
-> Note：webpack 文档提供了一些优化构建性能的建议 —— [webpack - 构建性能](https://webpack.docschina.org/guides/build-performance/)，对于一些小型项目来说，这些建议很有用！
+---> Note：webpack 文档提供了一些优化构建性能的建议 —— [webpack - 构建性能](https://webpack.docschina.org/guides/build-performance/)，对于一些小型项目来说，这些建议很有用！
 
 ## 优化模块解析规则
 
@@ -162,7 +160,7 @@ module.exports = {
 
 过去的项目使用经验，大概是 10 分钟的打包时间，`eslint-loader`在不开启缓存的时候，占用了 **1/5** 的打包时间！
 
-![image-20200912230721400](../images/image-20200912230721400.png)
+![image-20200912230721400](../../images/image-20200912230721400.png)
 
 ### cache-loader
 
@@ -229,11 +227,11 @@ module.exports = {
 
 在引入`cache-loader`前，我的页面中包含一张`7MB`左右的图片需要压缩，打包的耗时是这样的：
 
-![image-20200912165834559](../images/image-20200912165834559.png)
+![image-20200912165834559](../../images/image-20200912165834559.png)
 
 使用`cache-loader`打包一次后，再次打包，明显缩短了`image-webpack-loader`的处理时长。
 
-![image-20200912165944112](../images/image-20200912165944112.png)
+![image-20200912165944112](../../images/image-20200912165944112.png)
 
 ## 多线程打包
 
@@ -259,7 +257,7 @@ module.exports = {
 
 webpack 打包程序也是一样，对于超出内存限制，打包程序会被终止。
 
-![image-20200912190631480](../images/image-20200912190631480.png)
+![image-20200912190631480](../../images/image-20200912190631480.png)
 
 解决这种问题的方法就是通过在`package.json`的 npm- script 中指定 CLI 参数，例如：
 
@@ -319,7 +317,7 @@ threadLoader.warmup(
 
 经过我在`babel-loader`和`eslint-loader`前添加`thread-loader`并开启线程预热以后，确实让相关 loader 的执行时间减少了大概 10 几秒的样子，总体来说影响不是很明显。
 
-![image-20200913003400905](../images/image-20200913003400905.png)![image-20200913003347937](../images/image-20200913003347937.png)
+![image-20200913003400905](../../images/image-20200913003400905.png)![image-20200913003347937](../../images/image-20200913003347937.png)
 
 ## DLL
 
@@ -392,11 +390,11 @@ module.exports = {
 
 现在在控制台执行`yarn dll`，就会在项目根目录的`dll`文件夹中生成打包的 DLL 文件了，同时还会包含一些`manifest.json`文件，用于`DllReferencePlugin`。
 
-![image-20200913191529903](../images/image-20200913191529903.png)
+![image-20200913191529903](../../images/image-20200913191529903.png)
 
 打开`react.dll.xx.js`看一下，内部确实包含了`react.production.min.js`和`react-dom.production.min.js`生产版本的代码。再打开`manifest.json`文件，内部包含了模块 id，DLL 的 名称，DLL 包含的所有模块。
 
-![image-20200913192529421](../images/image-20200913192529421.png)
+![image-20200913192529421](../../images/image-20200913192529421.png)
 
 ### DllReferencePlugin
 
@@ -438,11 +436,11 @@ module.exports = {
 
 这样再执行`yarn build`打包，webpack 就会自动跳对`react`模块了。打包信息显示 webpack external（使用外部拓展）了`react_dll`。
 
-![image-20200913194138841](../images/image-20200913194138841.png)
+![image-20200913194138841](../../images/image-20200913194138841.png)
 
 在`webpack.config.js`内部不使用`DllReferencePlugin`时，整个打包过程需要 5S 左右的时间，使用之后，减少了 2S。
 
-![image-20200913194517301](../images/image-20200913194517301.png)![image-20200913194635839](../images/image-20200913194635839.png)
+![image-20200913194517301](../../images/image-20200913194517301.png)![image-20200913194635839](../../images/image-20200913194635839.png)
 
 ### 复制 DLL 文件
 
@@ -476,7 +474,7 @@ module.exports = {
 };
 ```
 
-![image-20200913230740962](../images/image-20200913230740962.png)
+![image-20200913230740962](../../images/image-20200913230740962.png)
 
 ### 和 SplitChunksPlugin 的冲突
 
@@ -509,9 +507,9 @@ module.exports = {
 };
 ```
 
-![image-20200913232708859](../images/image-20200913232708859.png)
+![image-20200913232708859](../../images/image-20200913232708859.png)
 
-![image-20200913232837318](../images/image-20200913232837318.png)
+![image-20200913232837318](../../images/image-20200913232837318.png)
 
 ## externals
 
@@ -551,7 +549,7 @@ module.exports = {
 
 这样执行`yarn build`打包以后，可以看到 webpack external 了`React`和`ReactDOM`的全局变量。
 
-![image-20200914154732218](../images/image-20200914154732218.png)
+![image-20200914154732218](../../images/image-20200914154732218.png)
 
 为了能够找到`React`和`ReactDOM`这样的全局变量，需要将 React 库放在 HTML 中通过`<script>`全局引入。
 
@@ -635,4 +633,4 @@ module.exports = {
 
 现在执行打包，React 模块就被`externals`的配置忽略掉了，其使用 CDN 方式全局注入。
 
-![image-20200914181903091](../images/image-20200914181903091.png)
+![image-20200914181903091](../../images/image-20200914181903091.png)

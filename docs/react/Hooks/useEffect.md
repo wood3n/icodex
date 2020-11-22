@@ -16,10 +16,7 @@ title: useEffect
 
 ## 执行时间
 
-根据 React 官网对`useEffect`的介绍，赋值给 `useEffect` 的函数会在组件渲染到屏幕之后执行，那具体是什么时候呢？这里利用`MutabtionObserver`这个 API 监听以下 DOM 的变化过程。
-
-```tsx
-```
+根据 React 官网对`useEffect`的介绍，传递给 `useEffect` 的函数会在在浏览器完成布局与绘制**之后**执行。
 
 ## 模拟生命周期
 
@@ -82,5 +79,3 @@ function Counter() {
   );
 }
 ```
-
-##

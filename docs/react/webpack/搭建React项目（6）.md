@@ -1,8 +1,6 @@
 ---
 title: 搭建React项目（6）
----
-
-## 安装 TS
+---## 安装 TS
 
 ```shell
 yarn add typescript -D
@@ -23,7 +21,7 @@ yarn add @types/react @types/react-dom -D
 
 可以看到`@types/react`中只包含了 React 相关的声明文件而已。
 
-![image-20201003174520708](../images/image-20201003174520708.png)
+![image-20201003174520708](../../images/image-20201003174520708.png)
 
 ### 项目配置
 

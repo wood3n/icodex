@@ -1,8 +1,6 @@
 ---
 title: 搭建React项目（5）
----
-
-## resolve
+---## resolve
 
 webpack 的底层配置项`resolve`主要和模块解析的路径相关，常见的例如`mainFiles` ，`extensions`等
 

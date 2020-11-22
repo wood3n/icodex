@@ -1,8 +1,6 @@
 ---
 title: webpack优化代码生成（2）
----
-
-## 优化 babel-loader
+---## 优化 babel-loader
 
 `babel-loader`始终是项目处理任务最多的 loader，尤其是 React 开发过程中，有大量的 JSX 需要去解析，编译。从`babel-loader`的配置项入手可以进行一些优化。`babel-loader`使用的插件集合主要是`@babel/preset-env`和`@babel/preset-react`。
 
@@ -42,7 +40,7 @@ title: webpack优化代码生成（2）
 
 `@babel/preset-env`帮助开发者从`preset-latest`进行过渡，**如果不在`@babel/preset-env`中配置`targets`，那么它就会默认把 ES6+的 JS 代码全部编译成 ES5 的形式**。通过开启`@babel/preset-env`的`debug`配置项可以清楚的在控制台看到`@babel/preset-env`使用的 plugin 有多少，如果不设定`targets`，那么就会像下图这样引入最高兼容到 IE10 的 plugin。
 
-![image-20200917113713934](../images/image-20200917113713934.png)
+![image-20200917113713934](../../images/image-20200917113713934.png)
 
 在开发环境下，这些 plugin 基本都是不需要的，而`@babel/preset-env`并不会去查找`browserslist`的配置，即使是`browserslist`的默认配置，也必须在`targets`中配置，这个设定可能在 Babel 8 重新讨论。
 
@@ -62,7 +60,7 @@ title: webpack优化代码生成（2）
 }
 ```
 
-![image-20200917114914492](../images/image-20200917114914492.png)
+![image-20200917114914492](../../images/image-20200917114914492.png)
 
 `targets`还支持一些特殊字段的配置：
 
@@ -137,7 +135,7 @@ Promise.resolve(32).then(x => console.log(x));
 
 然后必须指定`useBuiltIns`，如果不指定不会有任何 polyfill 被添加进来。
 
-![image-20200917155333438](../images/image-20200917155333438.png)
+![image-20200917155333438](../../images/image-20200917155333438.png)
 
 以`core-js`的全局注入版本为例，指定`corejs: "3.6"`和`useBuiltIns: "entry"`，配置如下：
 
@@ -181,7 +179,7 @@ console.log(Array.from(new Set([1, 2, 3, 2, 1])));
 
 当指定`useBuiltIns:"usage"`时，只会根据代码引入需要的 polyfill，相应的打包时间和 chunk 体积就减小很多了，大概只有`20KB`。
 
-![image-20200917163433398](../images/image-20200917163433398.png)
+![image-20200917163433398](../../images/image-20200917163433398.png)
 
 因为直到 Babel 7.3 版本， `useBuiltIns: usage`还不够稳定，有时候一些需要的 polyfill 并不会自动添加进来，所以可能旧的项目使用会有一点问题。作为兼容性和按需引入更好的选择，可以使用下文`core-js-pure`和`@babel/plugin-transform-runtime`结合的方案。
 

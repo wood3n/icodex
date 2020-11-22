@@ -1,8 +1,6 @@
 ---
 title: 搭建React项目（2）
----
-
-## 开发环境配置
+---## 开发环境配置
 
 之前通过一些 webpack 的简单配置，项目可以使用 React 来编写基本组件了，但是每次编写组件，都需要重新执行`webpack`命令打包，然后再手动在浏览器中打开页面才能看到开发结果，这是十分影响开发效率的，我们要的效果`yarn start`启动项目运行，在开发过程中使用`ctrl+s`保存文件，然后页面能自动更新，为此需要配置 HMR 和 webpack-dev-server。
 
@@ -179,11 +177,11 @@ module.exports = {
 
 接下来就可以执行`yarn start`命令查看 webpack-dev-server 的效果了。
 
-![devserver-test](../images/devserver-test-1598434408604.gif)
+![devserver-test](../../images/devserver-test-1598434408604.gif)
 
 接下来测试一下修改自动刷新页面
 
-![devserver-test2](../images/devserver-test2.gif)
+![devserver-test2](../../images/devserver-test2.gif)
 
 关于 webpack-dev-server 的详细配置项还有很多，需要注意的是，部分配置项带见`CLI only` 的表示该配置项只能用在命令行中，不能在`webpack.config.js`使用，见 —— [配置 - DevServer](https://webpack.docschina.org/configuration/dev-server/)。
 
@@ -213,7 +211,7 @@ module.exports = {
 
 webpack-dev-server 默认情况下，会开启热重载`liveReload`功能，检测到文件更改时，devser 就将重新编译打包，然后刷新页面；
 
-![image-20200826173913328](../images/image-20200826173913328.png)
+![image-20200826173913328](../../images/image-20200826173913328.png)
 
 对于代码量小的项目，重新编译的时间损耗不会太多，但是项目需要使用的组件，模块等越来越多，打包过程也会越来越慢，会越来越影响开发效率。
 
@@ -232,7 +230,7 @@ module.exports = {
 
 成功启用 HMR 以后，浏览器的 devtool 一般会输出 HMR 的信息，例如
 
-![image-20200826181804190](../images/image-20200826181804190.png)
+![image-20200826181804190](../../images/image-20200826181804190.png)
 
 对 React 来说，在 HMR 里做的是重新引入 root component，然后重新渲染。因为 HMR 是对 root component 的热替换，所以替换之后 root component 和它内部的 component 的 state 都会丢失，但是对于保存在像 Redux store 等外部数据容器中的状态则可以保持。
 
@@ -326,7 +324,7 @@ source map 本质上就是一个以`.map`为后缀名的 JSON 文件，里面写
 
 后来，在 JS 基础上衍生出来的语言，例如 JSX，TS，CoffeeScript 等也都能通过这样技术映射出来。一些浏览器也都内置了对 source map 的支持，例如 Chrome 可以在 devtool 的设置面板中开启 JS 和 CSS 的 source map。
 
-![image-20200827162309877](../images/image-20200827162309877.png)
+![image-20200827162309877](../../images/image-20200827162309877.png)
 
 如果用了 WDS，是不需要使用 source map 的，因为开发环境的 WDS 有直观的错误提示，尤其在 React 中配合**React Fast Refresh**使用更加强大，可以在页面测试一下，给定以下代码：
 
@@ -353,7 +351,7 @@ export default class extends Component {
 
 当输入出错的时候，浏览器页面立即弹出了如下的错误提示框
 
-![image-20200827173532380](../images/image-20200827173532380.png)
+![image-20200827173532380](../../images/image-20200827173532380.png)
 
 但是，source map 在生产环境中仍然有使用的必要性，对于上面的错误测试代码，当我们执行`yarn build`打包代码以后，生成的目录如下：
 
@@ -366,7 +364,7 @@ dist
 
 在浏览器中打开 html 页面，输入之后立刻就会报错，从 devtool 可以获知报错信息如下：
 
-![image-20200827174154265](../images/image-20200827174154265.png)
+![image-20200827174154265](../../images/image-20200827174154265.png)
 
 可以看到这样的报错信息指向的代码位置已经糊成一团了，如果是复杂的错误，这种代码错误定位屁用没有。
 
@@ -397,7 +395,7 @@ dist
 
 这时候打开 html 页面测试输入报错，可以看到已经成功定位到了源代码的错误点，OK！
 
-![image-20200827175357789](../images/image-20200827175357789.png)
+![image-20200827175357789](../../images/image-20200827175357789.png)
 
 除了 webpack 自带的输出 source map 文件的功能，一些 loader 也会提供生成 source map 的配置选项，不过它们最终都依赖于`devtool`配置项是否启用，例如`css-loader`提供`sourceMap`的配置项，可以为 CSS 文件生成 source map。
 
@@ -406,7 +404,7 @@ dist
 - 指定`devtool:source-map`可以详细追踪到错误信息的位置，但是出现错误可以在 devtool 中直接跟踪到源码，例如上图
 - 指定`devtool:eval`可以显示错误位置，但是代码会是经过 babel 等编译过的代码，如果是 React 组件，大致也能分析出错误的代码位置
 
-![image-20200910142210278](../images/image-20200910142210278.png)
+![image-20200910142210278](../../images/image-20200910142210278.png)
 
 - 指定`devtool:eval-cheap-source-map`和`devtool:eval`看起来差不多，依旧是编译过的代码
 - 指定`devtool:eval-cheap-module-source-map`也能显示具体的源码位置，不过相对于`devtool:source-map`构建速度会大幅减少，webpack 是推荐使用这个配置项

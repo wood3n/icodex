@@ -1,6 +1,8 @@
 ---
 title: 搭建React项目（6）
----## 安装 TS
+---
+
+## 安装 TS
 
 ```shell
 yarn add typescript -D

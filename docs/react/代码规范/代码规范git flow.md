@@ -145,26 +145,37 @@ npx husky add pre-commit "lint"
 
 ### lint-staged
 
-`lint-staged`这个工具比较人性化，它只会对使用 git 添加到`staged`区的代码进行检查。如果一个项目之前没有使用过 ESLint 这种代码约束工具，突然集成以后肯定
+`lint-staged`这个工具比较人性化，它只会对使用`git add`添加到暂存区的代码进行检查。如果一个项目之前没有使用过 ESLint 这种代码约束工具，突然集成以后肯
 
-会发生各种报错，那些没有修改的代码等修改完了再提交就很耽误效率了，所以需要`lint-staged`这样的工具，只对修改完添加到暂存区的代码进行检查。
+定会发生各种报错，那些没有修改的代码等修改完了再提交就很耽误效率了，所以需要`lint-staged`这样的工具，只对修改完添加到暂存区的代码进行检查。
+
+这个工具本身和`husky`集成一起使用非常的方便，其针对`husky`内置了`npx mrm lint-staged`这个命令，和`husky`一起安装完以后，使用这个命令就会自动在`package.json`下生成和`husky`结合的配置。
 
 ```shell
-yarn add lint-staged -D
+yarn add husky lint-staged -D
+
+// 然后执行
+npx mrm lint-staged
 ```
+
+![image-20201123231405977](../../images/image-20201123231405977.png)
 
 `lint-staged`下属性名是 glob 匹配模式的文件路径，属性值是要执行的命令。
 
 ```json
-"scripts": {
-  "precommit": "lint-staged"
+"husky": {
+  "hooks": {
+    "pre-commit": "lint-staged"
+  }
 },
 "lint-staged": {
-  "./src/**/*.js": [
-    "eslint --fix --ext .js"
-  ]
-},
+  "*.{jsx,js,ts,tsx}": "eslint --fix"
+}
 ```
+
+然后执行`git commit`命令的执行就会触发`husky`配置的 hook
+
+![image-20201123231915237](../../images/image-20201123231915237.png)
 
 ### standard
 

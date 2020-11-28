@@ -2,6 +2,22 @@
 title: git命令整理
 ---
 
+## HEAD
+
+### 什么是 HEAD
+
+`HEAD`是当前分支引用的指针，通常将其看作该分支上最后一次提交的快照。
+
+在 git 中文件有三种状态：
+
+- **modified**：已修改，包括新创建的文件，或者对已提交文件的修改，对应工作区
+
+- **staged**：已暂存，对应暂存区
+
+- **committed**：已提交
+
+![image-20201128144057159](../images/image-20201128144057159.png)
+
 ## 常用
 
 ### git config
@@ -59,13 +75,17 @@ git reset HEAD <file1>,<file2>...
 ### git commit
 
 ```shell
+// 提交
 git commit -m "xxx"
+// 跳过暂存直接暂存并提交
 git commit -a -m "xxx"
+// 合并提交记录
+git commit [-a -m] [--amend]
 ```
 
 如果`git commit`带上`-a`后缀就表示跳过`git add`阶段保存到暂存区的过程，直接将所有已经跟踪过的文件暂存起来一并提交。
 
-#### 撤销提交
+#### 合并提交
 
 ```shell
 git commit --amend
@@ -106,6 +126,20 @@ git push -f
 
 ![image-20200922134548310](../images/image-20200922134548310.png)
 
+### git fetch
+
+```
+git fetch [--all]
+```
+
+`git fetch`会将远程仓库及其改动都拉取下来，然后你可以在本地使用`git merge`命名将两个分支的代码进行合并，一般这个过程是这样的：
+
+- 使用`git fetch`拉去所有远程分支的代码
+- 使用`git add`+`git commit`/`git stash`将本地代码先暂存起来
+- 执行`git merge <branch>`将指定远程仓库在本地的副本仓库合并到当前分支
+
+一般来说，当你本地切换到
+
 ### git pull
 
 ```shell
@@ -115,7 +149,7 @@ git pull <远程主机名> <远程分支名>:<本地分支名>
 git push <远程主机名> <远程分支名>
 ```
 
-`git pull`是从远程仓库的分支获取代码并合并到本地工作区。
+`git pull`是从远程仓库的分支获取代码并合并到本地工作区。相当于`git fetch`和`git merge`。
 
 ### git stash
 
@@ -150,13 +184,23 @@ git rm --cached <file>	//只删除远程，不删除本地
 ### git branch
 
 ```shell
+// 显示本地全部分支名称
 git branch
+// 显示远程指定分支的信息
 git remote show <remote>
 
+// 创建新的分支
 git branch <branchname>
-git branch -d <branchname>
+// 基于指定的远程分支创建本地分支
+git branch <branchname> origin/branchName
+// 强制删除本地分支
+git branch -D <branchname>
+// 删除远程分支
 git push origin --delete <branchname>
-git branch --set-upstream-to=<upstream> [<branchname>]
+// 将本地当前分支和指定的远程分支关联起来
+git branch --set-upstream-to=origin/<remote branch> <local branch>
+// 重命名分支
+git branch -m oldName newName
 
 eg:
 git branch testing
@@ -168,6 +212,12 @@ git branch -d issue1
 ![image-20200922113012782](../images/image-20200922113012782.png)
 
 默认分支名称是`master`，`git branch`命令用于在本地创建一个新的分支；`git branch`只是创建分支，并不会自动切换到新的分支。
+
+如果使用`git branch <branchname> origin/branchName`指定远程分支，则会基于远程分支创建本地分支并且自动把它们关联起来。现在的大多数编辑器在手动切换分支的时候都会自动实现这个功能，例如`VSCode`，当你选择在分支查看面板点击某个远程分支以后，会自动为远程分支创建本地分支副本并且把他们关联起来，然后再切换到这个新创建的分支副本上去。值得注意的是，使用`git fetch`并不会同时更新这个远程分支的副本，需要使用`git pull`，这个应该是很常见的问题！
+
+![image-20201128115541197](../images/image-20201128115541197.png)
+
+![image-20201128120104243](../images/image-20201128120104243.png)
 
 如果使用`git branch -d`后缀，则是**删除本地分支**，使用大写的`-D`后缀是强制删除，一般情况下用大写的情况居多。
 
@@ -184,8 +234,12 @@ git branch -d issue1
 ### git checkout
 
 ```shell
+// 切换分支
 git checkout <branchname>
+// 在当前分支的基础上创建本地分支
 git checkout -b <newbranchname>
+// 在指定远程分支的基础上创建本地分支
+git checkout -b <newbranchname> <origin/branchName>
 
 eg:
 git checkout testing
@@ -322,12 +376,23 @@ git log --author=<username>
 
 使用`git log --author`带上用户名，可以查询指定人员的提交记录
 
+### git reflog
+
+`git reflog`会显示本地存储库中分支的操作记录
+
+`98b2a91`等最前面的一串字符是操作记录的`hash`值，利用这个值可以在`git reset`，`git revert`等进行版本回滚操作；
+
+`HEAD@{2}`之类的表示当前`HEAD`指针在当前分支的移动次数，可以看到每提交一次代码`HEAD`就会移动一次，关于`HEAD`详细的介绍参考上文
+
+![image-20201128110921828](../images/image-20201128110921828.png)
+
 ## 回滚
 
 ### git reset
 
 ```shell
 git reset [--soft | --mixed | --hard] [HEAD]
+git reset --soft
 git reset --hard <commitHash>
 
 eg:
@@ -339,11 +404,11 @@ git reset --hard 3c8j0wrwjrw0824m2...
 
 `--mixed`为默认后缀，可以不用带该参数，即`git reset HEAD`，用于**只重置暂存区**的文件，也就是重置上一次`git add`的操作；那么你当前正在修改的文件就不会被重置
 
-`--soft`参数用于回退到某个版本；
+`--soft`：只会回退版本，不会将本地工作区和暂存区的代码都一起撤销回归；
 
-`--hard`参数撤销工作区中所有未提交的修改内容，**将暂存区与工作区都回到上一次版本，并删除之前的所有信息提交**，也就是本地改过的统统撤销
+`--hard`：撤销工作区，暂存区中所有未提交的修改内容，**将暂存区与工作区都回到指定版本，并删除之前的所有信息提交**，也就是本地改过的统统撤销
 
-`[HEAD]` 可以用来简单的表示最近的版本
+`[HEAD]` 可以用来简单的表示最近的版本，如果不加`[HEAD]`直接使用则默认回退到上个`commit`的记录。
 
 - `HEAD^` 上一个版本
 - `HEAD^^` 上上一个版本
@@ -361,6 +426,8 @@ git reset --hard 3c8j0wrwjrw0824m2...
 如果要回退到指定版本，需要带上指定`commit`版本的`hash`值，可以先使用`git log`查询提交历史再回滚
 
 ```shell
+git log
+
 git reset --hard 3c8j0wrwjrw0824m2...
 ```
 
@@ -373,3 +440,23 @@ git revert [HEAD]
 如果使用`git revert`也能做到重置提交的目的，例如使用`git revert HEAD`是重置到上一版本，**同时会创建一个新的提交记录**。注意这点是和`git reset`主要的区别，`git reset`是连提交记录都会重置，也就是说你**滚回去以后就别想滚回来了**，`git revert`是创建一个新的提交去覆盖之前的提交记录。
 
 ![image-20200922143003078](../images/image-20200922143003078.png)
+
+## 关联
+
+### git remote add origin
+
+一般来说，一个项目刚开始开发的时候是现在远端创建一个仓库，然后每个人`clone`下来仓库；但是如果本地存在的项目想要上传到远端仓库怎么办呢？在执行`git init`以后再使用`git remote add origin`即可
+
+```shell
+git init
+git remote add origin <URL>
+git push origin master
+```
+
+但是这样并不会建立本地当前分支和远程仓库分支的联系，之后还可以使用`git branch --set-upstream-to=origin/<remote branch> <local branch>`来建立本地分支和远程分支的关联，之后就可以直接使用`git push`而不带`origin <branch>`命令参数了。
+
+```shell
+git branch --set-upstream-to=origin/<remote branch> <local branch>
+```
+
+![image-20201128151000238](../images/image-20201128151000238.png)

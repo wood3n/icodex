@@ -179,3 +179,15 @@ CJK 文本不进行换行，非 CJK 文本表现同`word-break:normal`
 ### length
 
 `<length>`是长度单位的统称，可指定在[CSS - length | MDN (mozilla.org)](https://developer.mozilla.org/en-US/docs/Web/CSS/length)中的不同单位值。
+
+## -webkit-line-clamp
+
+`-webkit-line-clamp`可以把**块级盒子**内部的文本内容限定为指定的行数。不过这个属性使用有很多的限制：
+
+- 块级盒子内部`diaplay`属性需要是`-webkit-box` 或者 `-webkit-inline-box`
+- `-webkit-box-orient`属性必须指定为`vertical`
+- 你需要指定`line-break: anywhere`来引导布局在文本任意处对其进行换行处理，否则以上属性会完全不生效！
+
+`webkit`前缀的属性一般用于 webkit 渲染引擎的浏览器，例如 Chrome，safari；CSS3 还指定了一个`line-clamp`属性用来替换`-webkit-line-clamp`属性，如果是 React，需要注意`webkit`开头的属性值都是大写开头的。
+
+<code src="@/demo/Text/LineClamp" />

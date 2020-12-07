@@ -144,3 +144,56 @@ require('esbuild').build({
 ![image-20201206234218438](../../images/image-20201206234218438.png)
 
 ![image-20201206234227242](../../images/image-20201206234227242.png)
+
+## 对比 webpack
+
+### 易用性
+
+首先从易用性上来说比`webpack`要简单许多，对于上面一个简单的 React 项目，`webpack`需要安装`babel`，`babel-loader`等工具，需要使用`webpack`那谜一样的 API 来配置`babel`编译`jsx`模块的代码，一个最简单的`webpack`配置需要指定以下内容
+
+```javascript
+const path = require('path');
+
+module.exports = {
+  entry: path.resolve(__dirname, 'src'),
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist'),
+  },
+  module: {
+    rules: [
+      {
+        test: /\.m?jsx?$/,
+        exclude: /(node_modules)/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env', '@babel/preset-react'],
+            // 如果在class组件中使用属性或者箭头函数之类的语法，必须要引入这个plugin
+            plugins: ['@babel/plugin-proposal-class-properties'],
+          },
+        },
+        resolve: { extensions: ['.js', '.jsx'] },
+      },
+    ],
+  },
+};
+```
+
+### 编译速度
+
+React 项目中影响`webpack`编译速度一个关键点就是`babel-loader`很慢，基于以上的同一个项目，`webpack`需要`4s`左右
+
+![image-20201207231615586](../../images/image-20201207231615586.png)
+
+但是`esbuild`不到`1s`，😂😂😂😂😂😂😂😂
+
+![image-20201207231741510](../../images/image-20201207231741510.png)
+
+### bundle 大小
+
+就最终生成的`bundle`文件大小来说，两者相差不大
+
+![image-20201207232058087](../../images/image-20201207232058087.png)
+
+![image-20201207232126884](../../images/image-20201207232126884.png)

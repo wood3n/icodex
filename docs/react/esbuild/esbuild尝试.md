@@ -117,7 +117,7 @@ ReactDOM.render(<App />, document.getElementById('root'));
 
 ### 配置 esbuild
 
-简单的配置一下`esbuild.config.js`
+简单的配置一下`esbuild.config.js`，需要注意这里的`define`字段要指定`process.env.NODE_ENV`
 
 ```javascript
 require('esbuild').build({

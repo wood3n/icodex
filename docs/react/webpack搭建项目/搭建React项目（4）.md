@@ -1,5 +1,6 @@
 ---
-title: 搭建React项目（4）
+
+title: 搭建 React 项目（4）
 ---## chunk 和 bundle
 
 > [Concepts - Bundle vs Chunk](https://github.com/webpack/webpack.js.org/issues/970#issuecomment-305525560)

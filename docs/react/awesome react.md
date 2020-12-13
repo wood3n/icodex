@@ -24,15 +24,21 @@ title: awesome-react
 
 ### [react-transition-group](https://reactcommunity.org/react-transition-group/)
 
+### [react-beautiful-dnd](https://github.com/atlassian/react-beautiful-dnd/)
+
+### [react-dnd](https://github.com/gaearon/react-dnd)
+
 ## 数据结构操作
 
 ### [lodash](https://www.lodashjs.com/)
 
 ### [moment](https://momentjs.com/docs/#/parsing/)
 
-### [Humanize Duration](https://github.com/EvanHahn/HumanizeDuration.js)
+### [humanize duration](https://github.com/EvanHahn/HumanizeDuration.js)
 
 ### [immutablejs](https://immutable-js.github.io/immutable-js/docs/#/Map)
+
+### [mathjs](https://mathjs.org/docs/getting_started.html)
 
 ## 编辑器
 
@@ -49,3 +55,23 @@ title: awesome-react
 ### [protocol-buffers](https://developers.google.com/protocol-buffers/docs/reference/javascript-generated)
 
 ### [JSON](https://developer.mozilla.org/zh-CN/docs/Learn/JavaScript/Objects/JSON)
+
+## webpack
+
+### loader
+
+### plugin
+
+## UI
+
+### [React Native UI Kitten](https://akveo.github.io/react-native-ui-kitten)
+
+### [Material-UI](https://material-ui.com/zh/getting-started/installation/)
+
+### [react-component](https://github.com/react-component)
+
+## 博客搭建
+
+### [dumi](https://d.umijs.org/zh-CN/guide)
+
+### [docusaurus](https://v2.docusaurus.io/docs/)

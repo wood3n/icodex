@@ -1,5 +1,5 @@
 ---
-title: ESLint+git hook
+title: git hook构建代码规范
 ---
 
 ## git hook

@@ -76,7 +76,7 @@ flex 布局取决于 flex direction，flex direction 可以使用 [`flex-flow`](
 
 ## flex
 
-`flex`是`flex-grow`，`flex-shrink`，`flex-basis`的简写，用于 flex 项上。
+`flex`是`flex-grow`，`flex-shrink`，`flex-basis`的简写，**用于 flex 项**上。
 
 `flex`这个属性默认值是`initial`，即`flex: 0 1 auto`，默认 flex 项自动根据内容宽度作为初始宽度，同时不会伸长分享 flex 容器中的剩余空间，但会在所有 flex 项宽度总和大于 flex 容器宽度时发生收缩以适应填满 flex 容器。
 

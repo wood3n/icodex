@@ -1,6 +1,8 @@
 ---
 title: Hook优化
----## 心智模型
+---
+
+## 心智模型
 
 > 心智模型（mental model）：A **mental model** is an explanation of someone's thought process about how something works in the real world. —— [wikipedia - Mental_model](https://en.wikipedia.org/wiki/Mental_model)
 >
@@ -20,13 +22,11 @@ title: Hook优化
 
 我记得曾经有一次我面试的时候，面试官问我一个问题，函数组件能不能被实例化，我当时还傻傻地回答*可以*，因为我当时完全没有写过函数组件，按照过去对构造函数和现在 ES 中的`class`的认识，我把函数组件大写开头的形式类比成了构造函数！
 
-### 生命周期
+### 函数组件没有生命周期
 
 在`class`组件中，依赖生命周期方法我们可以很好的组织组件内部的逻辑，每一个生命周期函数都有严格的执行时机限制，也就是`class`组件内部的方法不是按顺序执行的。
 
 ![image-20201021233953132](../../images/image-20201021233953132.png)
-
-#### 函数组件没有声明周期
 
 需要明确的概念是理解函数组件需要打破之前建立的`class`组件渲染的生命周期形式的心智模型。`class`组件一系列声明周期方法的执行都统一挂载在`class`组件的一个实例上，从初始化创建以后就会保持一个函数组件的实例，并依靠实例上的声明周期方法去调度组件以后的每次更新。
 
@@ -184,7 +184,7 @@ useEffect(() => {
 
 但是额外声明一个函数就开辟了一个新的引用地址出来，在这个函数内部间接访问`saveCallback.current`，由于每次更新都会更新`saveCallback.current`的指向，所以`tick`内部获取到的`saveCallback.current`指向的函数也一直是最新的。
 
-### this
+## this
 
 如果从作用域的角度来看的话，`this`是 JS 里比较令人头疼的问题，`class`的出现从一定程度解决了`this`的乱用，也就是仅限于在`class`中使用`this`访问`class`内部的成员，这是 OOP 语言的特性，但是`class`里有个严格的规定是继承的`class`必须首先使用`super`去塑造内部构造函数`constructor`的`this`，并且由于 React 组件的特殊性，在事件回调函数中使用`this`必须在构造实例的时候就严格绑定到实例上，否则当 JSX 最终渲染到 DOM 中的时候，事件回调函数中的`this`就会丢失。
 
@@ -218,9 +218,9 @@ export default () => {
 
 没有`this`，函数组件每次更新又会重新调用，那么如果在函数组件内部保存一个值使其在更新渲染期间保持不变呢？可以使用`useRef`创建一个`ref`对象，在`ref.current`属性上保存这些值，可以满足每次更新渲染函数组件都不会发生变化，除非手动修改`ref.current`的值。这就类似于`class`组件在`this`上声明一些属性。
 
-### useMemo 和 useCallback
+## useMemo 和 useCallback
 
-#### useMemo
+### useMemo
 
 在一个函数组件内部，其返回的组件使用到的外部成员无非就是**变量和函数**。变量无非就是需要通过组件显示的数据，函数无非就是需要通过组件交互进行的调用，或者用于间接生成组件。
 
@@ -264,7 +264,7 @@ function Parent({ a, b }) {
 }
 ```
 
-#### useCallback
+### useCallback
 
 `useMemo`是非常简单，如果组件中有什么值不希望在组件每次更新`state`以后`rerender`的过程中重新计算就可以放在`useMemo`中，只需要注意该缓存值计算依赖的`state`或者`props`值要放在`useMemo`的第二个参数数组中。
 
@@ -321,7 +321,7 @@ React.createElement(
 
 所以根本不需要使用`useCallback`来缓存每个回调函数的引用地址，例如原生 DOM 回调事件的触发等。**`useCallback`真正的用法在于配合`React.memo`来使用**，因为函数组件不存在`PureComponent`和`shouldComponentUpdate`这样的优化策略，`React.memo`作为一个替代品可以达到上述两个生命周期的目的。
 
-#### React.memo
+### React.memo
 
 `React.memo`默认情况下会对传递到子组件的`props`进行对比，且复杂对象只会做浅层对比，如果自定义对比`props`的方式，可以传递一个函数作为第二个参数给`React.memo`，该函数接收之前的`props`和即将触发更新的`props`，如果返回`false`就表示组件需要更新，返回`true`则表示组件不需要更新。完整的 API 如下：
 

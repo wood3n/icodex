@@ -1,6 +1,8 @@
 ---
 title: webpack打包分析工具
----## stats
+---
+
+## stats
 
 `stats`是控制 webpack 如何打印出开发环境或者生产环境的打包结果信息。如果是开发环境使用 WDS，还可以在`devServer.stats`配置。
 

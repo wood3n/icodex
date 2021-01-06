@@ -1,7 +1,6 @@
 ---
-
 title: 搭建 React 项目（1）
----> [Tutorial: How to set up React](https://www.valentinog.com/blog/babel/)
+---
 
 ## 配置 webpack
 

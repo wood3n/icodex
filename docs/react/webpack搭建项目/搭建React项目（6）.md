@@ -1,5 +1,5 @@
 ---
-title: 搭建React项目（6）
+title: 搭建 React 项目（6）
 ---
 
 ## 安装 TS

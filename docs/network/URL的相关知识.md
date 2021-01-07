@@ -90,16 +90,6 @@ URL，Uniform Resource Locator，统一资源定位符，是表示 URI 的一种
 <a href="#简单请求">测试</a>
 ```
 
-### Location 接口
-
-> [Location](https://developer.mozilla.org/en-US/docs/Web/API/Location)
-
-`Location`接口是 HTML5 规范定义的表示当前网页 URL 的接口，在 JS 中一般使用`Document`和`Window`接口的对象属性`document.location`和`window.location`来表示当前页面的`Location`对象。
-
-`Location`根据 URL 的组成部分，划分了诸多属性：
-
-![Snipaste_20200801182416](../images/Snipaste_20200801182416.png)
-
 ## URL 编码 / 百分号编码
 
 > [百分号编码（Percent-encoding）](https://zh.wikipedia.org/wiki/百分号编码)又称 URL 编码，形式就是百分号`%`后跟十六进制数字`[0,F]`组成。
@@ -200,6 +190,131 @@ HTML 的`<form>`表单元素具有`enctype`属性，`enctype` 就是将表单的
 > title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3
 > ```
 
+## JS 里的 URL 接口
+
+### Location 接口
+
+> [Location](https://developer.mozilla.org/en-US/docs/Web/API/Location)
+
+`Location`接口是 HTML5 规范定义的表示当前网页 URL 的接口，在 JS 中一般使用`Document`和`Window`接口的对象属性`document.location`和`window.location`来表示当前页面的`Location`对象，`Location`没有构造函数，**拿来即用**。
+
+#### 属性
+
+`Location`根据 URL 的组成部分，划分了诸多属性：
+
+![Snipaste_20200801182416](../images/Snipaste_20200801182416.png)
+
+#### 方法
+
+`Location`下还提供了一些操作 URL 的方法：
+
+- `location.assign(url)`：跳转到指定的`url`，`history.push`是无感的，但是`location.assign`会有跳转加载动画
+- `location.reload(forcedReload)`：重新加载当前页面，其接受一个`boolean`类型的参数，为`true`的时候就强制浏览器从服务器加载页面资源；否则浏览器可能从缓存中读取页面
+- `location.replace(url)`：跳转到指定`url`
+- `location.toString()`：该方法返回一个经过百分比编码的`url`
+
+### URL
+
+> [URL](https://developer.mozilla.org/en-US/docs/Web/API/URL)
+
+#### 构造函数
+
+`new URL(url [, base])`：根据指定`url`字符串创建`URL`接口的对象，可选参数`base`表示相对的`url`
+
+```javascript
+let m = 'https://developer.mozilla.org';
+let a = new URL('/', m); // => 'https://developer.mozilla.org/'
+```
+
+#### 属性
+
+`URL`接口里的属性和`Location`差不多，不同点为：
+
+1. `URL`接口不能直接使用，需要通过构造函数初始化创建`URL`对象才可以，从这点来说，`location`拿过来就能用更方便
+
+2. `Location`没有这个`searchParams`这个属性
+
+以下是`URL`接口包含的常用属性
+
+- `protocal`：协议
+- `host`：域名
+- `hostname`：域名 + 端口
+- `port`：端口
+- `origin`：协议，域名，端口
+- `pathname`：`/`开头的路径
+- `search`：`?`开头的查询字符串
+- `searchParams`：[`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams)格式的查询对象，`Location`没有这个属性
+- `hash`：`#`开头的锚点
+- `href`：整个`url`，经过百分比编码的
+
+#### 方法
+
+- `URL.createObjectURL(object)`：静态方法，根据指定的[`File`](https://developer.mozilla.org/en-US/docs/Web/API/File)，[`Blob`](https://developer.mozilla.org/en-US/docs/Web/API/Blob)，或者[`MediaSource`](https://developer.mozilla.org/en-US/docs/Web/API/MediaSource)创建`URL`对象并返回，可以用在`img`的`src`等属性中
+
+- `URL.revokeObjectURL(objectURL)`：静态方法，将`URL.createObjectURL`创建的`URL`再转换成原始对象，通常和`URL.createObjectURL`一起使用
+
+- `url.toString()`：返回经过百分比编码的`url`
+- `url.toJSON()`：返回经过百分比编码的`url`
+
+### URLSearchParams
+
+`URLSearchParams`专门用来操作`url.search`部分的字符串
+
+#### 构造函数
+
+`new URLSearchParams(searchParams)`：创建一个`URLSearchParams`对象，可接受以下类型的参数：
+
+```javascript
+// 普通字符串
+var params2 = new URLSearchParams('foo=1&bar=2');
+
+// location.search或者url.search
+var params2a = new URLSearchParams('?foo=1&bar=2');
+
+// 键值对形式的数组
+var params3 = new URLSearchParams([
+  ['foo', '1'],
+  ['bar', '2'],
+]);
+
+// 对象
+var params4 = new URLSearchParams({ foo: '1', bar: '2' });
+```
+
+#### 方法
+
+- `urlSearchParams.has(name)`：是否找得到指定属性
+- `urlSearchParams.get(name)`：返回指定的属性值，没找到就返回`null`
+- `urlSearchParams.getAll(name)`：返回所有属性的值组成的数组
+- `urlSearchParams.set(name, value)`：设置某个属性的值
+- `urlSearchParams.append(name, value)`：向`URLSearchParams`对象添加键值对
+- `urlSearchParams.delete(name)`：删除`URLSearchParams`对象中指定属性
+- `urlSearchParams.forEach(fn)`：接受一个函数，函数的的参数是`value`和`key`
+- `urlSearchParams.keys()`：返回一个可被`for...of`迭代的迭代器，每次遍历返回属性名称
+- `urlSearchParams.values()`：返回一个可被`for...of`迭代的迭代器，每次遍历返回属性的值
+- `urlSearchParams.entries()`：返回一个可被`for...of`迭代的迭代器，每次遍历返回当前键值对形式的数组
+- `urlSearchParams.sort()`：根据属性名称所在的 Unicode 码点值进行排序，这种排序算法是稳定的，即具有相同键的键/值对之间的相对顺序每次排序都是相同的
+
+```javascript
+var paramsString = 'q=URLUtils.searchParams&topic=api';
+var searchParams = new URLSearchParams(paramsString);
+
+for (let p of searchParams) {
+  console.log(p);
+}
+
+searchParams.has('topic') === true; // true
+searchParams.get('topic') === 'api'; // true
+searchParams.getAll('topic'); // ["api"]
+searchParams.get('foo') === null; // true
+searchParams.append('topic', 'webdev');
+searchParams.toString(); // "q=URLUtils.searchParams&topic=api&topic=webdev"
+searchParams.set('topic', 'More webdev');
+searchParams.toString(); // "q=URLUtils.searchParams&topic=More+webdev"
+searchParams.delete('topic');
+searchParams.toString(); // "q=URLUtils.searchParams"
+```
+
 ## JS 中的 URL 编码方法
 
 在 ES 规范文档中提供两个标准的全局函数用于处理 URL 编码，`encodeURI`和`encodeURIComponent`，与他们分别对应的还有两个解码方法`decodeURI`和`decodeURIComponent`
@@ -254,8 +369,6 @@ console.log(
 ```
 
 ## URL 的最大长度
-
-> [What is the maximum length of a URL in different browsers?](https://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers)
 
 URL 的长度问题其实不是太常涉及到，一般来说不太了解 HTTP `GET`请求方法的人喜欢将`URL长度限制`这种结论归结到`GET`请求的不足中去。
 

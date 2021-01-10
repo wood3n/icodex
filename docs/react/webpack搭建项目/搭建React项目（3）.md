@@ -385,7 +385,7 @@ module.exports = function (env) {
 
 再检查 html 页面，发现 CSS 文件按照路径通过`<link>`的形式插入
 
-![image-20200828184732391](../../images/image-20200828184732391.png)
+![image-20200828184732391](../../images/image-20200828184732391-1610176361440.png)
 
 ### 移除无用的 CSS
 

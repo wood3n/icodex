@@ -67,9 +67,7 @@ function test() {
   a = 3;
   console.log(a);
 }
-test();
-
-// 2,3
+test(); // 2,3
 ```
 
 ![image-20200910152357282](../../images/image-20200910152357282.png)

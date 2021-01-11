@@ -4,7 +4,7 @@ title: webpack脚手架搭建（1）
 
 ## Scaffold 简介
 
-​ 当使用`react-create-app`命令行工具的时候能够轻松地创建 React 基础应用，其背后就是利用`webpack`提供的能力编写的脚手架。`cra`虽然一定程序上可以满足小型项目的需求，但是由于其封装限制（需要`eject`才能暴露配置）以及内部一些冗余的配置，导致其并不能完全适应大型项目的要求，因此理论上具有前端开发岗位的公司都应该自行定制自己的脚手架以适应业务的需求，例如自动配置`react-router`，启用`less`等这些拓展功能。
+当使用`react-create-app`命令行工具的时候能够轻松地创建 React 基础应用，其背后就是利用`webpack`提供的能力编写的脚手架。`cra`虽然一定程序上可以满足小型项目的需求，但是由于其封装限制（需要`eject`才能暴露配置）以及内部一些冗余的配置，导致其并不能完全适应大型项目的要求，因此理论上具有前端开发岗位的公司都应该自行定制自己的脚手架以适应业务的需求，例如自动配置`react-router`，启用`less`等这些拓展功能。
 
 ## yeoman
 
@@ -34,75 +34,39 @@ yo webapp
 
 ### 编写 generator
 
-`yeoman`提供编写脚手架的机制，经过如下步骤：
+#### 安装 generator-generator
 
-#### 1. 创建项目
-
-创建一个`generator-*`命名的文件夹，`*`就是自定义的`generator`的名称
-
-#### 2. 创建 package.json
-
-执行`yarn init`或者`npm init`创建`package.json`文件，`package.json`必须包含以下属性
-
-- `name`：必须是`generator-*`形式，也就是和文件夹的名称一致
-- `description`：必须包含`yeoman`的[`generators`](https://yeoman.io/generators/)页面的链接
-- `keywords`：必须包含`"yeoman-generator"`
-- `files`：必须包含该`generator`使用到的文件或者文件夹名称，一般来说`generator`程序都放在`generators`目录下，所以这里写`generators`
-
-安装`yeoman-generator`，然后`package.json`的属性看起来如下所示
+`yeoman`本身提供自定义脚手架的辅助工具 —— [`generator-generator`](https://github.com/yeoman/generator-generator)
 
 ```shell
-yarn add yeoman-generator
+yarn global add yo
+
+yarn global add generator-generator
 ```
 
-```json
-{
-  "name": "generator-oxygen",
-  "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
-  "files": ["generators"],
-  "keywords": ["yeoman-generator"],
-  "dependencies": {
-    "yeoman-generator": "^4.12.0"
-  }
-}
+首先全局安装`generator-generator`，然后在指定目录执行`yo generator`，即可生成编写`generator`的项目结构
+
+```shell
+.
+├── generators/
+│   └── app/
+│       ├── index.js
+│       └── templates/
+│           └── dummyfile.txt
+├── .editorconfig
+├── .eslintignore
+├── .gitattributes
+├── .gitignore
+├── .travis.yml
+├── .yo-rc.json
+├── LICENSE
+├── README.md
+├── package.json
+└── __tests__/
+    └── app.js
 ```
 
-#### 3. 创建目录
-
-编写`generator`的目录结构，首先`package.json`的`files`属性需要和这里的目录名称保持一致；默认情况下执行`yo <generator-name>`的时候会从`app`目录下查找`index.js`文件并执行，如果和`app`有同级目录，则可以使用`yo <generator-name>:<sub directory-name>`执行其中的子程序，例如
-
-```javascript
-├───package.json
-└───generators/
-    ├───app/
-    │   └───index.js
-    └───router/
-        └───index.js
-
-// 对应 yo name 和 yo name:router
-```
-
-当然也支持扁平化的目录结构，例如：
-
-```javascript
-├───package.json
-├───app/
-│   └───index.js
-└───router/
-    └───index.js
-```
-
-这时候对应`package.json`的`files`属性需要是
-
-```json
-{
-  "files": ["app", "router"]
-}
-```
-
-#### 4. 编写 generator
+#### Generator 基类
 
 `yeoman`提供一个基类`Generator`，自定义的`generator`都需要`extends`该基类，例如：
 
@@ -116,7 +80,7 @@ module.exports = class extends Generator {
 };
 ```
 
-#### 5. 运行 generator
+#### 运行 generator
 
 由于是本地开发的`generator`程序，不能直接作为全局`npm`模块运行，但是可以通过在`generator`项目根目录执行`npm link`或者`yarn link`来链接执行本地模块，接下来会自动安装项目依赖并执行`generator`程序。
 
@@ -126,13 +90,24 @@ cd generator
 yarn link
 ```
 
-当运行`generator`以后，`yeoman`会在
+当运行`generator`以后，`yeoman`会在`generator`内部查找`.yo-rc.json`文件，并把`.yo-rc.json`所在的目录作为`generator`的根目录，从`generators/app`目录下查找`index.js`文件并执行，如果和`app`有同级目录，则可以使用`yo <generator-name>:<sub directory-name>`执行其中的子程序。
 
 ## yeoman-run loop
 
-回到`class`的原理上来说，`class`可以看作一个构造函数，在`class`内部定义的普通方法都会被绑定到`class`的`prototype`上，而箭头函数则是绑定到实例对象上（也就是`this`）。
+回到`class`的原理上来说，在`class`内部定义的普通方法都会被绑定到父类的`prototype`上，由于`generator`继承自`Generator`基类，所以其内部普通函数都定义在`Generator.prototype`上，它们会自动运行。
 
-绑定到`Generator.prototype`上的方法被认为是一个任务。
+普通函数会自动运行但不是按顺序执行，它们会有对应的执行队列，队列通常按照以下顺序执行：
+
+1. `initializing`：获取`generator`的初始配置
+2. `prompting`：执行`this.prompt()`
+3. `configuring`：保存配置，例如写入`.editorconfig`等配置文件
+4. `default`：当方法名没有匹配到优先级的时候，会进入这个队列
+5. `writing`：执行`generator`时生成对应的项目结构，例如写入本地文件
+6. `conflicts`：处理冲突，内部使用，编写`generator`的时候用不到
+7. `install`：执行安装依赖程序，例如`yarnInstall`
+8. `end`：`generator`运行结束前最后执行
+
+一般来说，经常用到的就是`prompting`，`default`，`writing`和`install`阶段
 
 ## yeoman-API
 
@@ -350,47 +325,50 @@ class extends Generator {
 }
 ```
 
-## webpack-scaffold
+## 辅助工具
 
-`webpack`在`yeoman`的基础上拓展以下 API
+### chalk
 
-### opts.env.configuration
-
-`opts.env.configuration`用在`constructor`中，表示配置的入口，其内部可自定义属性，例如`dev`可以表示开发环境下`webpack`配置，`prod`表示生产环境下配置
+[`chalk`（粉笔）](https://github.com/chalk/chalk)是一个开源的调整控制台输出文本样式的工具，在`generator`内部使用可以让项目输出的信息更有意思。
 
 ```javascript
-const Generator = require('yeoman-generator');
+const chalk = require('chalk');
 
-module.exports = class WebpackGenerator extends Generator {
-  constructor(args, opts) {
-    super(args, opts);
-    opts.env.configuration = {
-      dev: {},
-      prod: {},
-    };
-  }
-};
+const error = chalk.bold.red;
+const warning = chalk.keyword('orange');
+
+console.log(error('Error!'));
+console.log(warning('Warning!'));
 ```
 
-### webpackOptions
+![image-20210111230908717](../../images/image-20210111230908717.png)
 
-用于定义`webpack`的全部配置，例如`entry`，`output`，不同的是这里的属性值必须是**字符串**
+### cowsay
+
+[`cowsay`](https://github.com/piuccio/cowsay)，也是一个很有意思的开源工具，能在控制台打印出来一头说话的牛。
 
 ```javascript
-const Generator = require('yeoman-generator');
+var cowsay = require('cowsay');
 
-module.exports = class WebpackGenerator extends Generator {
-  constructor(args, opts) {
-    super(args, opts);
-    opts.env.configuration = {
-      dev: {
-        webpackOptions: {
-          entry: "'app.js'",
-        },
-      },
-    };
-  }
-};
+console.log(
+  cowsay.say({
+    text: 'moo………………………',
+    e: 'oO',
+    T: 'U ',
+  }),
+);
 ```
 
-### writing
+![image-20210111231445059](../../images/image-20210111231445059.png)
+
+### yosay
+
+[`yosay`](https://github.com/yeoman/yosay)是`yeoman`开源的另一个小工具，和`cowsay`差不多，它输出的是`yeoman`的 logo，还自带彩色。
+
+```javascript
+const yosay = require('yosay');
+
+console.log(yosay());
+```
+
+![image-20210111231708166](../../images/image-20210111231708166.png)

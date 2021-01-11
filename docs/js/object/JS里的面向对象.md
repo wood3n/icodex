@@ -651,6 +651,30 @@ var Person = (function() {
 
 ## 基于类的继承
 
+`class`属于函数，其实现继承的方式通过`extends`关键字，有以下几种情况：
+
+- 子类内部的普通函数，最终定义在父类的`prototype`上；
+- 子类内部的箭头函数，定义在`this`，也就是类的实例上；
+- 子类的静态函数`static`，定义在自己身上
+
+```javascript
+class Parent {}
+
+class Child extends Parent {
+  func1() {}
+
+  static func2() {}
+}
+
+class Grandson extends Child {
+  func3() {}
+
+  static func4() {}
+}
+```
+
+![image-20210111221023193](../../images/image-20210111221023193.png)
+
 `class`的继承使用`extends`关键字，`extends`实现的原理是复制父类构造函数原型对象的副本，这种方式其实也有弊端，无法继承实例属性
 
 ```javascript

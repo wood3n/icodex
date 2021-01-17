@@ -460,3 +460,27 @@ git branch --set-upstream-to=origin/<remote branch> <local branch>
 ```
 
 ![image-20201128151000238](../images/image-20201128151000238.png)
+
+或者也可以直接使用`git push -u origin <branch>`命令来关联远程分支。
+
+```shell
+git push -u origin branch1
+```
+
+## QA
+
+### windows CRLF
+
+windows 系统执行`git add`的时候总是会莫名其妙提示换行符的 warning
+
+![image-20210116224250929](../images/image-20210116224250929.png)
+
+这个问题在 stackoverflow 上有很高的关注量 —— [git-replacing-lf-with-crlf](https://stackoverflow.com/questions/1967370/git-replacing-lf-with-crlf)，究其原因是因为不同操作系统内部对换行符的使用规则不同导致的，在 unix 和 linux 系统下，换行符使用`LF`(line feed，U+000A)来标识，但是在 DOS 和 windows 系统下使用`CRLF`(carriage return + line feed，回车+换行组合)来标识，git 对比文件差异会将换行符考虑在内，其内部也具有`core.autocrlf`这样的配置项来兼容不同操作系统，但是在 windows 上这个配置项需要在每次安装 git 以后手动执行`git config --global core.autocrlf`配置一下才行，其配置值为：
+
+```shell
+git config --global core.autocrlf false
+```
+
+- `autocrlf true`：提交时转换为`LF`，检出时转换为`CRLF`，linux 使用
+- `autocrlf false`：提交检出均不转换，windows 使用
+- `autocrlf input`：提交时转换为`LF`，检出时不转换

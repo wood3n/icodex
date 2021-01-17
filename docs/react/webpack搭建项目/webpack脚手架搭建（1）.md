@@ -102,9 +102,9 @@ yarn link
 2. `prompting`：执行`this.prompt()`
 3. `configuring`：保存配置，例如写入`.editorconfig`等配置文件
 4. `default`：当方法名没有匹配到优先级的时候，会进入这个队列
-5. `writing`：执行`generator`时生成对应的项目结构，例如写入本地文件
-6. `conflicts`：处理冲突，内部使用，编写`generator`的时候用不到
-7. `install`：执行安装依赖程序，例如`yarnInstall`
+5. `writing`：写入本地文件的操作
+6. `conflicts`：处理冲突，内部使用，编写`generator`的时候一般用不到
+7. `install`：执行脚手架安装依赖程序，例如`yarnInstall`
 8. `end`：`generator`运行结束前最后执行
 
 一般来说，经常用到的就是`prompting`，`default`，`writing`和`install`阶段
@@ -207,7 +207,7 @@ module.exports = class extends Generator {
 yarn create react-app <project-directory>
 ```
 
-这些传递的参数可以通过`this.argument`限定其格式，该方法必须在`constructor`中使用，其接受两个参数：
+这些传递的参数可以通过`this.argument`限定其格式，**该方法必须在`constructor`中使用**，其接受两个参数：
 
 > `this.argument(name, [options])`
 
@@ -236,8 +236,8 @@ module.exports = class extends Generator {
   }
 };
 
-// 执行generator
-yo my-generator appname
+// 执行generator，后面带的参数值就是指定的appname对应获取的值
+yo my-generator my-project
 ```
 
 #### this.option
@@ -281,11 +281,27 @@ yo my-generator --coffee
 
 - `this.npmInstall()`：在运行时通过`npm`安装依赖
 - `this.yarnInstall()`：在运行时通过`yarn`安装依赖
-- `this.fs.extendJSON()`：该方法可以拓展`package.json`的依赖项
+- `this.installDependencies()`：默认执行`npm`或者`bower`安装依赖，但是可以通过设置参数来控制包管理器
+
+```javascript
+this.installDependencies({
+  npm: true,
+  bower: false,
+  yarn: true,
+});
+```
+
+- `this.fs.readJSON()`：使用该方法可以读取模板文件中`package.json`的配置
+- `this.fs.extendJSON()`：可以补充拓展`package.json`的配置
 
 ### 文件写入
 
 脚手架的一个核心功能是直接生成本地项目文件结构，所以具有文件系统的交互能力是必须的！
+
+脚手架内部的文件上下文有两个：
+
+- `generator`内部模板文件的目录路径，默认是`./templates/`
+- 使用`generator`搭建项目的目录路径
 
 #### this.fs
 
@@ -325,6 +341,22 @@ class extends Generator {
 }
 ```
 
+#### this.templatePath
+
+模板文件的目录路径，默认是`./templates/`，可以使用`this.sourceRoot()`访问，对于具体的模板文件可以使用`this.templatePath(<file_path>)`来访问。
+
+#### this.destinationPath
+
+运行`generator`创建项目的文件根目录，可以使用`this.destinationRoot()`访问，对于目录下的文件可以使用`this.destinationPath(<file_path>)`访问。
+
+注意，如果要修改安装依赖的目标路径，可以通过`this.destinationRoot()`在最后的`install`阶段来修改：
+
+```javascript
+install() {
+  this.destinationRoot(this.options.appname);
+}
+```
+
 ## 辅助工具
 
 ### chalk
@@ -348,7 +380,7 @@ console.log(warning('Warning!'));
 [`cowsay`](https://github.com/piuccio/cowsay)，也是一个很有意思的开源工具，能在控制台打印出来一头说话的牛。
 
 ```javascript
-var cowsay = require('cowsay');
+const cowsay = require('cowsay');
 
 console.log(
   cowsay.say({

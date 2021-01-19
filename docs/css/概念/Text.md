@@ -191,3 +191,43 @@ CJK 文本不进行换行，非 CJK 文本表现同`word-break:normal`
 `webkit`前缀的属性一般用于 webkit 渲染引擎的浏览器，例如 Chrome，safari；CSS3 还指定了一个`line-clamp`属性用来替换`-webkit-line-clamp`属性，如果是 React，需要注意`webkit`开头的属性值都是大写开头的。
 
 <code src="@/demo/Text/LineClamp" />
+
+## text-decration
+
+`text-decration`设置文本的装饰线，它是以下属性的简写属性：
+
+- [`text-decoration-color`](https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration-color)：设置装饰线的颜色
+- [`text-decoration-line`](https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration-line)：设置装饰线的位置，例如下划线或者上划线
+- [`text-decoration-style`](https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration-style)：设置装饰线的样式，例如波浪线，虚线等
+- [`text-decoration-thickness`](https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration-thickness)：设置装饰线的粗细像素
+
+### text-decoration-color
+
+`text-decoration-color`顾名思义，只能取 CSS 里的颜色值[`color`](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value)，例如十六进制的值，RGB 值，颜色值关键字等
+
+### text-decoration-line
+
+`text-decoration-line`设置线的位置，可以使用多个值同时设置多条装饰线
+
+- `text-decoration-line:underline`下划线
+- `text-decoration-line:overline`上划线
+- `text-decoration-line:line-through`贯穿线
+
+<iframe width="100%" height="360" frameborder="0" src="https://interactive-examples.mdn.mozilla.net/pages/css/text-decoration-line.html" loading="lazy"></iframe>
+
+### text-decoration-style
+
+`text-decoration-style`设置线的样式
+
+- `text-decoration-style: solid`实线
+
+- `text-decoration-style: double`双实线
+- `text-decoration-style: dotted`点状虚线
+- `text-decoration-style: dashed`虚线
+- `text-decoration-style: wavy`波浪线
+
+<iframe width="100%" height="360" frameborder="0" src="https://interactive-examples.mdn.mozilla.net/pages/css/text-decoration-style.html" loading="lazy"></iframe>
+
+### text-decoration-thickness
+
+`text-decoration-thickness`设置线的粗细，可以使用 CSS 里的长度值`<length>`，百分比值，当设置百分比值的时候，相对于当前元素字体的`1em`（`1em`也就是`1`倍字体大小）。

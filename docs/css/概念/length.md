@@ -67,7 +67,7 @@ title: CSS里的length
 
 ### viewport
 
-[`viewport`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Viewport_concepts)就是浏览器中网页的当前可视区域，浏览器的 UI 组件， 菜单栏，以及网页中隐藏的需要滚动的部分，以及滚动条都不属于`viewport`。
+[`viewport`](https://developer.mozilla.org/zh-CN/docs/Web/CSS/Viewport_concepts)就是浏览器中网页的当前可视区域，浏览器的 UI 组件， 菜单栏，以及网页中隐藏的需要滚动的部分都不属于`viewport`，但是**滚动条属于`viewport`的部分**。
 
 也有很多方法获取浏览器的`viewport`的尺寸，来自 —— [how-to-get-the-browser-viewport-dimensions](https://stackoverflow.com/questions/1248081/how-to-get-the-browser-viewport-dimensions)
 
@@ -90,7 +90,13 @@ title: CSS里的length
 
 ### vw
 
-`vw`也就是`viewport width`，相对于`viewport`的宽度的`1%`进行计算。
+`vw`也就是`viewport width`，相对于`viewport`的宽度的`1%`进行计算，那么`100vw`就是`viewport`的宽度。上文说过滚动条属于`viewport`，所以`vw`也会包含滚动条的宽度。所以实际上网页主体的宽度要小于`vw`，对于如何得到网页真正的宽度，在 ss 上有这样一个讨论 —— [Is it possible to calculate the Viewport Width (vw) without scrollbar?](https://stackoverflow.com/questions/33606565/is-it-possible-to-calculate-the-viewport-width-vw-without-scrollbar)，可以使用`calc`表达式来计算，其实这个问题引申出来的另一个问题是网页在高度变化的时候出现的垂直滚动条导致页面抖动的问题，张鑫旭的博客也是介绍了利用`calc`解决这个问题的方法 —— [CSS vw 让 overflow:auto 页面滚动条出现时不跳动](https://www.zhangxinxu.com/wordpress/2015/01/css-page-scrollbar-toggle-center-no-jumping/comment-page-1/)
+
+```css
+body {
+  width: calc(100vw - (100vw - 100%));
+}
+```
 
 ### vmin
 

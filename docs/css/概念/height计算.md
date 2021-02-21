@@ -1,50 +1,99 @@
 ---
-title: CSS计算高度
+title: 几种height比较
 ---
 
-> [Calculating heights and margins](https://www.w3.org/TR/CSS22/visudet.html#Computing_heights_and_margins)
+## 盒模型
 
-#### height
+![image-20210203234418960](../../images/image-20210203234418960.png)
 
-`height`这个属性对除了行内，非可替换元素，table columns，column group 这些元素的其它元素生效，默认值是`auto`。并且`height`指定的是内容区域`content`的高度（在标准盒模型中）。
+## scrollbar
 
-#### 盒模型的高度计算
+元素的滚动条是嵌入在`padding`和`border`之间的元素，滚动条的厚度会影响元素`content`区域的大小。
 
-`content-box`：
+对于使用`webkit`作为排版引擎的浏览器（Chrome，Safari），可以使用`::-webkit-scrollbar`来定义**滚动槽**的样式，如果通过`::-webkit-scrollbar`指定`width`则是垂直滚动条的宽度，如果指定`height`则是元素水平滚动条的高度。
 
-```shell
-calculated height = height + padding-top + padding-bottom + border-top + border-bottom + margin-top + margin-bottom
+其他属性还有：
+
+- `::-webkit-scrollbar-button` — 滚动条上的按钮 (上下箭头).
+- `::-webkit-scrollbar-thumb` — 滚动条上的滚动滑块.
+- `::-webkit-scrollbar-track` — 滚动条轨道.
+- `::-webkit-scrollbar-track-piece` — 滚动条没有滑块的轨道部分.
+- `::-webkit-scrollbar-corner` — 当同时有垂直滚动条和水平滚动条时交汇的部分.
+
+<code src="@/demo/boxmodel/scrollbar" inline />
+
+![image-20210221112638190](../../images/image-20210221112638190.png)
+
+## 几种 height 的区别
+
+### window.innerHeight
+
+表示浏览器视口高度像素值，包括水平方向滚动条的高度，不包括浏览器 UI 组件（地址栏，书签栏等），会随着浏览器窗口的缩放比例，以及浏览器本身调节窗口大小而改变。
+
+![image-20210204001332178](../../images/image-20210204001332178.png)
+
+### window.outerHeight
+
+整个浏览器的高度，包括地址栏，书签栏等部分，且不会随着浏览器缩放比例或者浏览器标签页大小改变而改变，所以这是一个**固定**值。
+
+![image-20210204002042853](../../images/image-20210204002042853.png)
+
+### scrollHeight **readonly**
+
+元素内容区域的整体高度，包括溢出父元素的隐藏区域；包含元素的`padding`部分，不包含`border`，`margin`以及水平方向滚动条的高度，如果有伪元素`::before`，`::after`等，也会包含在内。
+
+![img](../../images/scrollheight.png)
+
+### clientHeight **readonly**
+
+```javascript
+CSS height + CSS padding - 水平方向滚动条高度
 ```
 
-`border-box`：
+包含元素的`padding`部分，不包含`border`，`margin`以及水平方向滚动条的高度。
 
-```shell
-calculated height = height + margin-top + margin-bottom
-```
+根元素`html`的`clientHeight`就是`viewport`的高度，也不包含水平方向滚动条高度。
 
-#### 行内，非可替换元素
+![img](../../images/dimensions-client.png)
 
-对于行内，非可替换元素，`height`属性无法生效，其内容区域`content`的高度计算依赖于字体，但是规范未定义如何根据字体进行计算。
+### offsetHeight **readonly**
 
-对于行内，非可替换元素垂直方向上的`margin`，`padding`，`border`等也不会生效，并且和`line-height`无关，在计算一行线盒的高度时只会用到`line-height`。
+包含元素`padding`，`border`和水平滚动条高度，不包含`margin`，伪元素的高度。
 
-如果在一行中使用了不同的字体，规范给出了建议：
+![img](../../images/dimensions-offset.png)
 
-- 要能容纳 em-boxes；
-- 要能容纳所有字体中最大升部和最大降部
+## Top
 
-所以这个高度可能大于所涉及的任何字体大小，具体取决于字体的基线对齐方式。
+### top
 
-#### 行内可替换元素等
+`top`用于 CSS 元素设置位置顶部偏移量。
 
-行内可替换元素（例如`<img>`），正常流中的块级可替换元素（例如`<video>`，`canvas`），正常流中的`inline-block`可替换元素，`float`的可替换元素这几种，计算高度和外边距的方式如下：
+- `position:static`（初始值）：无效果
+- `position:relative`：元素`margin box`相对于其正常流布局位置的顶部偏移量，在正常流布局中，块级盒子会在父元素的`padding box`内部从左往右从上往下放置。
+- `position:absolute`：子元素的`margin box`相对于最近的非`position:static`的父元素的`border box`的党部偏移量
+- `position:fixed`：子元素的`margin box`相对于视口顶部的偏移量，如果有`iframe`则是相对于`iframe`内部的视口
 
-- 如果`margin-top`和`margin-bottom`值为`auto`，实际值就看作`0`
-- 其它的部分，没看懂规范的意思；跟我大致理解是，例如一个`<img>`，其具有分辨率，如果只为其指定宽度，那么高度将根据`width/ratio`来计算
+### scrollTop **writeable**
 
-#### 正常流中块级非可替换元素在 overflow 等于 visible 的时候
+获取或**设置**一个父元素的`content`区域顶部垂直向上滚动的高度，同理`scrollLeft`也是这样的原理。需要注意以下两点：
 
-- 如果`margin-top`和`margin-bottom`值为`auto`，就看作`0`
-- 正常流中块级非可替换元素的高度是从内容区域`content`上边缘到以下情况之间的高度：
-  - 如果内部建立了行内格式化上下文，就是到最后一行线盒的底部边缘的高度；
-  - 如果内部有块级元素，并且外边距和容器没有发生折叠，就是到最后一个子块级元素的`margin-bottom`的底部边缘
+- `scrollTop`作用在父元素上，也就是产生滚动条的元素，一般其`overflow`属性不为`visible`
+- `scrollTop`表示`content`区域顶部向上滚动的像素数，不要管什么可见不可见的问题
+
+<code src="@/demo/boxmodel/scrollTop" inline />
+
+![image-20210221105327172](../../images/image-20210221105327172.png)
+
+![image-20210221105534272](../../images/image-20210221105534272.png)
+
+### clientTop **readonly**
+
+`clientTop`表示元素本身`border-top-width`加上顶部滚动条厚度，如果没有滚动条就是顶部`border`的宽度。如果也没有`border`，那就是`0`。
+
+![image-20210221115604132](../../images/image-20210221115604132.png)
+
+### offsetTop **readonly**
+
+`offsetTop`是一个相对距离，表示元素自身顶部`border`外边缘到`offsetParent`顶部`border`内边缘的距离。`offsetParent`就是最近的父元素。
+
+![image-20210221172158328](../../images/image-20210221172158328.png)

@@ -145,8 +145,36 @@ fetch('/api?limit=10&offset=20')
   });
 ```
 
-这样就可以成功转发请求获取数据了：
+这样就可以成功转发请求获取数据了，可以看到这样一种重写 URL 的方式首先根据`/api`匹配请求 URL，如果包含则使用`target`定义的路径重写`host`，最后根据`pathRewrite`重写 URL 中的`path`部分，得到最后的 URL 为：
+
+```
+URL = target + pathRewrite + queryString + hash
+```
 
 ![image-20201220191120749](../../images/image-20201220191120749.png)
 
 ![image-20201220191129915](../../images/image-20201220191129915.png)
+
+### 通用配置
+
+在实际使用过程中，针对`pathRewrite`这样配置：
+
+```javascript
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/api': '/',
+        },
+      },
+    },
+```
+
+这样在项目中请求的 URL 都是这种形式，以达到通用性：
+
+```javascript
+fetch('/api/xxx?name=xxx')
+  .then(res => res.json())
+  .then(res => console.log(res));
+```

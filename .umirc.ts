@@ -74,7 +74,7 @@ export default defineConfig({
     //     '//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/styles/atom-one-dark.min.css',
     // },
   ],
-  styles: [`.__dumi-default-layout-hero{display:none !important}`, `.markdown h2{position: relative;left: 48%}`],
+  styles: [`.__dumi-default-layout-hero{display:none !important}`],
   theme: {
     // '@c-text': '#c7c5c5',
   },

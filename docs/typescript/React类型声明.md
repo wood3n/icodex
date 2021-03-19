@@ -216,8 +216,20 @@ JSX 中传递到`style`属性的特定 CSS 类型，不写`React.CSSProperties`�
 
 ### 自定义 hook
 
+自定义`hook`的返回类型可以是一个元组，也可以是一个对象
+
 ```typescript
 interface MyInterface {
   (name: string): [() => void];
 }
+
+const useMyHook: MyInterface = (name) => {
+	return [
+    ...
+  ]
+}
 ```
+
+### forwardRef
+
+`forwardRef`在

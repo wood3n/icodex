@@ -4,7 +4,11 @@ export interface RefObject {
   addCount: () => void;
 }
 
-const Child = forwardRef(({}, ref) => {
+interface Props {
+  name?: string;
+}
+
+const Child = forwardRef<RefObject, Props>((props, ref) => {
   const [count, setCount] = useState(0);
 
   const addCount = () => {
@@ -29,15 +33,3 @@ const Child = forwardRef(({}, ref) => {
 });
 
 export default Child;
-
-const Func = () => {
-  return (
-    <button
-      onClick={() => {
-        //...
-      }}
-    >
-      按钮
-    </button>
-  );
-};

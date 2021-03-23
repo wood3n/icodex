@@ -1,5 +1,5 @@
 ---
-title: URL相关
+title: URL
 ---
 
 ## URI
@@ -20,7 +20,7 @@ URI 通用的形式只包含主要的两部分：协议和路径
 
 > `authority = [userinfo@]host[:port]`
 
-![Snipaste_20200801155123](../images/Snipaste_20200801155123.png)
+![Snipaste_20200801155123](../../images/Snipaste_20200801155123.png)
 
 #### 协议
 
@@ -68,7 +68,7 @@ URI 通用的形式只包含主要的两部分：协议和路径
 
 URL，Uniform Resource Locator，统一资源定位符，是表示 URI 的一种方式。URL 有多种协议，这种只讨论 HTTP 协议相关的。
 
-![image-20200731214020188](../images/image-20200731214020188.png)
+![image-20200731214020188](../../images/image-20200731214020188.png)
 
 - 主机：主机可以域名，也可以是 IP 地址。其中域名又分为顶级域名，二级域名和三级域名等等。
 
@@ -212,7 +212,7 @@ HTML 的`<form>`表单元素具有`enctype`属性，`enctype` 就是将表单的
 - [`Location.origin`](https://developer.mozilla.org/en-US/docs/Web/API/Location/origin) **Read only**
 - [`Location.href`](https://developer.mozilla.org/en-US/docs/Web/API/Location/href)
 
-![Snipaste_20200801182416](../images/Snipaste_20200801182416.png)
+![Snipaste_20200801182416](../../images/Snipaste_20200801182416.png)
 
 #### 方法
 

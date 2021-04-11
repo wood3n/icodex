@@ -232,4 +232,18 @@ const useMyHook: MyInterface = (name) => {
 
 ### forwardRef
 
-`forwardRef`在
+`forwardRef`在 React 中用于传递`ref`使用，其本身是一个高阶组件，接受一个组件作为参数，组件会接受`ref`的`props`，最终返回新的组件。
+
+在`typescript`中对于`forwardRef`的类型定义如下，其接受两个泛型参数分别是组件的`props`类型以及`ref`的类型。
+
+```typescript
+function forwardRef<T, P = {}>(
+  render: ForwardRefRenderFunction<T, P>,
+): ForwardRefExoticComponent<PropsWithoutRef<P> & RefAttributes<T>>;
+```
+
+```typescript
+export const App = React.forwardRef<Props, RefType>((props, ref) => {
+  // ...
+});
+```

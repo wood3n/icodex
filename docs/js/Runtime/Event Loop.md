@@ -58,8 +58,9 @@ title: 事件循环
 
 每一个事件循环还具有一个微任务队列，微任务属于在一个任务执行过程中产生的更细粒度的任务，常见的微任务来源：
 
+- 首先`Promise`的异步方法是一个微任务，这是在 HTML 规范中明确定义的 —— [HostEnqueuePromiseJob](https://html.spec.whatwg.org/multipage/webappapis.html#hostenqueuepromisejob)，这里说的是`Promise`回调`resolve()`或者`reject()`方法，而使用`Promise`构造函数，内部属于同步的宏任务，会立即执行；
+
 - 利用 DOM 接口`MutationObserver`创建一个对象并通过`observe`方法监听 DOM 树的变化；
-- 使用 JS 中的`Promise`回调`resolve()`或者`reject()`的时候也会产生微任务（`Promise`构造函数内部的代码属于执行上下文栈中执行的代码，不属于微任务）
 - nodejs 中的`process.nextTick`
 
 ### 事件循环处理模型

@@ -45,33 +45,47 @@ white-space: nowrap;
 
 在 HTML 中，能识别的空格有以下五种：
 
-- `U+0009`：以 tab 键入的制表符
-- `U+000A`：Line Feed，换行符，主要用于 Unix 系统，例如 Mac OS，Linux 等；通常来说非 Unix 系统，例如 Windows，换行采取的是双输入：回车+换行，也就是``CRLF`的形式
+- `U+0009`：以 tab 键入的制表符，放在字符串中会显示成`\t`
+- `U+000D`：Carriage Return，回车键入，也就是`\r`
+- `U+000A`：`LF`，Line Feed，换行符，用于 Unix 系统，例如 Mac OS，Linux 等换行输入，也就是`\n`
+- `U+000D U+000A`：`CRLF`，用于非 Unix 系统，例如 Windows 的换行输入，也就是`\r\n`
 - `U+000C`：Form Feed，换页符，CTRL+ENTER 键入
-- `U+000D`：Carriage Return，回车键入
-- `U+0020`：Space，空格键入
+- `U+0020`：Space，空格键输入生成的换行符
+- `U+00A0`：`NBSP`，也就是非断行空格，可以避免因为空格在此处发生断行，在 HTML 可以直接写成`&nbsp`
 
 根据 [HTML 规范](https://www.w3.org/TR/CSS2/text.html#white-space-prop)的描述，HTML 文档中新的一行以`U+000D`（CR），`U+000A`（LF），或者`U+000D`+`U+000A`（CRLF）的形式开启，其中`U+000A`（LF）必须被识别为换行符，
 
-### normal
+### normal | 初始值
 
-`white-space: normal`是初始值，连续的空白符会被合并，换行符会被当作空白符来处理。
+`white-space: normal`是初始值，连续的空白符`U+0020`会被移除掉，制表符`\t`会被处理成空格，换行符会被当作空白符来处理。上述的`\t`，`\r`，以及`\n`周围的空格都会被移除掉
 
-### npwrap
+### nowrap
 
-连续的空白符会被**合并**，但文本内的换行无效。
+连续的空白符`U+0020`会被**合并**，但文本内的换行无效。
 
 ### pre
 
-连续的空白符会被**保留**。在遇到换行符或者[`br`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/br)元素时才会换行
+连续的空白符会被**保留**。在遇到换行符或者[`br`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/br)元素时才会换行。
 
 ### pre-wrap
 
-连续的空白符会被**保留**。在遇到换行符或者[`br`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/br)元素，或者需要为了填充「行框盒子([line boxes](https://www.w3.org/TR/CSS2/visuren.html#inline-formatting))」时才会换行。
+连续的空白符`U+0020`会被**保留**。在遇到换行符或者[`br`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/br)元素，或者需要为了填充「行框盒子([line boxes](https://www.w3.org/TR/CSS2/visuren.html#inline-formatting))」时才会换行。
 
 ### pre-line
 
-连续的空白符会被**合并**，在遇到换行符或者[`br`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/br)元素，或者需要为了填充「行框盒子([line boxes](https://www.w3.org/TR/CSS2/visuren.html#inline-formatting))」时才会换行。
+连续的空白符会被**合并**，**在遇到换行符或者[`br`](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/br)元素**，或者需要为了填充「行框盒子([line boxes](https://www.w3.org/TR/CSS2/visuren.html#inline-formatting))」时才会换行。
+
+`white-space:pre-line`这个属性很强大，尤其是在处理换行文本的时候，说到这里，又得说起不同换行符的处理情况：
+
+| 系统    | 常见        | 换行符          |
+| ------- | ----------- | --------------- |
+| Unix    | Linux服务器 | `\n`            |
+| Windows |             | `\r\n`          |
+| HTML    |             | `<br/>`或`<br>` |
+
+`\n`或者`\r\n`，如果放在字符串里然后再放到 HTML 的标签中，HTML只会将它们都处理成空格。你可能会想到将`\n`或者  `\r\n`转换成`<br>`来期望 HTML 生成换行的效果，不幸的是，如果转成`<br>`，`<br>`会被直接保留下来显示出来！
+
+这时候最简单的处理方式就是使用`white-space:pre-line`，就可让 HTML 遇到换行符或者`<br>`自动换行了。
 
 ### break-spaces
 

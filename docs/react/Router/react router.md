@@ -2,30 +2,30 @@
 title: react router简介
 ---
 
-## API分类
+## API 分类
 
-在`react router`中的API分为以下三类：
+在`react router`中的 API 分为以下三类：
 
 - 基础路由组件，用于全局处理路由转发任务，包括`BrowserRouter`和`HashRouter`
 - 路由匹配组件，用于根据 URL 匹配指定的页面组件，包括`Route`和`Switch`
 - 页面跳转组件，包括`Link`、`NavLink`和`Redirect`，最终会转换成`a`标签嵌入页面
 
-## BrowserRouter和HashRouter
+## BrowserRouter 和 HashRouter
 
-`BrowserRouter`和`HashRouter`作为基础组件，通常作为跟组件包裹整个应用。它们俩的不同是`HashRouter`会将当前页面配置的路由路径显示在 URL 的`hash`部分，因此 URL 看起来像`xxx.com/path#user/xxxx`，单页面应用来说这点其实没什么影响，但是对于`SSR`(server side render)的应用，改变 URL 的`path`会向服务端发送请求 HTML 页面，而改变`hash`并不会触发请求发送。
+`BrowserRouter`和`HashRouter`作为基础组件，通常作为跟组件包裹整个应用。它们俩的不同是`HashRouter`会将当前页面配置的路由路径显示在 URL 的`hash`部分，因此 URL 看起来像`xxx.com/path#user/xxxx`，单页面应用来说这点其实没什么影响，但是对于`SSR`(server side render)的应用，改变 URL 的`path`会向服务端发送请求 HTML 页面，而改变`hash`并不会发送请求。
 
 ```jsx
-import { BrowserRouter } from "react-router-dom";
+import { BrowserRouter } from 'react-router-dom';
 
 ReactDOM.render(
   <BrowserRouter>
     <App />
   </BrowserRouter>,
-  document.getElementById("root")
+  document.getElementById('root'),
 );
 ```
 
-## Switch和Route
+## Switch 和 Route
 
 `Switch`用来包裹一系列的`Route`组件，当 URL 改变的时候，`Switch`组件会搜索子组件中的`Route`，根据给定的`path`属性来匹配当前的 URL，当匹配到第一个时就会停止匹配。如果不用`Switch`包裹`Route`，那么`Route`指定的组件将都会被渲染出来。
 
@@ -76,7 +76,7 @@ ReactDOM.render(
   <Router>
     <Route path="/user/:username" component={User} />
   </Router>,
-  node
+  node,
 );
 ```
 
@@ -111,7 +111,7 @@ function ListItemLink({ to, ...rest }) {
     <Route
       path={to}
       children={({ match }) => (
-        <li className={match ? "active" : ""}>
+        <li className={match ? 'active' : ''}>
           <Link to={to} {...rest} />
         </li>
       )}
@@ -126,7 +126,7 @@ ReactDOM.render(
       <ListItemLink to="/somewhere-else" />
     </ul>
   </BrowserRouter>,
-  node
+  node,
 );
 ```
 
@@ -168,7 +168,7 @@ ReactDOM.render(
   - `hash`: URL 的 hash 部分
   - `state`：当前状态数据，例如通过执行`push(path, state)`方法
 - `push(path, [state])`：跳转路由
--  `replace(path, [state])`：跳转路由，与`push`不同的是，被`replace`替换掉的当前页面不会保存在历史记录中
+- `replace(path, [state])`：跳转路由，与`push`不同的是，被`replace`替换掉的当前页面不会保存在历史记录中
 - `go(n)`：根据历史记录的堆栈索引跳转页面，`go(-1)`也就是返回
 - `goBack()`：返回上一页
 - `goForward()`：前进一页
@@ -187,7 +187,7 @@ ReactDOM.render(
 
 - `params`：从 URL 的参数部分解析出来的一个对象，键是通过`Route`的`path`指定的参数匹配字符串，值也就是当前在 URL 里传递进去的值；例如当前 URL 为`/user/1234`，对应匹配的`Route`指定的`path`应该是`/user/:id`，那么此时`params`就是`{ id: 1234 }`
 
-- `isExact`：如果是整个URL都匹配当前`Route`，则该值为`true`
+- `isExact`：如果是整个 URL 都匹配当前`Route`，则该值为`true`
 - `path`：当前匹配的`Route`中指定的`path`
 - `url`：URL 中匹配`Route`中指定的`path`的该部分内容
 
@@ -195,7 +195,7 @@ ReactDOM.render(
 
 ### useRouteMatch | hook
 
-`useRouteMatch `可以接收和`Route`组件相同的属性作为参数，用来匹配当前 URL，如果成功匹配则返回`match`对象，否则返回`null`。
+`useRouteMatch`可以接收和`Route`组件相同的属性作为参数，用来匹配当前 URL，如果成功匹配则返回`match`对象，否则返回`null`。
 
 ### withRouter
 

@@ -310,7 +310,7 @@ web 浏览器的刷新按钮（`ctrl+R`），可以强制对浏览器中缓存�
 
 `Vary`主要应用于缓存代理服务器能够精准的返回文档，要理解`Vary`需要了解 HTTP 的[内容协商机制](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Content_negotiation)。
 
-一份特定的文件可以称为一项资源，例如 Web 网页中的 HTML 页面，CSS，JS，图片等都属于资源，这些资源需要根据 URL 从服务器请求下载下来，但是仅仅依靠简单的 URL 请求无法让服务器决定返回资源的类型，例如有的客户端浏览器支持 gzip 压缩，有的客户端不支持 gzip 支持的是 deflate 压缩，所以这就需要客户端和服务器进行协商确定最终响应的资源类型。
+一份特定的文件可以称为一项资源，例如 Web 网页中的 HTML 页面，CSS，JS，图片等都属于资源，这些资源需要根据 URL 从服务器请求下载下来，但是仅仅依靠简单的 URL 请求无法让服务器决定返回资源的类型，例如有的客户端浏览器支持 gzip 压缩，有的客户端不支持 gzip 支持的是 deflate 压缩；所以这就需要客户端和服务器进行协商确定最终响应的资源类型。
 
 客户端可以指定特定的 HTTP 首部，例如[`Accept`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept)、[`Accept-Charset`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept-Charset)、 [`Accept-Encoding`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept-Encoding)、[`Accept-Language`](https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Accept-Language)等来告诉浏览器需要接受什么格式，什么语言等类型的资源。这种协商机制被称为服务端驱动型内容协商或者主动协商，就是客户端主动告诉服务器我想要什么。服务器在收到这些请求首部字段以后，也会使用相应的响应首部，它们之间存在着对应关系。
 
@@ -322,12 +322,18 @@ web 浏览器的刷新按钮（`ctrl+R`），可以强制对浏览器中缓存�
 | `Accept-Encoding` | 告知服务器采用何种压缩方式                           | `Content-Encoding` |
 | `User-Agent`      | 接受何种用户代理类型的资源，例如 PC 端和移动端的区别 | `Vary:User-Agent`  |
 
-而缓存代理服务器属于客户端和原始服务器的中间环节，MDN 上的图可以很好的解释`Vary`对于缓存代理服务器的作用，但是 MDN 那张图对`Vary`指定的字段值标错了，应该是`Vary:Accept-Encoding`才对：
+而缓存代理服务器属于客户端和原始服务器的中间环节，对于请求内容取决于内容协商的资源来说，缓存服务器同样需要根据内容协商来决定是否缓存资源以及正确响应缓存资源。以资源编码为例，如果缓存服务器在之前的客户端请求中只缓存了`gzip`格式的资源，但是后续其中之一的客户端请求只能接受`br`压缩的资源，请求的 URL 是一致的，但是这时候缓存服务器就不能直接将缓存的`gzip`资源返回。也就是说 `Vary` 字段用于列出一个响应字段列表，告诉缓存服务器遇到同一个 URL 对应着不同版本文档的情况时，如何缓存和筛选合适的版本。
 
-- Client 1 是一个客户端，它第一次请求缓存代理服务器的资源，此时还没有缓存，于是缓存代理服务器向原始服务器发出请求，原始服务器响应请求，并附带`Vary:Accept-Encoding`的响应头，此时缓存代理服务器会缓存下来 gzip 格式的资源；
-- 然后 Client 2 是另一个客户端，它也请求相同的资源，但是它希望服务器发送给它`br`格式编码的资源，由于先前缓存的是 gzip 格式的资源，根据`Vary`指定，上一次请求和当前请求的`Accept-Encoding`必须匹配才能使用缓存，这里不匹配，还是向原始服务器请求；
+MDN 上的图可以很好的解释`Vary`对于缓存代理服务器的作用：
+
+- Client 1 是一个客户端，它第一次请求缓存代理服务器的资源，此时还没有缓存，于是缓存代理服务器向原始服务器发出请求，原始服务器响应请求，并附带`Vary:Content-Encoding`的响应头，此时缓存代理服务器会缓存下来 gzip 格式的资源；
+- 然后 Client 2 是另一个客户端，它也请求相同的资源，但是它希望服务器发送给它`br`格式编码的资源，由于先前缓存的是 gzip 格式的资源，根据`Vary`指定，上一次请求和当前请求的`Content-Encoding`必须匹配才能使用缓存，这里不匹配，还是向原始服务器请求；
 - 然后 Client 3 也请求了相同 URL 的资源，他也请求`br`格式编码的资源，但是经过上一次 Client 2 请求以后，缓存代理服务器已经缓存了`br`格式编码的资源，所以就不再去原始服务器请求了
 - 所以`Vary`能够提高缓存代理服务器发送缓存的精准性
 
-![image-20200920232301263](../../images/image-20200920232301263.png)
+![image](https://user-images.githubusercontent.com/31716713/129504792-7c469324-30c3-4c16-9fdf-c908442d197d.png)
+
+#### 缓存服务器的 BUG
+
+对于某些存在 BUG 的缓存服务器可能会忽略`Content-Encoding`响应头，导致缓存资源存在问题，这时候的通用解决方式是直接使用`Vary: Accept-Encoding`来告知缓存服务器将客户端支持的编码格式的文件全部缓存一份下来，这样在客户端再次请求的时候就可以正确命中缓存了。
 

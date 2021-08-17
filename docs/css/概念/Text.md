@@ -262,6 +262,6 @@ CJK 文本不进行换行，非 CJK 文本表现同`word-break:normal`
 
 块级盒子会垂直排布，其内部文本方向从左往右排布
 
-<iframe class="interactive" height="390" src="https://interactive-examples.mdn.mozilla.net/pages/css/writing-mode.html" title="MDN Web Docs Interactive Example" loading="lazy"></iframe>
+<iframe width="100%" height="390" src="https://interactive-examples.mdn.mozilla.net/pages/css/writing-mode.html" title="MDN Web Docs Interactive Example" loading="lazy"></iframe>
 
 

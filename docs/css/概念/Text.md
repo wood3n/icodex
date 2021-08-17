@@ -245,3 +245,23 @@ CJK 文本不进行换行，非 CJK 文本表现同`word-break:normal`
 ### text-decoration-thickness
 
 `text-decoration-thickness`设置线的粗细，可以使用 CSS 里的长度值`<length>`，百分比值，当设置百分比值的时候，相对于当前元素字体的`1em`（`1em`也就是`1`倍字体大小）。
+
+## writing-mode
+
+设置文本在块级元素中的排布方向，如果要改变整个文档的排布方式，可以在根元素`html`上设置。
+
+### horizontal-tb
+
+水平从左往右排布，正常的网页文本布局方式
+
+### vertical-rl
+
+块级盒子会垂直排布，其内部文本方向从右往左排布
+
+### vertical-lr
+
+块级盒子会垂直排布，其内部文本方向从左往右排布
+
+<iframe class="interactive" height="390" src="https://interactive-examples.mdn.mozilla.net/pages/css/writing-mode.html" title="MDN Web Docs Interactive Example" loading="lazy"></iframe>
+
+

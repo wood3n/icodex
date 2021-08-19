@@ -99,13 +99,84 @@ btn.addEventListener('click', bgChange);
 绝大多数情况下都应该使用`addEventListener`来注册事件，这样做有以下优点：
 
 - `addEventListener`方法提供的事件处理选项更加齐全，例如支持处理捕获和冒泡期间的事件触发机制；
-- 可以方便的使用`removeEventListener`移出事件处理程序
+- 可以方便的使用`removeEventListener`移除事件处理程序
 
 但是`addEventListener`本身使用不当也会导致一些问题：
 
 #### this 指向问题
 
-如果在`addEventListener`注册的回调函数中使用`this`，需要注意`this`的指向，好在 ES6 以后的箭头函数可以很方便的将`this`的指向总是绑定到 DOM 事件触发的目标元素上。
+ES6 以后引入的箭头函数和`class`语法；因此在`addEventListener`注册的回调函数需要分为三种情况：
+
+- 如果是普通函数，则其内部`this`将始终指向 DOM 事件触发的目标元素；即使普通函数是作为对象的方法或者作为`class`中定义的方法被调用；
+```javascript
+const obj = {
+  b: '测试',
+  a(){
+    console.log(this);
+  }
+}
+
+document.getElementById('btn')?.addEventListener('click', obj.a);
+```
+- 如果是箭头函数，则指向箭头函数定义时的执行上下文。根据最新的 ES 规范的定义，[执行上下文](https://tc39.es/ecma262/multipage/executable-code-and-execution-contexts.html#sec-execution-contexts)可以分为全局执行上下文、模块执行上下文（ES Module）和函数执行上下文，那么箭头函数内部`this`也就是这两种情况。
+
+下面的 DOM 事件回调函数定义在对象的方法中，但是对象是在全局环境中定义的，所以其内部`this`指向全局执行上下文，非严格模式下是`window`，严格模式下就是`undefined`
+```javascript
+// 在全局环境中定义
+const obj = {
+  b: '测试',
+  a: () => {
+    console.log(this);   // undefined
+  }
+}
+
+document.getElementById('btn')?.addEventListener('click', obj.a);
+```
+
+下面的 DOM 事件回调函数在对象的方法中定义，那么其内部`this`就是定义时的函数执行上下文中的`this`，也就是指向对象`obj`。
+```javascript
+// 在函数中定义
+const obj = {
+  b: '测试',
+  a(){
+    return () => {
+      console.log(this);   // obj
+    }
+  }
+}
+
+document.getElementById('btn')?.addEventListener('click', obj.a());
+```
+- 对于`class`内部定义的 DOM 回调函数，是使用 React class 组件开发中必须了解的问题。首先来说普通函数；
+
+如果直接看`class`内部的`this`，根据面向对象的语法特点，`this`将指向实例对象；
+
+但是普通函数内部的`this`是始终指向 DOM 事件触发的目标元素的，所以在普通函数内部要想通过`this`访问`class`内部的其他成员，这时候就必须改变普通函数内部的`this`指向，最常用的方法就是使用`bind`来实现，将普通函数内部`this`始终绑定到实例对象上。
+```javascript
+class P {
+  a(){
+    console.log(this); // DOM - btn
+  }
+}
+
+const p = new P();
+
+document.getElementById('btn')?.addEventListener('click', p.a);
+```
+
+如果使用箭头函数，那么将始终指向实例对象，也就是不存在`this`丢失的问题
+
+```javascript
+class P {
+  a = () => {
+    console.log(this); // 对象 p
+  }
+}
+
+const p = new P();
+
+document.getElementById('btn')?.addEventListener('click', p.a);
+```
 
 #### 内存问题
 

@@ -30,27 +30,27 @@ JS 的引擎会自动进行垃圾回收的过程，使用垃圾回收器来处�
 - 最明显的是进行标记 - 清除算法的时候，JS 的执行需要暂停，等待垃圾回收程序工作完再继续执行。这种情况在过去计算机硬件不够强大的时候，尤为严重，也就是当需要回收的内存很多或者垃圾回收器执行慢时，将直接造成程序卡顿；
 - 此外，必须检查整个工作内存，其中大部分都要检查两次，从而可能导致分页内存系统出现问题
 
-现在的 JS 引擎实现的是一种三色标记的方法 —— [Tri-color marking](https://en.wikipedia.org/wiki/Tracing_garbage_collection#Tri-color_marking)：
+#### [concurrent-marking](https://v8.dev/blog/concurrent-marking)
 
-- white set，表示可以回收其内存的候选变量；
+以 V8 引擎为例，其内部使用的是一种三色标记的方法 —— [Tri-color marking](https://en.wikipedia.org/wiki/Tracing_garbage_collection#Tri-color_marking)，使用 2-bit 变量保存定义三种标记：white (00), grey (10), and black (11).
+
+- white set，表示可以回收其内存的候选变量，经过 GC 算法之后，这里最终只剩余需要回收的垃圾变量；
 - black set，从 root 开始可以访问到，并且没有引用 white set 里的变量，black set 都不需要进行垃圾回收；
 - gray set，表示 root 引用的变量，但是尚未扫描其是否还引用着 white set 里的变量，由于它们是 root 引用的，所以还有用，因此无法对其进行垃圾收集，在扫描后将放到 black set 中。
 
-根据三色标记改进后的标记清除算法如下：
+执行过程大致如下：
 
-- 从 gray set 中选择一个对象，然后将其移至 black set；
+1. 在 GC 开始之前，所有变量都位于 white set；
 
-![image-20200818180142334](../../images/image-20200818180142334.png)![image-20200818180157113](../../images/image-20200818180157113.png)
+![image](https://user-images.githubusercontent.com/31716713/130055210-f21ca7bf-ade2-436c-a45e-9bb9fa1a7602.png)
 
-- 然后将该对象引用的每个 white set 中的变量移入 gray set，确保其引用的变量不会被回收掉；
+2. 当 GC 从全局对象开始遍历对象之间依赖关系的时候，将发现存在依赖关系的对象标记成 gray；
 
-![image-20200818180612992](../../images/image-20200818180612992.png)
+![image](https://user-images.githubusercontent.com/31716713/130055258-f4f81f35-17d2-4695-809d-81300915d9f8.png)
 
-- 重复上述两个步骤，直到 gray set 扫描完，就可以回收 white set 里的变量了。
+3. 当所有对象遍历结束，将标记成 gray 的对象再标记成 black，表示该部分对象不会进行回收
 
-![image-20200818180630307](../../images/image-20200818180630307.png)
-
-三色标记的方法相比传统的标记-清除算法，最大的突出特点是可以随时执行，并且不用停止 JS 的执行，通过在分配对象时就是确定其所在的集合，并且监视集合的大小，系统可以定期（而不是根据需要）执行垃圾收集。
+![image](https://user-images.githubusercontent.com/31716713/130055281-227fbece-c3c5-48a6-96e6-830af8def4a3.png)
 
 ## 内存泄漏
 

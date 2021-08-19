@@ -28,19 +28,15 @@ nav:
 
 ```javascript
 //模拟实现new
-function create() {
+function create(Constructor) {
   // 创建一个空的对象
   var obj = new Object();
 
-  // 获取构造函数
-  // shift 从数组中删除第一个元素，并返回该元素的值，而使用此函数传入的第一个参数是构造函数本身
-  var Con = [].shift.call(arguments);
-
   // 设置新对象的 __proto__ 为构造函数的原型对象，从而继承原型对象的属性
-  Object.setPrototypeOf(obj, Con.prototype);
+  Object.setPrototypeOf(obj, Constructor.prototype);
 
-  // 调用构造函数本身，初始化对象，apply 调用指定this值和参数的函数，并返回其结果
-  var ret = Con.apply(obj, arguments);
+  // 调用构造函数本身，初始化对象，apply 调用指定 this 值和参数的函数，并返回其结果
+  var ret = Constructor.apply(obj, arguments);
 
   // 优先返回构造函数返回的对象
   return ret instanceof Object ? ret : obj;

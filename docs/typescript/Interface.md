@@ -198,3 +198,22 @@ class Person implements IPerson {
 const person = new Person();
 console.log(person.name); // oxygen
 ```
+
+## 自动合并
+
+`interface`的一个特点是可以使用相同的名称重复定义，相同名称最后会自动合并属性，这也是`interface`和`type`上的一个关键区别
+
+```typescript
+interface Person {
+  name: string;
+}
+
+interface Person {
+  age: number;
+}
+
+const person: Person = {
+  name: 'oxygen',
+  age: 20
+}
+```

@@ -200,3 +200,40 @@ function ajax({
   })
 }
 ```
+## 数组去重
+
+```javascript
+function uniq(target) {
+  return [...new Set(target)];
+}
+```
+```javascript
+function uniq(target) {
+  return target.reduce((result, item) => {
+    if(!result.includes(item)) {
+      result.push(item);
+    }
+
+    return result;
+  }, [])
+}
+```
+
+## 数组拍平
+
+```javascript
+function flat(target) {
+  return target.flat(Number.POSITIVE_INFINITY);
+}
+```
+```javascript
+function flat(target) {
+  return target.reduce((result, item) => {
+    if(Array.isArray(item) && item.length) {
+      return [...result, ...flat(item)]
+    }
+    
+    return [...result, item];
+  }, [])
+}
+```

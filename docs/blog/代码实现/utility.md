@@ -64,17 +64,11 @@ const throttled = (fn, delay) => {
 
 ```javascript
 function create(Constructor) {
-  // 创建一个空的对象
-  var obj = new Object();
+  const obj = Object.create(Constructor.prototype);
 
-  // 设置新对象的 __proto__ 为构造函数的原型对象，从而继承原型对象的属性
-  Object.setPrototypeOf(obj, Constructor.prototype);
+  Constructor.apply(obj, [...arguments].slice(1));
 
-  // 调用构造函数本身，初始化对象，apply 调用指定 this 值和参数的函数，并返回其结果
-  var ret = Constructor.apply(obj, [...arguments].slice(1));
-
-  // 优先返回构造函数返回的对象
-  return ret instanceof Object ? ret : obj;
+  return obj;
 }
 ```
 

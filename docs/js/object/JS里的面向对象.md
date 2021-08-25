@@ -18,7 +18,7 @@ nav:
 
 ### new
 
-只有普通函数和类能被`new`调用，其它形式的函数都将报错
+只有普通函数和类能被`new`调用，而箭头函数不能作为构造函数，这也是箭头函数和普通函数的一个主要区别
 
 - 创建新对象
 - 将新对象的`[[prototype]]`指向构造函数的原型`prototype`
@@ -36,7 +36,7 @@ function create(Constructor) {
   Object.setPrototypeOf(obj, Constructor.prototype);
 
   // 调用构造函数本身，初始化对象，apply 调用指定 this 值和参数的函数，并返回其结果
-  var ret = Constructor.apply(obj, arguments);
+  var ret = Constructor.apply(obj, [...arguments].slice(1));
 
   // 优先返回构造函数返回的对象
   return ret instanceof Object ? ret : obj;
@@ -149,7 +149,7 @@ instance.__proto__.__proto__.__proto__.__proto__ === null;
 
 基于原型链可以构建起原型搜索机制，每当代码读取一个对象的某个属性时，都会执行一次搜索：
 
-- 首先从实例自身开始，找实力自身的自由属性；
+- 首先从实例自身开始，找实例自身的自有属性；
 - 实例对象上没有属性，就顺着`[[prototype]]`找上层继承的原型对象的属性；
 - 直到`Object.prototype`上都找不到，那么就会返回`undefined`
 
@@ -299,7 +299,7 @@ function _setPrototypeOf(o, p) {
 
 ### 原型链继承
 
-也就是上面介绍的原型链的实现方式，核心思想是让一种类型的原型等于其它类型的一个实例，利用`[[prototype]]`实现链式继承
+通过`new`直接调用父构造函数来完成原型链的塑造
 
 ```javascript
 function SuperType() {

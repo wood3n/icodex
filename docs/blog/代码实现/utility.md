@@ -72,47 +72,6 @@ function create(Constructor) {
 }
 ```
 
-## 深拷贝
-
-```javascript
-function cloneDeep(source, hash = new WeakMap()) {
-  if (source !== null && typeof source === 'object') {
-    //时间类型
-    if (Object.prototype.toString.call(source) === '[object Date]') {
-      //转时间戳再转回Date
-      return new Date(source.valueOf());
-    }
-
-    /*这个地方我一开始有误区，以为根据递归，这里键值就是循环引用的对象，所以我发现直接返回source的拷贝结果也一样，之前还见过部分博客就是写的直接返回source，其实不行，因为WeakMap的键实际是对象的指针，直接返回键则还是以前对象的引用，这样拷贝完的对象和源对象内部同名属性持有的还是同一引用，还是会相互影响
-     */
-    if (hash.has(source)) {
-      return hash.get(source);
-    }
-
-    //数组和对象
-    var result = Array.isArray(source) ? [] : {};
-
-    //这里set一个新对象作为值，然后新对象会经过下面递归的过程填充属性，所以上面的get拿到的是新的对象
-    hash.set(source, result);
-
-    Reflect.ownKeys(source).forEach(function(propertyName) {
-      if (
-        source[propertyName] !== null &&
-        typeof source[propertyName] === 'object'
-      ) {
-        result[propertyName] = cloneDeep(source[propertyName], hash);
-      } else {
-        result[propertyName] = source[propertyName];
-      }
-    });
-
-    return result;
-  }
-
-  return source;
-}
-```
-
 ## Partial函数(偏函数)
 
 **根据已有的函数创建一个指定了部分参数的函数**

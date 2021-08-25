@@ -13,7 +13,7 @@ const debounced = (fn, timeout, immediate) => {
     const args = [...arguments];
     const self = this;
     if (immediate && !timerId) {
-      fn.call(self, args);
+      fn.apply(self, args);
     }
 
     // 清除上一次的定时任务
@@ -22,7 +22,7 @@ const debounced = (fn, timeout, immediate) => {
     }
 
     timerId = setTimeout(() => {
-      fn.call(self, args);
+      fn.apply(self, args);
       // 清除最后的定时器Id
       timerId = null;
     }, timeout);
@@ -43,7 +43,7 @@ const throttled = (fn, delay) => {
     const self = this;
     if (timeout >= delay) {
       lastInvokeTime = Date.now();
-      fn.call(self, args);
+      fn.apply(self, args);
     } else {
       // 这部分是保证最后执行一次
       if (timerId) {
@@ -53,7 +53,7 @@ const throttled = (fn, delay) => {
       timerId = setTimeout(() => {
         lastInvokeTime = Date.now();
         timerId = null;
-        fn.call(self, args);
+        fn.apply(self, args);
       }, delay);
     }
   };

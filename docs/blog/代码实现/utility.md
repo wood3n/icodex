@@ -11,7 +11,7 @@ const debounced = (fn, timeout, immediate) => {
   return function() {
     // 判断是否第一次执行，这一步必须要下面的timerId = null来配合
     if (immediate && !timerId) {
-      fn.call(this, ...arguments);
+      fn?.();
     }
 
     // 清除上一次的定时任务
@@ -20,7 +20,7 @@ const debounced = (fn, timeout, immediate) => {
     }
 
     timerId = setTimeout(() => {
-      fn.call(this, ...arguments);
+      fn?.();
       // 清除最后的定时器Id
       timerId = null;
     }, timeout);
@@ -39,7 +39,7 @@ const throttled = (fn, delay) => {
     let timeout = Date.now() - lastInvokeTime;
     if (timeout >= delay) {
       lastInvokeTime = Date.now();
-      fn.call(this, ...arguments);
+      fn?.();
     } else {
       // 这部分是保证最后执行一次
       if (timerId) {
@@ -49,7 +49,7 @@ const throttled = (fn, delay) => {
       timerId = setTimeout(() => {
         lastInvokeTime = Date.now();
         timerId = null;
-        fn.call(this, ...arguments);
+        fn?.();
       }, delay);
     }
   };
@@ -67,7 +67,7 @@ function create(Constructor) {
   Object.setPrototypeOf(obj, Constructor.prototype);
 
   // 调用构造函数本身，初始化对象，apply 调用指定 this 值和参数的函数，并返回其结果
-  var ret = Constructor.apply(obj, arguments);
+  var ret = Constructor.apply(obj, [...arguments].slice(1));
 
   // 优先返回构造函数返回的对象
   return ret instanceof Object ? ret : obj;
@@ -120,22 +120,19 @@ function cloneDeep(source, hash = new WeakMap()) {
 **根据已有的函数创建一个指定了部分参数的函数**
 
 ```javascript
-const _slice = Array.prototype.slice;
-
 function partial(fn) {
   if (typeof fn !== 'function') {
     throw new Error();
   }
   if (arguments.length > 1) {
-    //获取已经指定的参数
-    const args = _slice.call(arguments, 1);
-    //返回处理剩余参数的新函数
+    // 获取已经指定的参数
+    const args = [...arguments].slice(1);
+    // 返回处理剩余参数的新函数
     return function() {
-      const innerArgs = _slice.call(arguments);
-      return fn.apply(this, args.concat(innerArgs));
+      return fn.apply(this, [...arguments, ...args]);
     };
   }
-  //如果没有指定参数，直接返回原函数
+  // 如果没有指定参数，直接返回原函数
   return fn;
 }
 ```
@@ -145,9 +142,6 @@ function partial(fn) {
 函数柯里化是自动实现偏函数的应用，偏函数只负责创建**一个**新的函数，它不会判断初始指定的参数有多少个，没指定的部分会全部返回，在新函数的下一次调用就会用上，并返回新函数的调用结果，而柯里化的函数则会判断已经传入的参数的个数，如果给定的参数少于其正确数目的参数，则返回处理其余参数的函数；当函数获得最终参数时，就调用它返回结果。
 
 ```javascript
-const _slice = Array.prototype.slice;
-
-// 柯里化
 function curry(fn, arity = fn.length) {
   if (typeof fn !== 'function') {
     throw new Error();
@@ -155,11 +149,9 @@ function curry(fn, arity = fn.length) {
 
   return function() {
     if (arguments.length < arity) {
-      return curry(partial(fn, ...arguments), arity - arguments.length);
-      //这里也可以使用bind
       return curry(fn.bind(this, ...arguments), arity - arguments.length);
     } else {
-      return fn.apply(this, _slice.call(arguments));
+      return fn.apply(this, [...arguments]);
     }
   };
 }
@@ -193,7 +185,7 @@ searchParams.get("foo") === null; // true
 
 ### write
 
-原生 JS 实现，使用`decodeURIComponent`是因为 URL 只允许 ASCII 字符，浏览器会对其余字符进行百分百编码
+原生 JS 实现，使用`decodeURIComponent`是因为 URL 只允许 ASCII 字符，浏览器会对其余字符进行百分百编码，所以要解码获取正常的参数值
 
 ```javascript
 function getParameterByName(name, url = window.location.href) {

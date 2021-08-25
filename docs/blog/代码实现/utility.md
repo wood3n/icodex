@@ -113,6 +113,60 @@ function curry(fn, arity = fn.length) {
   };
 }
 ```
+## 复合函数（compose function）
+
+复合函数是高阶函数的一种，将一系列函数组合起来，然后返回一个新的函数。当调用新函数的时候，原来组合的函数会按照顺序执行，并且前一个函数返回的结果作为后面一个函数的参数，最后一个执行的函数的结果就是最终的结果。
+应用上来说，`compose`函数可以提高代码的可读性，最常见的就是`redux`内部的`compose`函数来实现组合中间件的执行，也被称为洋葱模型的实现。
+注意这里的执行顺序，并不是按照组合函数的数组元素顺序来的，根据洋葱模型的机制，函数是从内到外执行。
+
+### compose function
+
+```javascript
+const compose = (...args) => (value) => args.reduceRight((acc, fn) => fn(acc), value)
+```
+```javascript
+const inc = (n) => n + 1
+
+const double = (n) => n * 2
+
+// 注意执行顺序
+compose(double, inc) === double(inc())
+console.log(compose(double, inc)(2)); // 6
+
+compose(inc, double) === inc(double())
+console.log(compose(inc, double)(2)); // 5
+```
+
+### 顺序执行 Promise
+
+```javascript
+function chainPromise(promises) {
+  return promises.reduce((promiseChains, item) => promiseChains.then(item), Promise.resolve([...arguments].slice(1)))
+}
+```
+```javascript
+function p1(a) {
+  return new Promise((resolve, reject) => {
+    resolve(a * 5);
+  });
+}
+
+// promise function 2
+function p2(a) {
+  return new Promise((resolve, reject) => {
+    resolve(a * 2);
+  });
+}
+
+// promise function 3
+function p3(a) {
+  return new Promise((resolve, reject) => {
+    resolve(a * 4);
+  });
+}
+
+chainPromise([p1, p2, p3], 10); // 400
+```
 
 ## URL解析
 

@@ -8,12 +8,10 @@ title: utility
 ```javascript
 const debounced = (fn, timeout, immediate) => {
   let timerId;
-  return function() {
+  return function(...args) {
     // 判断是否第一次执行，这一步必须要下面的timerId = null来配合
-    const args = [...arguments];
-    const self = this;
     if (immediate && !timerId) {
-      fn.apply(self, args);
+      fn(...args);
     }
 
     // 清除上一次的定时任务
@@ -22,7 +20,7 @@ const debounced = (fn, timeout, immediate) => {
     }
 
     timerId = setTimeout(() => {
-      fn.apply(self, args);
+      fn(...args);
       // 清除最后的定时器Id
       timerId = null;
     }, timeout);
@@ -36,14 +34,12 @@ const debounced = (fn, timeout, immediate) => {
 const throttled = (fn, delay) => {
   let lastInvokeTime = 0,
     timerId;
-  return function() {
+  return function(...args) {
     // 保证立即执行一次
     let timeout = Date.now() - lastInvokeTime;
-    const args = [...arguments];
-    const self = this;
     if (timeout >= delay) {
       lastInvokeTime = Date.now();
-      fn.apply(self, args);
+      fn(...args);
     } else {
       // 这部分是保证最后执行一次
       if (timerId) {
@@ -53,7 +49,7 @@ const throttled = (fn, delay) => {
       timerId = setTimeout(() => {
         lastInvokeTime = Date.now();
         timerId = null;
-        fn.apply(self, args);
+        fn(...args);
       }, delay);
     }
   };
@@ -77,40 +73,30 @@ function create(Constructor) {
 **根据已有的函数创建一个指定了部分参数的函数**
 
 ```javascript
-function partial(fn) {
-  if (typeof fn !== 'function') {
-    throw new Error();
+function partial(fn, ...args) {
+  return function(...restArgs) {
+    return fn.apply(this, [...args, ...restArgs]);
   }
-  if (arguments.length > 1) {
-    // 获取已经指定的参数
-    const args = [...arguments].slice(1);
-    // 返回处理剩余参数的新函数
-    return function() {
-      return fn.apply(this, [...arguments, ...args]);
-    };
-  }
-  // 如果没有指定参数，直接返回原函数
-  return fn;
 }
 ```
 
 ## curry函数（柯里化）
 
-函数柯里化是自动实现偏函数的应用，偏函数只负责创建**一个**新的函数，它不会判断初始指定的参数有多少个，没指定的部分会全部返回，在新函数的下一次调用就会用上，并返回新函数的调用结果，而柯里化的函数则会判断已经传入的参数的个数，如果给定的参数少于其正确数目的参数，则返回处理其余参数的函数；当函数获得最终参数时，就调用它返回结果。
+函数柯里化是自动实现偏函数的应用，偏函数只负责创建**一个**新的函数，它不会判断初始指定的参数有多少个，没指定的部分会全部返回，在新函数的下一次调用就会用上，并返回新函数的调用结果，而柯里化的函数则会判断已经传入的参数的个数，**如果给定的参数少于其正确数目的参数，则返回处理其余参数的函数**；当函数获得最终参数时，就调用它返回结果。
 
 ```javascript
-function curry(fn, arity = fn.length) {
-  if (typeof fn !== 'function') {
-    throw new Error();
-  }
-
-  return function() {
-    if (arguments.length < arity) {
-      return curry(fn.bind(this, ...arguments), arity - arguments.length);
-    } else {
-      return fn.apply(this, [...arguments]);
+function curry(fn) {
+  return function(...args) {
+    // 提供的参数个数等于原始函数的参数个数，则直接返回函数执行的结果
+    if(args.length >= fn.length) {
+      return fn.apply(this, args)
     }
-  };
+
+    // 否则返回提供剩余参数的函数
+    return function(...restArgs) {
+      return fn.apply(this, [...args, ...restArgs]);
+    }
+  }
 }
 ```
 ## 复合函数（compose function）
@@ -122,7 +108,17 @@ function curry(fn, arity = fn.length) {
 ### compose function
 
 ```javascript
-const compose = (...args) => (value) => args.reduceRight((acc, fn) => fn(acc), value)
+function compose(...fns) {
+  return fns.reduce(
+    (a, b) =>
+      (...args) =>
+        a(b(...args))
+  )
+}
+
+function compose(...fns) {
+  return value => fns.reduceRight((acc, fn) => fn(acc), value)
+}
 ```
 ```javascript
 const inc = (n) => n + 1

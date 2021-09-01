@@ -8,10 +8,10 @@ title: utility
 ```javascript
 const debounced = (fn, timeout, immediate) => {
   let timerId;
-  return function() {
+  return function(...args) {
     // 判断是否第一次执行，这一步必须要下面的timerId = null来配合
     if (immediate && !timerId) {
-      fn.call(this, ...arguments);
+      fn(...args);
     }
 
     // 清除上一次的定时任务
@@ -20,7 +20,7 @@ const debounced = (fn, timeout, immediate) => {
     }
 
     timerId = setTimeout(() => {
-      fn.call(this, ...arguments);
+      fn(...args);
       // 清除最后的定时器Id
       timerId = null;
     }, timeout);
@@ -34,12 +34,12 @@ const debounced = (fn, timeout, immediate) => {
 const throttled = (fn, delay) => {
   let lastInvokeTime = 0,
     timerId;
-  return function() {
+  return function(...args) {
     // 保证立即执行一次
     let timeout = Date.now() - lastInvokeTime;
     if (timeout >= delay) {
       lastInvokeTime = Date.now();
-      fn.call(this, ...arguments);
+      fn(...args);
     } else {
       // 这部分是保证最后执行一次
       if (timerId) {
@@ -49,7 +49,7 @@ const throttled = (fn, delay) => {
       timerId = setTimeout(() => {
         lastInvokeTime = Date.now();
         timerId = null;
-        fn.call(this, ...arguments);
+        fn(...args);
       }, delay);
     }
   };
@@ -60,58 +60,11 @@ const throttled = (fn, delay) => {
 
 ```javascript
 function create(Constructor) {
-  // 创建一个空的对象
-  var obj = new Object();
+  const obj = Object.create(Constructor.prototype);
 
-  // 设置新对象的 __proto__ 为构造函数的原型对象，从而继承原型对象的属性
-  Object.setPrototypeOf(obj, Constructor.prototype);
+  Constructor.apply(obj, [...arguments].slice(1));
 
-  // 调用构造函数本身，初始化对象，apply 调用指定 this 值和参数的函数，并返回其结果
-  var ret = Constructor.apply(obj, arguments);
-
-  // 优先返回构造函数返回的对象
-  return ret instanceof Object ? ret : obj;
-}
-```
-
-## 深拷贝
-
-```javascript
-function cloneDeep(source, hash = new WeakMap()) {
-  if (source !== null && typeof source === 'object') {
-    //时间类型
-    if (Object.prototype.toString.call(source) === '[object Date]') {
-      //转时间戳再转回Date
-      return new Date(source.valueOf());
-    }
-
-    /*这个地方我一开始有误区，以为根据递归，这里键值就是循环引用的对象，所以我发现直接返回source的拷贝结果也一样，之前还见过部分博客就是写的直接返回source，其实不行，因为WeakMap的键实际是对象的指针，直接返回键则还是以前对象的引用，这样拷贝完的对象和源对象内部同名属性持有的还是同一引用，还是会相互影响
-     */
-    if (hash.has(source)) {
-      return hash.get(source);
-    }
-
-    //数组和对象
-    var result = Array.isArray(source) ? [] : {};
-
-    //这里set一个新对象作为值，然后新对象会经过下面递归的过程填充属性，所以上面的get拿到的是新的对象
-    hash.set(source, result);
-
-    Reflect.ownKeys(source).forEach(function(propertyName) {
-      if (
-        source[propertyName] !== null &&
-        typeof source[propertyName] === 'object'
-      ) {
-        result[propertyName] = cloneDeep(source[propertyName], hash);
-      } else {
-        result[propertyName] = source[propertyName];
-      }
-    });
-
-    return result;
-  }
-
-  return source;
+  return obj;
 }
 ```
 
@@ -120,49 +73,95 @@ function cloneDeep(source, hash = new WeakMap()) {
 **根据已有的函数创建一个指定了部分参数的函数**
 
 ```javascript
-const _slice = Array.prototype.slice;
-
-function partial(fn) {
-  if (typeof fn !== 'function') {
-    throw new Error();
+function partial(fn, ...args) {
+  return function(...restArgs) {
+    return fn.apply(this, [...args, ...restArgs]);
   }
-  if (arguments.length > 1) {
-    //获取已经指定的参数
-    const args = _slice.call(arguments, 1);
-    //返回处理剩余参数的新函数
-    return function() {
-      const innerArgs = _slice.call(arguments);
-      return fn.apply(this, args.concat(innerArgs));
-    };
-  }
-  //如果没有指定参数，直接返回原函数
-  return fn;
 }
 ```
 
 ## curry函数（柯里化）
 
-函数柯里化是自动实现偏函数的应用，偏函数只负责创建**一个**新的函数，它不会判断初始指定的参数有多少个，没指定的部分会全部返回，在新函数的下一次调用就会用上，并返回新函数的调用结果，而柯里化的函数则会判断已经传入的参数的个数，如果给定的参数少于其正确数目的参数，则返回处理其余参数的函数；当函数获得最终参数时，就调用它返回结果。
+函数柯里化是自动实现偏函数的应用，偏函数只负责创建**一个**新的函数，它不会判断初始指定的参数有多少个，没指定的部分会全部返回，在新函数的下一次调用就会用上，并返回新函数的调用结果，而柯里化的函数则会判断已经传入的参数的个数，**如果给定的参数少于其正确数目的参数，则返回处理其余参数的函数**；当函数获得最终参数时，就调用它返回结果。
 
 ```javascript
-const _slice = Array.prototype.slice;
-
-// 柯里化
-function curry(fn, arity = fn.length) {
-  if (typeof fn !== 'function') {
-    throw new Error();
-  }
-
-  return function() {
-    if (arguments.length < arity) {
-      return curry(partial(fn, ...arguments), arity - arguments.length);
-      //这里也可以使用bind
-      return curry(fn.bind(this, ...arguments), arity - arguments.length);
-    } else {
-      return fn.apply(this, _slice.call(arguments));
+function curry(fn) {
+  return function(...args) {
+    // 提供的参数个数等于原始函数的参数个数，则直接返回函数执行的结果
+    if(args.length >= fn.length) {
+      return fn.apply(this, args)
     }
-  };
+
+    // 否则返回提供剩余参数的函数
+    return function(...restArgs) {
+      return fn.apply(this, [...args, ...restArgs]);
+    }
+  }
 }
+```
+## 复合函数（compose function）
+
+复合函数是高阶函数的一种，将一系列函数组合起来，然后返回一个新的函数。当调用新函数的时候，原来组合的函数会按照顺序执行，并且前一个函数返回的结果作为后面一个函数的参数，最后一个执行的函数的结果就是最终的结果。
+应用上来说，`compose`函数可以提高代码的可读性，最常见的就是`redux`内部的`compose`函数来实现组合中间件的执行，也被称为洋葱模型的实现。
+注意这里的执行顺序，并不是按照组合函数的数组元素顺序来的，根据洋葱模型的机制，函数是从内到外执行。
+
+### compose function
+
+```javascript
+function compose(...fns) {
+  return fns.reduce(
+    (a, b) =>
+      (...args) =>
+        a(b(...args))
+  )
+}
+
+function compose(...fns) {
+  return value => fns.reduceRight((acc, fn) => fn(acc), value)
+}
+```
+```javascript
+const inc = (n) => n + 1
+
+const double = (n) => n * 2
+
+// 注意执行顺序
+compose(double, inc) === double(inc())
+console.log(compose(double, inc)(2)); // 6
+
+compose(inc, double) === inc(double())
+console.log(compose(inc, double)(2)); // 5
+```
+
+### 顺序执行 Promise
+
+```javascript
+function chainPromise(promises) {
+  return promises.reduce((promiseChains, item) => promiseChains.then(item), Promise.resolve([...arguments].slice(1)))
+}
+```
+```javascript
+function p1(a) {
+  return new Promise((resolve, reject) => {
+    resolve(a * 5);
+  });
+}
+
+// promise function 2
+function p2(a) {
+  return new Promise((resolve, reject) => {
+    resolve(a * 2);
+  });
+}
+
+// promise function 3
+function p3(a) {
+  return new Promise((resolve, reject) => {
+    resolve(a * 4);
+  });
+}
+
+chainPromise([p1, p2, p3], 10); // 400
 ```
 
 ## URL解析
@@ -193,7 +192,7 @@ searchParams.get("foo") === null; // true
 
 ### write
 
-原生 JS 实现，使用`decodeURIComponent`是因为 URL 只允许 ASCII 字符，浏览器会对其余字符进行百分百编码
+原生 JS 实现，使用`decodeURIComponent`是因为 URL 只允许 ASCII 字符，浏览器会对其余字符进行百分百编码，所以要解码获取正常的参数值
 
 ```javascript
 function getParameterByName(name, url = window.location.href) {
@@ -249,5 +248,42 @@ function ajax({
 
     xhr.send();
   })
+}
+```
+## 数组去重
+
+```javascript
+function uniq(target) {
+  return [...new Set(target)];
+}
+```
+```javascript
+function uniq(target) {
+  return target.reduce((result, item) => {
+    if(!result.includes(item)) {
+      result.push(item);
+    }
+
+    return result;
+  }, [])
+}
+```
+
+## 数组拍平
+
+```javascript
+function flat(target) {
+  return target.flat(Number.POSITIVE_INFINITY);
+}
+```
+```javascript
+function flat(target) {
+  return target.reduce((result, item) => {
+    if(Array.isArray(item) && item.length) {
+      return [...result, ...flat(item)]
+    }
+    
+    return [...result, item];
+  }, [])
 }
 ```

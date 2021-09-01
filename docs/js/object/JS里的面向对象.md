@@ -18,7 +18,7 @@ nav:
 
 ### new
 
-只有普通函数和类能被`new`调用，其它形式的函数都将报错
+只有普通函数和类能被`new`调用，而箭头函数不能作为构造函数，这也是箭头函数和普通函数的一个主要区别
 
 - 创建新对象
 - 将新对象的`[[prototype]]`指向构造函数的原型`prototype`
@@ -36,7 +36,7 @@ function create(Constructor) {
   Object.setPrototypeOf(obj, Constructor.prototype);
 
   // 调用构造函数本身，初始化对象，apply 调用指定 this 值和参数的函数，并返回其结果
-  var ret = Constructor.apply(obj, arguments);
+  var ret = Constructor.apply(obj, [...arguments].slice(1));
 
   // 优先返回构造函数返回的对象
   return ret instanceof Object ? ret : obj;
@@ -149,7 +149,7 @@ instance.__proto__.__proto__.__proto__.__proto__ === null;
 
 基于原型链可以构建起原型搜索机制，每当代码读取一个对象的某个属性时，都会执行一次搜索：
 
-- 首先从实例自身开始，找实力自身的自由属性；
+- 首先从实例自身开始，找实例自身的自有属性；
 - 实例对象上没有属性，就顺着`[[prototype]]`找上层继承的原型对象的属性；
 - 直到`Object.prototype`上都找不到，那么就会返回`undefined`
 
@@ -299,7 +299,7 @@ function _setPrototypeOf(o, p) {
 
 ### 原型链继承
 
-也就是上面介绍的原型链的实现方式，核心思想是让一种类型的原型等于其它类型的一个实例，利用`[[prototype]]`实现链式继承
+通过`new`直接调用父构造函数来改变子构造函数的原型对象
 
 ```javascript
 function SuperType() {
@@ -320,16 +320,16 @@ console.log(o);
 
 ![image-20200623210707070](../../images/image-20200623210707070.png)
 
-缺点如下
+缺点如下：
 
-- 对于引用类型的属性，当其中一个对象操作修改后，其它对象都会受到影响
-
-- 在子类型原型上定义的属性和方法必须要放在重写原型后面，否则不起作用
+- 由于是塑造子类型的`prototype`，所以通过父类塑造的自有属性也在`prototype`上
+- `SubType`的`constructor`属性丢失了，变成了`SuperType`的`constructor`
+- 最致命的一点是由于直接改变的`prototype`为父类的实例，当使用`SubType`作为构造函数创建的对象，如果其中某个对象存在操作修改原型的情况，则其它对象都会受到影响
 
 ### 借用构造函数继承
 
 - 实现方式是借用父类的构造函数，即在子类构造函数内部将`this`绑定到父类构造函数，在调用构造函数创建一个新对象的时候，将新对象通过`call`传递到父类构造函数中，继承实例属性
-- 这种方式的优点是，每次创造的对象绑定的`this`是分开的，引用类型的属性修改也不会相互影响，弥补了原型链继承的不足
+- 这种方式的优点是，每次创造的对象绑定的`this`是分开的，引用类型的属性修改也不会相互影响，弥补了原型链继承的不足；当然缺点就是无法继承父构造函数原型对象上的属性和方法
 
 ```javascript
 function SuperType() {
@@ -349,10 +349,6 @@ console.log(o);
 ```
 
 ![image-20200623210727999](../../images/image-20200623210727999.png)
-
-缺点
-
-- 无法继承原型对象上的属性，只能继承实例属性
 
 ### 组合继承
 
@@ -382,6 +378,7 @@ console.log(o);
 
 - 这个结果不仔细看和原型链还真没什么区别，但是仔细一看，`property`这个属性在`SubType.prototype`上重复了一个？原因是`SuperType`的构造函数被调用了两次，注意代码执行的顺序，第一次是发生在赋值操作修改`SubType`的原型，第二次才是调用父类构造函数，这样在每次创建一个新对象的同时，都能将新的对象绑定到父类构造函数的`this`，在新对象的自有属性上创建一个新的同名属性，而又由于属性屏蔽的原因，自有属性会屏蔽原型上的属性，所以对象之间即使操作引用类型的属性，也不会相互影响
 - 注意`constructor`属性也要补上
+- 这种方式的缺点是两次调用了父类构造函数，性能上有所损失；同时可以看到`SubType`的原型对象上保留了`SuperType`内部作用在实例上的属性，这是无用的属性，浪费内存空间
 
 ```javascript
 function SuperType() {
@@ -409,11 +406,6 @@ console.log(t);
 ```
 
 ![image-20200624235446228](../../images/image-20200624235446228.png)
-
-缺点
-
-- 两次调用了父类构造函数，性能上有所损失
-- 存在无用的属性，浪费内存空间
 
 ### 原型式继承
 
@@ -501,12 +493,11 @@ SuperType.prototype.getPropertyValue = function() {
 };
 
 function SubType() {
-  SuperType.call(this); //只调用一次父类构造函数
+  SuperType.call(this); // 只调用一次父类构造函数，继承实例属性
 }
 
-var prototype = Object.create(SuperType.prototype); //核心部分，复制一个新的对象出来
-prototype.constructor = SubType;
-SubType.prototype = prototype;
+SubType.prototype = Object.create(SuperType.prototype); // 核心部分，复制一个 SuperType 的原型对象出来，作为 SubType 的原型对象
+SubType.prototype.constructor = SubType;                // 还原 constructor 属性
 
 var o = new SubType();
 var t = new SubType();

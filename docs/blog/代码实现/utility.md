@@ -86,7 +86,7 @@ function partial(fn, ...args) {
 
 ```javascript
 function curry(fn) {
-  return function(...args) {
+  return function curried(...args) {
     // 提供的参数个数等于原始函数的参数个数，则直接返回函数执行的结果
     if(args.length >= fn.length) {
       return fn.apply(this, args)
@@ -94,7 +94,7 @@ function curry(fn) {
 
     // 否则返回提供剩余参数的函数
     return function(...restArgs) {
-      return fn.apply(this, [...args, ...restArgs]);
+      return curried.apply(this, [...args, ...restArgs]);
     }
   }
 }

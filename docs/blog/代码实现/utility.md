@@ -180,10 +180,11 @@ console.log(parsedUrl.searchParams.get("id")); // "123"
 
 ### [URLSearchParams](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams)
 
-专门用来操作 URL 查询字符串部分的接口，海量实例方法
+专门用来操作 URL 查询字符串部分的接口
 
 ```javascript
 const paramsString = "q=URLUtils.searchParams&topic=api";
+const searchParams = new URLSearchParams(paramsString);
 
 searchParams.get("topic") === "api"; // true
 searchParams.getAll("topic"); // ["api"]

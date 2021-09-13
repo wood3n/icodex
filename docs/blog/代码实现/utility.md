@@ -86,7 +86,7 @@ function partial(fn, ...args) {
 
 ```javascript
 function curry(fn) {
-  return function(...args) {
+  return function curried(...args) {
     // 提供的参数个数等于原始函数的参数个数，则直接返回函数执行的结果
     if(args.length >= fn.length) {
       return fn.apply(this, args)
@@ -94,7 +94,7 @@ function curry(fn) {
 
     // 否则返回提供剩余参数的函数
     return function(...restArgs) {
-      return fn.apply(this, [...args, ...restArgs]);
+      return curried.apply(this, [...args, ...restArgs]);
     }
   }
 }
@@ -136,8 +136,8 @@ console.log(compose(inc, double)(2)); // 5
 ### 顺序执行 Promise
 
 ```javascript
-function chainPromise(promises) {
-  return promises.reduce((promiseChains, item) => promiseChains.then(item), Promise.resolve([...arguments].slice(1)))
+function chainPromise(promises, ...args) {
+  return promises.reduce((promiseChains, promise) => promiseChains.then(promise), Promise.resolve(...args));
 }
 ```
 ```javascript
@@ -180,10 +180,11 @@ console.log(parsedUrl.searchParams.get("id")); // "123"
 
 ### [URLSearchParams](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams)
 
-专门用来操作 URL 查询字符串部分的接口，海量实例方法
+专门用来操作 URL 查询字符串部分的接口，缺点是 IE 浏览器不支持这个接口。
 
 ```javascript
 const paramsString = "q=URLUtils.searchParams&topic=api";
+const searchParams = new URLSearchParams(paramsString);
 
 searchParams.get("topic") === "api"; // true
 searchParams.getAll("topic"); // ["api"]

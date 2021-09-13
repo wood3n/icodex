@@ -94,12 +94,22 @@ function bgChange() {
 
 btn.addEventListener('click', bgChange);
 ```
-### 注意事项
+### addEventListener vs onclick
 
 绝大多数情况下都应该使用`addEventListener`来注册事件，这样做有以下优点：
 
-- `addEventListener`方法提供的事件处理选项更加齐全，例如支持处理捕获和冒泡期间的事件触发机制；
+- `addEventListener`方法提供的事件处理选项更加齐全，例如`addEventListener`的第三个参数`useCapture`支持处理捕获和冒泡期间的事件触发机制；
 - 可以方便的使用`removeEventListener`移除事件处理程序
+- `addEventListener`针对相同元素注册多个相同类型的事件，不会存在覆盖，而使用`onclick`等的形式，后续注册的回调函数会覆盖前面的方法。
+
+```
+var a = document.getElementById('a');
+a.onclick = doThing_1;		// 不会调用
+a.onclick = doThing_2;
+
+a.addEventListener('click', doThing_3);
+a.addEventListener('click', doThing_4);
+```
 
 但是`addEventListener`本身使用不当也会导致一些问题：
 

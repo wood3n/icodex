@@ -136,8 +136,8 @@ console.log(compose(inc, double)(2)); // 5
 ### 顺序执行 Promise
 
 ```javascript
-function chainPromise(promises) {
-  return promises.reduce((promiseChains, item) => promiseChains.then(item), Promise.resolve([...arguments].slice(1)))
+function chainPromise(promises, ...args) {
+  return promises.reduce((promiseChains, promise) => promiseChains.then(promise), Promise.resolve(...args));
 }
 ```
 ```javascript
@@ -180,7 +180,7 @@ console.log(parsedUrl.searchParams.get("id")); // "123"
 
 ### [URLSearchParams](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams)
 
-专门用来操作 URL 查询字符串部分的接口
+专门用来操作 URL 查询字符串部分的接口，缺点是 IE 浏览器不支持这个接口。
 
 ```javascript
 const paramsString = "q=URLUtils.searchParams&topic=api";

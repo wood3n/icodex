@@ -14,7 +14,7 @@ title: react router简介
 
 `BrowserRouter`和`HashRouter`作为基础组件，通常作为跟组件包裹整个应用。它们俩的不同是`HashRouter`会将当前页面配置的路由路径显示在 URL 的`hash`部分，因此 URL 看起来像`xxx.com/path#user/xxxx`，单页面应用来说这点其实没什么影响，但是对于`SSR`(server side render)的应用，改变 URL 的`path`会向服务端发送请求 HTML 页面，而改变`hash`并不会发送请求。
 
-```jsx
+```jsx | pure
 import { BrowserRouter } from 'react-router-dom';
 
 ReactDOM.render(
@@ -29,7 +29,7 @@ ReactDOM.render(
 
 `Switch`用来包裹一系列的`Route`组件，当 URL 改变的时候，`Switch`组件会搜索子组件中的`Route`，根据给定的`path`属性来匹配当前的 URL，当匹配到第一个时就会停止匹配。如果不用`Switch`包裹`Route`，那么`Route`指定的组件将都会被渲染出来。
 
-```jsx
+```jsx | pure
 function App() {
   return (
     <div>
@@ -67,7 +67,7 @@ function App() {
 
 `component`属性直接接收一个组件。需要注意的是，`Route`内部对`component`的处理是直接使用`React.createElement`来创建一个新的组件，一旦组件接收的`props`发生改变，那么就会导致整个组件卸载重新创建一个新的组件替换上去，而不是使用 DIFF 算法更新原来的组件，此举会带来轻微的性能问题。
 
-```jsx
+```jsx | pure
 function User(props) {
   return <h1>Hello {props.match.params.username}!</h1>;
 }
@@ -86,7 +86,7 @@ ReactDOM.render(
 
 由于 render props 概念的特殊性，该函数可以轻易改造称为一个高阶组件，即将`render`函数的参数直接通过`props`传入到组件本身即可，这样组件内部也会获得`react router`的`match`, `location` 和 `history`这些属性。
 
-```jsx
+```jsx | pure
 function FadingRoute({ component: Component, ...rest }) {
   return (
     <Route
@@ -105,7 +105,7 @@ function FadingRoute({ component: Component, ...rest }) {
 
 `children`也是一个函数，和`render`函数的区别就是如果当前`location`没有匹配到当前的`Route`配置，那么`children`函数接收的参数中的`match`属性会是`null`，根据这个可以动态的为组件增加一些个性化的定制，例如最为常见的根据 URL 动态的渲染`Menu`组件的样式：
 
-```jsx
+```jsx | pure
 function ListItemLink({ to, ...rest }) {
   return (
     <Route

@@ -76,7 +76,7 @@ title: meta标签
 
 ### name 和 content
 
-`meta`可以由`name`和`content`两个键值对组成，``name`和`content`属性可以一起使用，以键值对的方式给文档提供元数据，其中`name`的值作为元数据的名称，`content` 的值作为元数据的值。
+`meta`可以由`name`和`content`两个键值对组成，`name`和`content`属性可以一起使用，以键值对的方式给文档提供元数据，其中`name`的值作为元数据的名称，`content` 的值作为元数据的值。
 
 HTML 规范中定义了以下标准的元数据名称，可以指定给`name`：
 

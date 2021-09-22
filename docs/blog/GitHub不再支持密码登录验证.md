@@ -28,3 +28,17 @@
 然后点击右侧 Windows 凭据，找到`git:https://github.com`，如果没有就点击添加，用户名就是邮箱地址，密码是刚才生成的 token，保存即可。
 
 ![image-20210922201533179](../images/image-20210922201533179.png)
+
+## 注意
+
+如果本地设置了 Git 代理地址，则需要重置代理
+
+```shell
+git config --global https.proxy http://127.0.0.1:1080
+
+git config --global https.proxy https://127.0.0.1:1080
+
+git config --global --unset http.proxy
+
+git config --global --unset https.proxy
+```

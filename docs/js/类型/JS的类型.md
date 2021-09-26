@@ -519,17 +519,7 @@ function _instanceof(this, myClass) {
 
 根据 ES 规范文档的描述，早期的 ES 规范设计的有一个`[[Class]]`属性，用作各种内置对象的标称类型标签，只能通过`Object.prototype.toString`这个方法获取`[[Class]]`的字符串值。
 
-从 ES6 开始，规范定义了`Symbol.toStringTag`属性，程序中可以直接使用`Symbol.toStringTag`为类型定义名称，执行`Object.prototype.toString`的过程也发生了变化，会优先根据`Symbol.toStringTag`属性进行返回值的判断，如果没有再根据对象的私有属性判断其类型。
-
-所以这个方法判断类型也不安全了。
-
-```javascript
-Array.prototype[Symbol.toStringTag] = 'test';
-
-console.log(Object.prototype.toString.call(new Array())); // [object test]
-```
-
-根据 ES 规范文档的描述，`toString.call(this)`被调用会做以下处理：
+`Object.prototype.toString`是目前为止兼容性最强，类型判断最准确的方式，它连 Promise 都能判断（靓仔狂喜）；根据 ES 规范文档的描述，`toString.call(this)`被调用会做以下处理：
 
 - 判断 this 是不是`undefined`，是返回`"[object Undefined]"`；
 - 判断 this 是不是`null`，是返回`"[object Null]"`；
@@ -558,7 +548,54 @@ var type = Object.prototype.toString.call(foo);
 console.log(type); //[object Object]
 ```
 
-使用`Symbol.toStringTag`这个属性为创建的类定义类型名称，弥补`toString`的不足
+可以用正则表达式处理一下结果，只显示类型字符串
+
+```javascript
+function _typeof(obj) {
+  return Object.prototype.toString
+    .call(obj)
+    .replace(/^\[object\s(\w+)\]$/, '$1')
+    .toLowerCase();
+}
+```
+
+从 ES6 开始，规范定义了`Symbol.toStringTag`属性，程序中可以直接使用`Symbol.toStringTag`为类型定义名称，执行`Object.prototype.toString`的过程也发生了变化，会优先根据`Symbol.toStringTag`属性进行返回值的判断，如果没有再根据对象的私有属性判断其类型。
+
+所以这个方法判断类型也不安全了。
+
+```javascript
+Array.prototype[Symbol.toStringTag] = 'test';
+
+console.log(Object.prototype.toString.call(new Array())); // [object test]
+```
+
+### Symbol.toStringTag
+
+任意对象的`Symbol.toStringTag`属性，指向一个方法。在该对象上面调用`Object.prototype.toString`方法时，如果这个属性存在，它的返回值会出现在`toString`方法返回的字符串之中，表示对象的类型。
+
+ES6 新增内置对象的`Symbol.toStringTag`属性值如下。
+
+- `JSON[Symbol.toStringTag]`：'JSON'
+- `Math[Symbol.toStringTag]`：'Math'
+- Module 对象`M[Symbol.toStringTag]`：'Module'
+- `ArrayBuffer.prototype[Symbol.toStringTag]`：'ArrayBuffer'
+- `DataView.prototype[Symbol.toStringTag]`：'DataView'
+- `Map.prototype[Symbol.toStringTag]`：'Map'
+- `Promise.prototype[Symbol.toStringTag]`：'Promise'
+- `Set.prototype[Symbol.toStringTag]`：'Set'
+- `%TypedArray%.prototype[Symbol.toStringTag]`：'Uint8Array'等
+- `WeakMap.prototype[Symbol.toStringTag]`：'WeakMap'
+- `WeakSet.prototype[Symbol.toStringTag]`：'WeakSet'
+- `%MapIteratorPrototype%[Symbol.toStringTag]`：'Map Iterator'
+- `%SetIteratorPrototype%[Symbol.toStringTag]`：'Set Iterator'
+- `%StringIteratorPrototype%[Symbol.toStringTag]`：'String Iterator'
+- `Symbol.prototype[Symbol.toStringTag]`：'Symbol'
+- `Generator.prototype[Symbol.toStringTag]`：'Generator'
+- `GeneratorFunction.prototype[Symbol.toStringTag]`：'GeneratorFunction'
+
+不过这里单独要讲一下`Date`类型，如果直接访问一个`Date`类型对象的`Symbol.toStringTag`属性，得到的结果是`undefined`，这里暂时不知道为什么。
+
+如果是自定义的对象类型，使用这个属性为创建的类定义类型名称，弥补`toString`的不足。
 
 ```javascript
 class Person {
@@ -569,17 +606,6 @@ class Person {
 
 var o = new Person();
 console.log(Object.prototype.toString.call(o)); //[object Person]
-```
-
-可以用正则表达式处理一下结果，只显示类型字符串
-
-```javascript
-function _typeof(obj) {
-  return Object.prototype.toString
-    .call(obj)
-    .replace(/^\[object\s(\w+)\]$/, '$1')
-    .toLowerCase();
-}
 ```
 
 ### Object()
@@ -596,7 +622,7 @@ Object(obj) === obj; //true
 
 > `Array.isArray()`判断数组
 
-- `Array.isArray()`其实也是利用了`toString`的实现方式
+`Array.isArray()`其实也是利用了`toString`的实现方式
 
 ```javascript
 if (!Array.isArray) {

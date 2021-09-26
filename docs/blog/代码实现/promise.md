@@ -79,3 +79,9 @@ class APromise {
   };
 }
 ```
+
+// todo
+
+## Promise 并发控制
+
+Promise 控制并发控制在业务场景或者面试题里非常常见

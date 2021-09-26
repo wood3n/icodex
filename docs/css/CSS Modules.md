@@ -2,11 +2,6 @@
 title: CSS Modules
 ---
 
-## CSS 代码规范
-
-- [NEC](http://nec.netease.com/standard/css-sort.html)
-- [BEM](http://getbem.com/introduction/)
-
 ## 什么是 CSS Modules
 
 根据[CSS Module](https://github.com/css-modules/css-modules)的介绍，一个 CSS Module 就是一个 CSS 文件，在当前文件中的`class`，`animation`会被限制在当前模块作用域内。所有在`url()`和`@import url()`设置的路径也会是相当于 CSS Module 文件所在路径。

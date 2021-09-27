@@ -87,15 +87,15 @@ function partial(fn, ...args) {
 function curry(fn) {
   return function curried(...args) {
     // 提供的参数个数等于原始函数的参数个数，则直接返回函数执行的结果
-    if(args.length >= fn.length) {
-      return fn.apply(this, args)
+    if (args.length >= fn.length) {
+      return fn.apply(this, args);
     }
 
     // 否则返回提供剩余参数的函数
     return function(...restArgs) {
-      return curried(...args, ...restArgs]);
-    }
-  }
+      return curried(...args, ...restArgs);
+    };
+  };
 }
 ```
 
@@ -297,7 +297,7 @@ function flat(target) {
 
 [lodash.isEqual](https://www.lodashjs.com/docs/lodash.isEqual) 这个方法可用于根据两个对象自有属性中可枚举属性的值是否相等来判断两个对象是否相等。
 
-### assert.`deepStrictEqual`
+### assert.deepStrictEqual
 
 `assert.deepStrictEqual`是 NodeJS 内部提供的用于比较两个对象，也是针对对象的自有属性的可枚举属性进行比较。
 

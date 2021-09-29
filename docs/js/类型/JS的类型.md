@@ -561,8 +561,6 @@ function _typeof(obj) {
 
 从 ES6 开始，规范定义了`Symbol.toStringTag`属性，程序中可以直接使用`Symbol.toStringTag`为类型定义名称，执行`Object.prototype.toString`的过程也发生了变化，会优先根据`Symbol.toStringTag`属性进行返回值的判断，如果没有再根据对象的私有属性判断其类型。
 
-所以这个方法判断类型也不安全了。
-
 ```javascript
 Array.prototype[Symbol.toStringTag] = 'test';
 
@@ -571,9 +569,7 @@ console.log(Object.prototype.toString.call(new Array())); // [object test]
 
 ### Symbol.toStringTag
 
-任意对象的`Symbol.toStringTag`属性，指向一个方法。在该对象上面调用`Object.prototype.toString`方法时，如果这个属性存在，它的返回值会出现在`toString`方法返回的字符串之中，表示对象的类型。
-
-ES6 新增内置对象的`Symbol.toStringTag`属性值如下。
+ES6 新增的内置对象的`Symbol.toStringTag`属性值可以返回内置对象类型的字符串，它返回的内容是规范定义的，并不是调用`Object.prototype.toString`这个方法，注意不能搞混淆了。
 
 - `JSON[Symbol.toStringTag]`：'JSON'
 - `Math[Symbol.toStringTag]`：'Math'
@@ -593,7 +589,7 @@ ES6 新增内置对象的`Symbol.toStringTag`属性值如下。
 - `Generator.prototype[Symbol.toStringTag]`：'Generator'
 - `GeneratorFunction.prototype[Symbol.toStringTag]`：'GeneratorFunction'
 
-不过这里单独要讲一下`Date`类型，如果直接访问一个`Date`类型对象的`Symbol.toStringTag`属性，得到的结果是`undefined`，这里暂时不知道为什么。
+不过这里单独要讲一下`Date`类型，如果直接访问一个`Date`类型对象的`Symbol.toStringTag`属性，得到的结果是`undefined`，这里是因为规范根本没有给`Date`类型定义`Symbol.toStringTag`这个属性，可以参考这个回答 —— [为什么 Date 的 Symbol.toStringTag 返回的是 undefined ? - 知乎 (zhihu.com)](https://www.zhihu.com/question/488912253)
 
 如果是自定义的对象类型，使用这个属性为创建的类定义类型名称，弥补`toString`的不足。
 

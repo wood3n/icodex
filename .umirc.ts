@@ -30,10 +30,6 @@ export default defineConfig({
       path: '/network',
     },
     {
-      title: 'Translation',
-      path: '/translation',
-    },
-    {
       title: 'CSS',
       path: '/css',
     },

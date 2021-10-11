@@ -66,5 +66,5 @@ fiberRoot.current = rootFiber;
 `fiber reonciler`主要是为了解决`stack reconciler`的以下问题：
 
 - 支持返回多个元素；
-- 避免同步递归更新 DOM 导致的计算量大的问题；
+- 避免遍历更新队列一次性操作 DOM 可能阻塞 UI 渲染的问题；
 - 更新处理时把任务进行优先级拆分，保证 UI 及时更新；

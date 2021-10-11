@@ -114,3 +114,5 @@ export default App;
 ### absolute + opacity 实现
 
 ## 拖拽
+
+## 滑块

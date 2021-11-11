@@ -68,17 +68,21 @@ class APromise {
   }
 
   resolve(value) {
-    if (this.state === 'pending') {
-      this.state = 'fulfilled';
-      this.value = value;
-    }
+    setTimeout(() => {
+      if (this.state === 'pending') {
+        this.state = 'fulfilled';
+        this.value = value;
+      }
+    });
   }
 
   reject(reason) {
-    if (this.state === 'pending') {
-      this.state = 'rejected';
-      this.reason = reason;
-    }
+    setTimeout(() => {
+      if (this.state === 'pending') {
+        this.state = 'rejected';
+        this.reason = reason;
+      }
+    });
   }
 }
 ```
@@ -305,7 +309,3 @@ APromise.defer = APromise.deferred = function() {
 ```
 
 执行`promises-aplus-tests`，可以看到完美通过 872 个测试用例。
-
-## Promise 并发控制
-
-Promise 控制并发控制在业务场景或者面试题里非常常见

@@ -1,35 +1,3 @@
-## samantic versioner
-
-> [npm 版本号语义](https://docs.npmjs.com/misc/semver.html)
-
-npm package 的版本号最多只有三位，用`.`连接起来；
-
-- 第一位表示主版本号，一般表示大的功能更新迭代
-- 第二位表示更新向后兼容的新功能，重构等
-- 最后一位更新通常表示修复 bug
-
-![image-20200701184919910](../images/image-20200701184919910.png)
-
-`~version`：近似等于版本
-
-```json
-~1.2.3   >=1.2.3 <1.3.0
-~1.2	 >=1.2.0 <1.3.0			1.2.x
-~1								1.x
-```
-
-`^version`：根据 npm 版本号最多只有三位的情况，允许在最左侧同一非 0 版本号的范围内匹配
-
-```json
-^1.2.3 	>=1.2.3 <2.0.0				//最左侧非0版本号就是第一个
-^0.2.3  >=0.2.3 <0.3.0				//最左侧非0版本号是第二个
-^0.0.3 	>=0.0.3 <0.0.4
-```
-
-其它还能用大于小于这些符号`>version`等，分别就表示大于小于版本号的匹配。
-
-`-beta.2`：有时候会在版本号的后面带上`beta`的测试版本符号。
-
 ## npm install
 
 `npm install`本身支持多种形式的命名，一般来说常用的有：
@@ -57,7 +25,11 @@ npm add
 
 如果带有`--production`后缀，`npm install --production`不会安装`devDependencies`下的依赖。
 
-如果带有`-g`或`--global`是安装全局依赖。
+如果带有`-g`或`--global`是安装全局依赖，则依赖会被安装在计算机用户文件夹或者 nodejs 的安装目录下，可以使用以下命令查看全局安装路径：
+
+```bash
+npm root -g
+```
 
 ### `npm install <folder>`
 
@@ -185,140 +157,55 @@ npm 会检查`.npmrc`文件，yarn 会检查`.yarnrc`配置文件，`rc`表示 r
 
 `package-lock.json`文件会在使用`npm`修改`node_modules`树，或者`package.json`文件以后自动产生的，如果使用`yarn`对应的是一个`yarn.lock`文件。
 
-## package.json
+## npm publish
 
-[`package.json`](https://docs.npmjs.com/files/package.json)是一个 JSON 格式的配置文件
+```bash
+npm publish [<tarball>|<folder>] [--tag <tag>] [--access <public|restricted>] [--otp otpcode] [--dry-run]
 
-### name
-
-package 的名称，用于和`version`属性在一起唯一标识一个 package。如果不打算发布 package 到 npm，可以不配置`name`属性。
-
-`name`的命名具有以下规则：
-
-- 小于等于 214 个字符
-- 不能以点`.`或者下划线`_`开头
-- 不能包含大写字母
-- 不能包含任何不安全的 URL 字符
-
-`name`命名有以下建议：
-
-- 不要使用与核心 Node 模块相同的名称
-- 不要在名称中添加`js`或者`node`
-- 这个名称可能会作为参数传递给`require()`或者`import`，简洁一点比较好
-- 可以使用`@[scope]`限定 package 所属的组织，例如`@babel/core`
-
-### version
-
-package 的版本号，使用 npm 可以解析的语义化方式 —— [npm-semver](https://docs.npmjs.com/misc/semver)，注意一点，每次发布新的 package 的时候一定要修改`version`，可以使用`npm install semver`来管理。
-
-如果不打算发布 package 到 npm，可以不配置`version`属性。
-
-### description
-
-package 的描述字符串，可以帮助在 npm 官网搜索。
-
-### keywords
-
-字符串数组，可以帮助在 npm 官网搜索。
-
-### homepage
-
-项目的 URL 地址，例如 github 仓库地址
-
-### bugs
-
-package 使用过程中出现问题的联系方式，例如 email 地址，或者 github 的 issue 地址
-
-```json
-{
-  "url": "https://github.com/owner/project/issues",
-  "email": "project@hostname.com"
-}
+Publishes '.' if no argument supplied
+Sets tag 'latest' if no --tag specified
 ```
 
-### license
+执行`npm publish`命令会把项目内部在`gitignore`或者`npmignore`忽略的文件打包上传到`npm`的管理系统。
 
-开源项目一般都会指定证书声明，例如：
+需要注意以下几点：
 
-```json
-{ "license" : "BSD-3-Clause" }
+### 登录账号
 
-{ "license": "UNLICENSED" }
+发布之前需要使用`npm adduser`或者`npm login`登录`npm`账户。
+
+### 发布版本号禁止重复
+
+发布版本号禁止重复，及时发布失败或者使用`npm unpublish`取消发布。
+
+### QA
+
+#### 403
+
+通常来说发布的出现`403`的原因是包名重复，可以先去 npm 官网搜一下`package.json`指定的`name`有没有已经被别人使用了。
+
+#### 400 npm cannot publish over previously published version
+
+版本号重复。
+
+## nrm
+
+[`nrm`](https://www.npmjs.com/package/nrm)是一个 npm 源管理工具，本地安装以后，可以通过`nrm`十分方便的切换 npm 源地址。
+
+```bash
+npm install -g nrm
 ```
 
-### files
+查看不同源
 
-一个字符串数组，包含安装 package 的时候，应该包含的额外的目录或者文件
-
-### main
-
-字符串路径，指定程序的主入口文件路径，例如 package 的`name`是`foo`，那么使用`require("foo")`就是查找`main`指定的文件路径返回的对象
-
-### browser
-
-如果 package 需要在浏览器环境运行，使用`browser`替代`main`较好，提示该 package 只能用在浏览器中，不能用在 NodeJS 模块中
-
-### repository
-
-开源项目可以指定`repository`属性，表示代码仓库的地址，例如：
-
-```json
-"repository": {
-  "type" : "svn",
-  "url" : "https://v8.googlecode.com/svn/trunk/"
-}
+```bash
+nrm ls
 ```
 
-### scripts
+![image-20211128150858176](../images/image-20211128150858176.png)
 
-`scripts`属性是一个对象，里边指定了项目的生命周期个各个环节需要执行的命令。key 是生命周期中的事件，value 是要执行的命令，例如常见的`install`，`start`，`build`
+使用特定源
 
-### dependencies
-
-使用`npm install xxx`或者`npm install xxx --save/-D`会将安装的依赖项写入`dependencies`属性中。
-
-`dependencies`是一个对象，指定项目使用的依赖项从 package `name`到版本范围映射。key 是 package 的名称，value 是 package 的语义化版本信息，见上文。
-
-### devDependencies
-
-使用`npm install -D xxx`命令安装的开发包依赖项会被放到`devDependencies`下面，这里的依赖项通常保存仅在开发环境下使用的 package，例如 babel 编译器，以及 webpack 的 loader，plugin 等，这些依赖项在正式使用 package 的用户来说是不需要的，因为它们已经完成了自己的工作，放在`devDependencies`下面就能保证用户使用 package 的时候不会去下载这些依赖项。
-
-如果在开发环境指定`npm install -P`则不会安装`devDependencies`下的依赖。
-
-### peerDependencies
-
-`peer`本身是同等的意思，在 npm 早期的`npm@1.x`以及`npm@2.x`版本中，npm 是没有针对项目内部重复以来进行优化的，例如一个 webpack plugin 的 package，例如`html-webpack-plugin`，它的开发本身需要依赖于`webpack`，而一个使用`webpack`进行构建的项目也会安装`webpack`，这样就形成了重复的依赖关系。
-
-```shell
-node_modules/
-  |
-  +- webpack/
-  +- html-webpack-plugin
-  		/node_modules/
-  		|
-  		+- webpack/
-```
-
-**使用`peerDependencies`将`webpack`作为核心依赖库，就可以避免相同的依赖被重复安装，做到`node_modules`树扁平化处理**。
-
-在`npm@1.x`以及`npm@2.x`版本中，如果用户没有显式依赖核心库，则按照插件`peerDependencies`中声明的版本会被自动安装到项目根目录的`node_modules`中。
-
-在`npm@3.x`以后，npm 对`node_modules`树进行扁平化优化，在构建依赖树的时候，首先选择将所有顶层依赖以及它们各自内部的子依赖安装到项目根目录的`node_modules`中，然后后续遇到相同的模块依赖，如果符合版本范围就不再继续安装，如果不符合才将其放到对应模块的`node_modules`中。这样`peerDependencies`的依赖项也不会自动安装了，如果没有手动安装，npm 会提示进行手动安装。
-
-### bundledDependencies
-
-在`bundledDependencies`中定义的依赖项会在发布 package 的时候被打包一起发布，这样在用户使用的时候就不用再下载这些依赖项了。
-
-### optionalDependencies
-
-`optionalDependencies`表示可选的依赖项，也就是用不用得到无所谓，如果在 npm 安装 package 的时候报错，也不会影响其他 package 的安装。
-
-### typings/types
-
-`typings`/`types`属性用于指定该项目的 TypeScript 类型声明文件位置，当使用 TypeScript 时，如果在项目中使用到了第三方库，那么 TypeScript 需要根据类型声明文件才能获得对应的代码补全、接口提示等功能。
-
-```json
-{
-  "typings": "lib/index.d.ts"
-}
+```bash
+nrm use xxx
 ```

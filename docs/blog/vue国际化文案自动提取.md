@@ -1,4 +1,4 @@
-## 国际化解决方案
+## vue 国际化解决方案
 
 ## 什么是 AST
 
@@ -6,7 +6,7 @@
 
 ## JS-AST
 
-目前主流编译器例如`@babel/parser`定义的 AST 节点都是根据[estree/estree: The ESTree Spec (github.com)](https://github.com/estree/estree)规范来的，可以在[AST explorer](https://astexplorer.net/)演示。AST 节点主要包含以下类型的节点：
+目前主流 JS 编译器例如`@babel/parser`定义的 AST 节点都是根据[estree/estree: The ESTree Spec (github.com)](https://github.com/estree/estree)规范来的，可以在[AST explorer](https://astexplorer.net/)演示。AST 节点主要包含以下类型的节点：
 
 ### 公共属性
 
@@ -38,7 +38,7 @@ export interface NodeBase {
 
 ### File
 
-无论 JS 程序如何，顶级的 AST 节点都是`File`类型，然后`File`下面会包含程序属性`Program`。当然了`@babel.parser`提供了一个额外的方法 —— `parseExpression`来解析单个语句，那么生成的 AST 也就不会包含`File`、`Program`这些。
+无论 JS 程序如何，顶级的 AST 节点都是`File`类型，然后`File`下面会包含程序属性`Program`。`@babel.parser`也提供了一个额外的方法 —— `parseExpression`来解析单个语句，那么生成的 AST 也就不会包含`File`、`Program`这些。
 
 ### Program
 
@@ -296,7 +296,7 @@ const MyVisitor: Visitor = {
 
 ## 详细设计
 
-![vuei18n](../images/vuei18n.png)
+![tvt](../images/tvt.png)
 
 ### 中文 unicode 码点范围
 
@@ -333,20 +333,23 @@ const MyVisitor: Visitor = {
 ```typescript
 const visitor: Visitor = {
   StringLiteral: {
-    exit(path) {
+    exit: path => {
       if (hasChineseCharacter(path.node.extra?.rawValue as string)) {
         const locale = (path.node.extra?.rawValue as string).trim();
         const key = generateHash(locale);
-        locales[key] = locale;
+        this.locales[key] = locale;
         // 如果是在template内部的JS表达式，使用插值语法
-        if (!isInScript) {
+        if (!script) {
           path.replaceWith(
             t.callExpression(t.identifier('$t'), [t.stringLiteral(key)]),
           );
         } else {
           path.replaceWith(
             t.callExpression(
-              t.memberExpression(t.identifier('I18N'), t.identifier('t')),
+              t.memberExpression(
+                t.identifier(this.importVar),
+                t.identifier('t'),
+              ),
               [t.stringLiteral(key)],
             ),
           );
@@ -355,18 +358,25 @@ const visitor: Visitor = {
     },
   },
   TemplateLiteral: {
-    exit(path) {
+    exit: path => {
       // 检测模板字符串内部是否含有中文字符
       if (path.node.quasis.some(q => hasChineseCharacter(q.value.cooked))) {
         // 生成替换字符串，注意这里不需要过滤quasis里的空字符串
         const replaceStr = path.node.quasis.map(q => q.value.cooked).join('%s');
         const key = generateHash(replaceStr);
-        locales[key] = replaceStr;
-        // 如果模板字符串内部含有JS表达式，将整个模板字符串转换成函数调用
+        this.locales[key] = replaceStr;
+        let importVar = this.importVar;
+        // 模板语法使用vue-i18n注入的对象
+        if (!script) {
+          importVar = '$i18n';
+        }
         if (path.node.expressions?.length) {
           path.replaceWith(
             t.callExpression(
-              t.memberExpression(t.identifier('I18N'), t.identifier('tExtend')),
+              t.memberExpression(
+                t.identifier(importVar),
+                t.identifier('tExtend'),
+              ),
               [
                 t.stringLiteral(key),
                 t.arrayExpression(path.node.expressions as t.Expression[]),
@@ -375,12 +385,18 @@ const visitor: Visitor = {
           );
         } else {
           // 如果没有内插JS表达式，则使用vue-i18n的简单函数，只填充文案的key
-          path.replaceWith(
-            t.callExpression(
-              t.memberExpression(t.identifier('I18N'), t.identifier('t')),
-              [t.stringLiteral(key)],
-            ),
-          );
+          if (script) {
+            path.replaceWith(
+              t.callExpression(
+                t.memberExpression(t.identifier(importVar), t.identifier('t')),
+                [t.stringLiteral(key)],
+              ),
+            );
+          } else {
+            path.replaceWith(
+              t.callExpression(t.identifier('$t'), [t.stringLiteral(key)]),
+            );
+          }
         }
       }
     },
@@ -390,7 +406,7 @@ const visitor: Visitor = {
 
 ### 生成 key 值
 
-目前的解决方案是利用 Nodejs 内部的 hash 函数根据提取的中文字符生成 hash 值，来保证不重复保存相同的中文文案。
+目前的解决方案是利用 Nodejs 内部的 hash 函数根据提取的中文字符生成 hash 值，来保证不重复保存相同的中文文案。（预计后续会继续支持以目录为层级的`key`生成策略，或者提供自定义`key`生成方法）
 
 ```js
 'use strict';
@@ -406,25 +422,72 @@ export function generateHash(char) {
 
 ### 代码转换
 
-代码转换目前采用和`vue-i18n`结合的方式，在生成唯一的 key 以后，就可以将原来代码中的中文字符转换成`vue-i18n`的`$t(xxx)`函数。而对于字符串中含有参数的形式，需要通过拓展`vue-i18n`导出的对象方法来进行转换，例如这样一个模板字符串：
+一般来说，`vue-i18n`的使用在`<template>`内部主要通过`$t`这样注入的方法，同时每个 VUE 组件中也都会包含一个[`$i18n`](https://kazupon.github.io/vue-i18n/zh/api/#注入属性)对象，那么为了能够对在模板字符串内部的中文字符进行转换。那么我们对`$i18n`拓展出一个`tExtend`方法，用于处理在模板字符串内部中文字符的转换情况。
 
 ```js
-`${active ? '测试' : msg}内插字符串外层中文字符`;
+import Vue from 'vue';
+import VueI18n from 'vue-i18n';
+import cn from './cn.json';
+
+Vue.use(VueI18n);
+// 通过选项创建 VueI18n 实例
+const i18n = new VueI18n({
+  locale: 'cn', // 设置地区
+  fallbackLocale: 'cn',
+  messages: {
+    cn,
+  },
+});
+
+/**
+ * 转换模板字符串内部%s字符的方法
+ */
+i18n.tExtend = (key, values) => {
+  let result = i18n.t(key);
+
+  if (Array.isArray(values) && values.length) {
+    values.forEach(v => {
+      result = result.replace(/%s/, v);
+    });
+  }
+  return result;
+};
+
+export default i18n;
 ```
 
-生成的代码和提取的 json 内容为：
+例如如下 SFC 内部的插值语法中包含一个 JS 模板字符串如下：
 
-```js
-// vue-i18n导出的对象
-import I18N from 'xxxx';
+```vue
+<template>
+  <div>
+    {{ `你的钱包余额：${money}` }}
+  </div>
+</template>
 
-I18N.tExtend('9bc3414df7e000c9cbd21084e13306a4', [
-  active ? $t('c086b3008aca0efa8f2ded065d6afb50') : msg,
-])
+<script>
+export default {
+  data() {
+    return {
+      money: 10,
+    };
+  },
+};
+</script>
+```
 
-// locales.json
+经`tvt`提取的中文为：
+
+```json
 {
- 	"c086b3008aca0efa8f2ded065d6afb50": "测试",
-	"9bc3414df7e000c9cbd21084e13306a4": "%s内插字符串外层中文字符",
+  "9ef86bfdc5f84d52634c2732a454e3f8": "你的钱包余额：%s"
 }
+```
+
+自动转换的结果为：
+
+```vue
+<div>
+  {{ $i18n.tExtend('9ef86bfdc5f84d52634c2732a454e3f8', [money]) }}
+</div>
 ```

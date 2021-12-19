@@ -8,6 +8,19 @@ export default defineConfig({
   logo: '/images/redfat.png',
   outputPath: 'docs-dist',
   mode: 'site',
+  ssr: {},
+  exportStatic: {},
+  metas: [
+    {
+      name: 'keywords',
+      content: 'react, typescript, nodejs, blog, frontend, frondend developer',
+    },
+    {
+      name: 'description',
+      content:
+        'a frontend developer blog based on dumi, to share some front end development work exprerience',
+    },
+  ],
   navs: [
     {
       title: '📝Blog',

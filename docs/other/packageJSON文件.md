@@ -1,3 +1,7 @@
+---
+title: packagejson的配置项
+---
+
 ## name
 
 package 的名称，用于和`version`属性在一起唯一标识一个 package。如果不打算发布 package 到 npm，可以不配置`name`属性。
